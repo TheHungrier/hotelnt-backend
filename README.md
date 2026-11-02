@@ -2,8 +2,8 @@
 
 ## Chay
 ```bash
-mvn spring-boot:run          # http://localhost:3000/api/health
-mvn test
+./mvnw spring-boot:run          # http://localhost:3000/api/health
+./mvnw test
 ```
 - Swagger UI: http://localhost:3000/api/swagger-ui.html
 - Hien tai cac endpoint public tra DU LIEU MAU (`MockData.java`) dung hinh dang JSON trong `docs/API_DESIGN.xlsx`.
