@@ -1,10 +1,14 @@
 package com.hotelnt.modules.listing;
 
+import com.hotelnt.common.error.AppException;
+import com.hotelnt.common.error.ErrorCode;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /** Query cua GET /listings. Spring tu bind tu ?maPhuong=1&maPhuong=2&... */
 public record ListingSearchRequest(
@@ -27,4 +31,18 @@ public record ListingSearchRequest(
     public SortBy sortByOrDefault() { return sortBy == null ? SortBy.NGAY_CAP_NHAT_DESC : sortBy; }
     public int pageOrDefault() { return page == null ? 1 : page; }
     public int limitOrDefault() { return limit == null ? 10 : limit; }
+
+    public ListingFilter filter() {
+        return new ListingFilter(keyword, giaMin, giaMax, maPhuong, maLoai, maTienIch, maTienIchLanCan,
+                latitude, longitude, radiusKm);
+    }
+
+    /** Goi trong controller sau khi @Valid da qua. */
+    public void validateCrossFields() {
+        List<Map<String, String>> errors = new ArrayList<>(filter().crossFieldErrors());
+        if (sortByOrDefault() == SortBy.KHOANG_CACH_ASC && (latitude == null || longitude == null)) {
+            errors.add(Map.of("field", "sortBy", "message", "Sắp xếp theo khoảng cách cần latitude và longitude"));
+        }
+        if (!errors.isEmpty()) throw new AppException(ErrorCode.VALIDATION_ERROR, errors);
+    }
 }

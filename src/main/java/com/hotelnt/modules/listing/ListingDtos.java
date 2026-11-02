@@ -16,18 +16,18 @@ public final class ListingDtos {
 
     /** Dung chung cho danh sach (/listings) va preview (/listings/{id}/preview). */
     public record ListingCard(int maCSLT, String tenCSLT, String tenLoai, String tenPhuong, String diaChiChiTiet,
-                              long gia, Instant ngayCapNhatGia, double latitude, double longitude,
+                              Long gia, Instant ngayCapNhatGia, Double latitude, Double longitude,
                               String duongDanAnh, List<Amenity> tienIchNoiBat, Double khoangCach) {}
 
     public record ListingPage(List<ListingCard> items, Pagination pagination) {}
 
-    public record Marker(int maCSLT, String tenCSLT, String tenLoai, long gia, double latitude, double longitude,
+    public record Marker(int maCSLT, String tenCSLT, String tenLoai, Long gia, Double latitude, Double longitude,
                          String duongDanAnh) {}
 
     public record MarkerResponse(List<Marker> markers, int totalMarkers, boolean truncated) {}
 
     public record ListingDetail(int maCSLT, String tenCSLT, String tenLoai, int maPhuong, String tenPhuong,
-                                String diaChiChiTiet, String moTa, double latitude, double longitude, long gia,
+                                String diaChiChiTiet, String moTa, Double latitude, Double longitude, Long gia,
                                 Instant ngayCapNhatGia, Instant ngayCapNhat, Double khoangCach, Owner chuCoSo,
                                 Contact lienHe, List<Media> hinhAnh, List<Media> video,
                                 List<AmenityWithGroup> tienIch) {}

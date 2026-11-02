@@ -1,11 +1,12 @@
 package com.hotelnt.modules.listing;
 
 import com.hotelnt.modules.listing.ListingDtos.*;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/listings")
@@ -20,24 +21,31 @@ public class ListingController {
     // GET /api/listings  - Tim kiem, loc, sap xep
     @GetMapping
     public ListingPage search(@Valid ListingSearchRequest query) {
+        query.validateCrossFields();
         return service.search(query);
     }
 
     // GET /api/listings/map-markers
     @GetMapping("/map-markers")
-    public MarkerResponse mapMarkers() {
-        return service.mapMarkers();
+    public MarkerResponse mapMarkers(@Valid MapMarkerRequest query) {
+        query.validateCrossFields();
+        MapBounds bounds = MapBounds.parse(query.boundsNorthEast(), query.boundsSouthWest());
+        return service.mapMarkers(query, bounds);
     }
 
     // GET /api/listings/{maCSLT}/preview
     @GetMapping("/{maCSLT}/preview")
-    public ListingCard preview(@PathVariable int maCSLT) {
-        return service.preview(maCSLT);
+    public ListingCard preview(@PathVariable int maCSLT,
+                               @RequestParam(required = false) Double latitude,
+                               @RequestParam(required = false) Double longitude) {
+        return service.preview(maCSLT, latitude, longitude);
     }
 
     // GET /api/listings/{maCSLT}
     @GetMapping("/{maCSLT}")
-    public ListingDetail detail(@PathVariable int maCSLT) {
-        return service.detail(maCSLT);
+    public ListingDetail detail(@PathVariable int maCSLT,
+                                @RequestParam(required = false) Double latitude,
+                                @RequestParam(required = false) Double longitude) {
+        return service.detail(maCSLT, latitude, longitude);
     }
 }

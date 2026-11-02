@@ -35,7 +35,7 @@
       <version>2.6.0</version>
     </dependency>
 
-    <!-- DB: da khai bao san, application.yml dang tat tu cau hinh DB cho den khi san sang -->
+    <!-- DB: SQL Server qua JPA/Hibernate -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
