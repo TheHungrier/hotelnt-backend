@@ -1,0 +1,16 @@
+# Chay SQL Server cho moi truong phat trien:  docker compose up -d
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: hotelnt-sqlserver
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "HotelNT@2026"      # doi mat khau neu deploy that
+      MSSQL_COLLATION: "Vietnamese_CI_AS"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqldata:/var/opt/mssql
+      - ./db:/db:ro
+volumes:
+  sqldata:
