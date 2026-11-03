@@ -34,6 +34,12 @@
       <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
       <version>2.6.0</version>
     </dependency>
+    <!-- WebP support for ImageIO-based image validation -->
+    <dependency>
+      <groupId>com.twelvemonkeys.imageio</groupId>
+      <artifactId>imageio-webp</artifactId>
+      <version>3.12.0</version>
+    </dependency>
 
     <!-- DB: SQL Server qua JPA/Hibernate -->
     <dependency>
