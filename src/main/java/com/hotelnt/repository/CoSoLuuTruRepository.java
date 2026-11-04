@@ -13,4 +13,9 @@ public interface CoSoLuuTruRepository extends JpaRepository<CoSoLuuTru, Integer>
     @Query("select c from CoSoLuuTru c join fetch c.host h join fetch c.phuong join fetch c.loai "
             + "where c.maCSLT = :id and c.trangThai = 'APPROVED' and h.trangThai = 'ACTIVE'")
     Optional<CoSoLuuTru> findVisibleById(@Param("id") Integer id);
+
+    long countByHostId(Integer hostId);
+
+    @Query("select c.trangThai, count(c) from CoSoLuuTru c where c.host.id = :hostId group by c.trangThai")
+    java.util.List<Object[]> countByHostIdGroupByTrangThai(@Param("hostId") Integer hostId);
 }
