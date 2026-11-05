@@ -1,6 +1,7 @@
 package com.hotelnt.modules.admin;
 
 import com.hotelnt.domain.AccountStatus;
+import com.hotelnt.domain.CoSoLuuTru;
 import com.hotelnt.domain.TaiKhoan;
 import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
@@ -30,6 +31,19 @@ public final class AdminSpecs {
             }
 
             return cb.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    public static Specification<CoSoLuuTru> listingFilter(String trangThai) {
+        return (root, query, cb) -> {
+            if (Long.class != query.getResultType() && long.class != query.getResultType()) {
+                root.fetch("host", jakarta.persistence.criteria.JoinType.LEFT);
+                root.fetch("loai", jakarta.persistence.criteria.JoinType.LEFT);
+            }
+            if (trangThai == null || trangThai.isBlank()) {
+                return cb.conjunction();
+            }
+            return cb.equal(root.get("trangThai"), trangThai.trim().toUpperCase());
         };
     }
 }

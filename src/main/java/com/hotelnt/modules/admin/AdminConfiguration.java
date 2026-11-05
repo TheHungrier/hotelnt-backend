@@ -2,13 +2,19 @@ package com.hotelnt.modules.admin;
 
 import com.hotelnt.common.error.AppException;
 import com.hotelnt.common.error.ErrorCode;
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
+@OpenAPIDefinition(tags = {
+        @Tag(name = "admin-host-controller"),
+        @Tag(name = "admin-listing-controller")
+})
 @SecurityScheme(
         name = "BearerAuth",
         type = SecuritySchemeType.HTTP,

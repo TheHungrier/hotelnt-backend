@@ -2,6 +2,7 @@ package com.hotelnt.modules.admin;
 
 import com.hotelnt.modules.admin.AdminDtos.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/admin/hosts")
 @SecurityRequirement(name = "BearerAuth")
+@Tag(name = "admin-host-controller")
 public class AdminHostController {
 
     private final AdminHostService service;
