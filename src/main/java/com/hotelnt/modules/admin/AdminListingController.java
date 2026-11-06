@@ -1,10 +1,10 @@
 package com.hotelnt.modules.admin;
 
-import com.hotelnt.modules.admin.AdminDtos.ListingReviewDetail;
-import com.hotelnt.modules.admin.AdminDtos.ListingReviewPageResponse;
+import com.hotelnt.modules.admin.AdminDtos.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -39,5 +39,25 @@ public class AdminListingController {
             @PathVariable int maCSLT) {
         identities.resolve(request);
         return service.getListingDetail(maCSLT);
+    }
+
+    // PATCH /api/admin/listings/{maCSLT}/moderation (FR-22, FR-23)
+    @PatchMapping("/{maCSLT}/moderation")
+    public ModerateListingResponse moderateListing(
+            HttpServletRequest request,
+            @PathVariable int maCSLT,
+            @Valid @RequestBody ModerateListingRequest body) {
+        identities.resolve(request);
+        return service.moderateListing(maCSLT, body);
+    }
+
+    // PATCH /api/admin/listings/{maCSLT}/unpublish (FR-24)
+    @PatchMapping("/{maCSLT}/unpublish")
+    public UnpublishListingResponse unpublishListing(
+            HttpServletRequest request,
+            @PathVariable int maCSLT,
+            @Valid @RequestBody UnpublishListingRequest body) {
+        identities.resolve(request);
+        return service.unpublishListing(maCSLT, body);
     }
 }

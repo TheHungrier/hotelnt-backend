@@ -21,8 +21,10 @@ public enum ErrorCode {
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Hệ thống đang gặp sự cố. Vui lòng thử lại sau."),
     HOST_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy tài khoản."),
     STATE_UNCHANGED(HttpStatus.CONFLICT, "Tài khoản đã ở trạng thái này."),
-    CANNOT_LOCK_ADMIN(HttpStatus.FORBIDDEN, "Không thể khóa tài khoản Admin.");
-    // TODO: OTP_INVALID, OTP_EXPIRED, ACCOUNT_DUPLICATED, INVALID_STATE_TRANSITION, CHECKLIST_INCOMPLETE, ...
+    CANNOT_LOCK_ADMIN(HttpStatus.FORBIDDEN, "Không thể khóa tài khoản Admin."),
+    INVALID_STATE_TRANSITION(HttpStatus.CONFLICT, "Trạng thái hiện tại không cho phép thao tác này."),
+    CHECKLIST_INCOMPLETE(HttpStatus.UNPROCESSABLE_ENTITY, "Cơ sở chưa đạt điều kiện duyệt.");
+    // TODO: OTP_INVALID, OTP_EXPIRED, ACCOUNT_DUPLICATED, ...
 
     private final HttpStatus status;
     private final String message;

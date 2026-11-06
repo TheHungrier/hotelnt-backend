@@ -17,6 +17,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(AdminListingController.class)
@@ -149,5 +151,136 @@ class AdminListingControllerTest {
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.success").value(false))
                 .andExpect(jsonPath("$.error.code").value("LISTING_NOT_FOUND"));
+    }
+
+    // ------------------------------------------------------------- FR-22 & FR-23 Moderate Controller Tests
+    @Test
+    void moderateListing_approve_returns200() throws Exception {
+        ModerateListingResponse res = new ModerateListingResponse(
+                15, "APPROVED", null,
+                Instant.parse("2026-10-11T07:45:00Z"),
+                Instant.parse("2026-10-11T07:45:00Z")
+        );
+        when(service.moderateListing(eq(15), any())).thenReturn(res);
+
+        mvc.perform(patch("/admin/listings/15/moderation")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"action\": \"APPROVE\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.maCSLT").value(15))
+                .andExpect(jsonPath("$.trangThai").value("APPROVED"))
+                .andExpect(jsonPath("$.lyDoTuChoi").doesNotExist())
+                .andExpect(jsonPath("$.ngayDuyet").value("2026-10-11T07:45:00Z"));
+    }
+
+    @Test
+    void moderateListing_reject_returns200() throws Exception {
+        ModerateListingResponse res = new ModerateListingResponse(
+                15, "REJECTED", "Ảnh mờ",
+                Instant.parse("2026-10-11T07:45:00Z"),
+                null
+        );
+        when(service.moderateListing(eq(15), any())).thenReturn(res);
+
+        mvc.perform(patch("/admin/listings/15/moderation")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"action\": \"REJECT\", \"lyDoTuChoi\": \"Ảnh mờ\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.maCSLT").value(15))
+                .andExpect(jsonPath("$.trangThai").value("REJECTED"))
+                .andExpect(jsonPath("$.lyDoTuChoi").value("Ảnh mờ"));
+    }
+
+    @Test
+    void moderateListing_invalidAction_returns400() throws Exception {
+        mvc.perform(patch("/admin/listings/15/moderation")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"action\": \"INVALID_ACTION\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"));
+    }
+
+    // ------------------------------------------------------------- FR-24 Unpublish Controller Tests
+    @Test
+    void unpublishListing_hide_returns200() throws Exception {
+        UnpublishListingResponse res = new UnpublishListingResponse(
+                15, "HIDDEN", "Thông tin sai",
+                Instant.parse("2026-10-11T07:50:00Z")
+        );
+        when(service.unpublishListing(eq(15), any())).thenReturn(res);
+
+        mvc.perform(patch("/admin/listings/15/unpublish")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"hinhThuc\": \"HIDE\", \"lyDoViPham\": \"Thông tin sai\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.maCSLT").value(15))
+                .andExpect(jsonPath("$.trangThai").value("HIDDEN"))
+                .andExpect(jsonPath("$.lyDoViPham").value("Thông tin sai"));
+    }
+
+    @Test
+    void unpublishListing_remove_returns200() throws Exception {
+        UnpublishListingResponse res = new UnpublishListingResponse(
+                15, "REMOVED", "Phản cảm",
+                Instant.parse("2026-10-11T07:50:00Z")
+        );
+        when(service.unpublishListing(eq(15), any())).thenReturn(res);
+
+        mvc.perform(patch("/admin/listings/15/unpublish")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"hinhThuc\": \"REMOVE\", \"lyDoViPham\": \"Phản cảm\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.maCSLT").value(15))
+                .andExpect(jsonPath("$.trangThai").value("REMOVED"))
+                .andExpect(jsonPath("$.lyDoViPham").value("Phản cảm"));
+    }
+
+    @Test
+    void unpublishListing_missingReason_returns400() throws Exception {
+        mvc.perform(patch("/admin/listings/15/unpublish")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"hinhThuc\": \"HIDE\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"));
+    }
+
+    @Test
+    void unpublishListing_invalidHinhThuc_returns400() throws Exception {
+        mvc.perform(patch("/admin/listings/15/unpublish")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"hinhThuc\": \"INVALID\", \"lyDoViPham\": \"Lý do\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"));
+    }
+
+    @Test
+    void moderateListing_conflict_returns409() throws Exception {
+        when(service.moderateListing(eq(15), any()))
+                .thenThrow(new AppException(ErrorCode.INVALID_STATE_TRANSITION));
+
+        mvc.perform(patch("/admin/listings/15/moderation")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"action\": \"APPROVE\"}"))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.error.code").value("INVALID_STATE_TRANSITION"));
+    }
+
+    @Test
+    void moderateListing_checklistIncomplete_returns422() throws Exception {
+        when(service.moderateListing(eq(15), any()))
+                .thenThrow(new AppException(ErrorCode.CHECKLIST_INCOMPLETE,
+                        List.of(new FieldError("hinhAnh", "Cần tối thiểu 3 ảnh hợp lệ"))));
+
+        mvc.perform(patch("/admin/listings/15/moderation")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"action\": \"APPROVE\"}"))
+                .andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.success").value(false))
+                .andExpect(jsonPath("$.error.code").value("CHECKLIST_INCOMPLETE"))
+                .andExpect(jsonPath("$.error.details[0].field").value("hinhAnh"));
     }
 }

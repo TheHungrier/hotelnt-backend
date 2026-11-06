@@ -8,6 +8,7 @@ import com.hotelnt.domain.*;
 import com.hotelnt.modules.admin.AdminDtos.*;
 import com.hotelnt.repository.CoSoLuuTruRepository;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -122,6 +123,96 @@ public class AdminListingService {
                 Times.toInstant(c.getNgayCapNhat()),
                 checklist,
                 allowedActions
+        );
+    }
+
+    // ------------------------------------------------------------- PATCH /admin/listings/{maCSLT}/moderation (FR-22, FR-23)
+    @Transactional
+    public ModerateListingResponse moderateListing(int maCSLT, ModerateListingRequest req) {
+        CoSoLuuTru c = repo.findById(maCSLT)
+                .orElseThrow(() -> new AppException(ErrorCode.LISTING_NOT_FOUND));
+
+        if (!ListingStatus.PENDING.equalsIgnoreCase(c.getTrangThai())) {
+            throw new AppException(ErrorCode.INVALID_STATE_TRANSITION);
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        if ("APPROVE".equalsIgnoreCase(req.action())) {
+            ListingChecklist checklist = buildChecklist(c);
+            List<FieldError> errors = new ArrayList<>();
+            if (!checklist.thongTinBatBuoc()) {
+                errors.add(new FieldError("thongTinBatBuoc", "Thiếu thông tin bắt buộc"));
+            }
+            if (!checklist.anhToiThieu3()) {
+                errors.add(new FieldError("hinhAnh", "Cần tối thiểu 3 ảnh hợp lệ"));
+            }
+            if (!checklist.toaDoTrongNhaTrang()) {
+                errors.add(new FieldError("toaDo", "Tọa độ nằm ngoài khu vực Nha Trang"));
+            }
+            if (!errors.isEmpty()) {
+                throw new AppException(ErrorCode.CHECKLIST_INCOMPLETE, errors);
+            }
+
+            c.setTrangThai(ListingStatus.APPROVED);
+            c.setLyDoTuChoi(null);
+            c.setNgayDuyet(now);
+            c.setNgayCapNhat(now);
+        } else {
+            // REJECT
+            c.setTrangThai(ListingStatus.REJECTED);
+            c.setLyDoTuChoi(req.lyDoTuChoi());
+            c.setNgayCapNhat(now);
+        }
+
+        repo.save(c);
+
+        return new ModerateListingResponse(
+                c.getMaCSLT(),
+                c.getTrangThai(),
+                c.getLyDoTuChoi(),
+                Times.toInstant(c.getNgayCapNhat()),
+                Times.toInstant(c.getNgayDuyet())
+        );
+    }
+
+    // ------------------------------------------------------------- PATCH /admin/listings/{maCSLT}/unpublish (FR-24)
+    @Transactional
+    public UnpublishListingResponse unpublishListing(int maCSLT, UnpublishListingRequest req) {
+        CoSoLuuTru c = repo.findById(maCSLT)
+                .orElseThrow(() -> new AppException(ErrorCode.LISTING_NOT_FOUND));
+
+        String hinhThuc = req.hinhThuc().toUpperCase();
+        String currentStatus = c.getTrangThai();
+
+        if ("HIDE".equals(hinhThuc)) {
+            if (!ListingStatus.APPROVED.equalsIgnoreCase(currentStatus)) {
+                throw new AppException(ErrorCode.INVALID_STATE_TRANSITION);
+            }
+            c.setTrangThai(ListingStatus.HIDDEN);
+        } else if ("REMOVE".equals(hinhThuc)) {
+            if (!ListingStatus.APPROVED.equalsIgnoreCase(currentStatus)
+                    && !ListingStatus.HIDDEN.equalsIgnoreCase(currentStatus)) {
+                throw new AppException(ErrorCode.INVALID_STATE_TRANSITION);
+            }
+            c.setTrangThai(ListingStatus.REMOVED);
+        } else {
+            throw new AppException(ErrorCode.VALIDATION_ERROR, List.of(
+                    new FieldError("hinhThuc", "Chỉ nhận HIDE hoặc REMOVE")
+            ));
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        c.setLyDoViPham(req.lyDoViPham());
+        c.setNgayCapNhat(now);
+
+        repo.save(c);
+
+        return new UnpublishListingResponse(
+                c.getMaCSLT(),
+                c.getTrangThai(),
+                c.getLyDoViPham(),
+                Times.toInstant(c.getNgayCapNhat())
         );
     }
 
