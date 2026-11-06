@@ -19,7 +19,9 @@ class ListingApiTest {
     @Test void listOk() throws Exception {
         mvc.perform(get("/listings?maPhuong=1&maPhuong=2&limit=5"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.items[0].maCSLT").value(15))
+                // Du lieu mau: phuong 1,2 chi co co so 1 va 2 hien thi cho khach (7 bi tu choi, 8 thuoc Host bi khoa)
+                .andExpect(jsonPath("$.items.length()").value(2))
+                .andExpect(jsonPath("$.pagination.totalItems").value(2))
                 .andExpect(jsonPath("$.pagination.limit").value(5));
     }
 

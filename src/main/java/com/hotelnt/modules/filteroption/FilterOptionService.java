@@ -1,8 +1,11 @@
 package com.hotelnt.modules.filteroption;
 
 import com.hotelnt.modules.filteroption.FilterOptionController.FilterOptionsResponse;
+import com.hotelnt.modules.filteroption.FilterOptionController.MapBoundsRange;
 import com.hotelnt.modules.filteroption.FilterOptionController.Option;
+import com.hotelnt.modules.filteroption.FilterOptionController.PriceRange;
 import com.hotelnt.modules.filteroption.FilterOptionController.PropertyType;
+import com.hotelnt.modules.filteroption.FilterOptionController.SortOption;
 import com.hotelnt.modules.filteroption.FilterOptionController.Ward;
 import com.hotelnt.domain.TienIch;
 import com.hotelnt.repository.LoaiCoSoRepository;
@@ -15,6 +18,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(readOnly = true)
 public class FilterOptionService {
+    // Gia tri co dinh theo API_DESIGN.xlsx (GET /filter-options)
+    private static final PriceRange PRICE_RANGE = new PriceRange(500_000L, 100_000_000L);
+    private static final List<Integer> RADIUS_OPTIONS = List.of(1, 2, 3, 5, 10);
+    private static final List<SortOption> SORT_OPTIONS = List.of(
+            new SortOption("GIA_ASC", "Giá tăng dần"),
+            new SortOption("GIA_DESC", "Giá giảm dần"),
+            new SortOption("KHOANG_CACH_ASC", "Khoảng cách gần nhất"));
+    // Khung ban do khu vuc Nha Trang
+    private static final MapBoundsRange MAP_BOUNDS = new MapBoundsRange(12.1, 12.45, 109.1, 109.3);
+
     private final PhuongRepository phuongRepo;
     private final LoaiCoSoRepository loaiRepo;
     private final TienIchRepository tienIchRepo;
@@ -30,7 +43,8 @@ public class FilterOptionService {
                 .map(p -> new Ward(p.getMaPhuong(), p.getTenPhuong())).toList();
         List<PropertyType> types = loaiRepo.findAllByOrderByMaLoaiAsc().stream()
                 .map(l -> new PropertyType(l.getMaLoai(), l.getTenLoai())).toList();
-        return new FilterOptionsResponse(wards, types, options("TIEN_NGHI"), options("LAN_CAN"));
+        return new FilterOptionsResponse(wards, types, options("TIEN_NGHI"), options("LAN_CAN"),
+                PRICE_RANGE, RADIUS_OPTIONS, SORT_OPTIONS, MAP_BOUNDS);
     }
 
     private List<Option> options(String nhom) {
