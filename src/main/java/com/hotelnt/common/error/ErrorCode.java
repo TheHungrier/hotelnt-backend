@@ -23,7 +23,8 @@ public enum ErrorCode {
     STATE_UNCHANGED(HttpStatus.CONFLICT, "Tài khoản đã ở trạng thái này."),
     CANNOT_LOCK_ADMIN(HttpStatus.FORBIDDEN, "Không thể khóa tài khoản Admin."),
     INVALID_STATE_TRANSITION(HttpStatus.CONFLICT, "Trạng thái hiện tại không cho phép thao tác này."),
-    CHECKLIST_INCOMPLETE(HttpStatus.UNPROCESSABLE_ENTITY, "Cơ sở chưa đạt điều kiện duyệt.");
+    CHECKLIST_INCOMPLETE(HttpStatus.UNPROCESSABLE_ENTITY, "Cơ sở chưa đạt điều kiện duyệt."),
+    AI_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Chatbot tạm thời không khả dụng.");
     // TODO: OTP_INVALID, OTP_EXPIRED, ACCOUNT_DUPLICATED, ...
 
     private final HttpStatus status;

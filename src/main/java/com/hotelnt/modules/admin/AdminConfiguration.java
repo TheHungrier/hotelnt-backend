@@ -13,7 +13,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @OpenAPIDefinition(tags = {
         @Tag(name = "admin-host-controller"),
-        @Tag(name = "admin-listing-controller")
+        @Tag(name = "admin-listing-controller"),
+        @Tag(name = "chatbot-controller")
 })
 @SecurityScheme(
         name = "BearerAuth",
