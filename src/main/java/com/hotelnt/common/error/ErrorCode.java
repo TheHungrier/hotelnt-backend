@@ -5,6 +5,16 @@ import org.springframework.http.HttpStatus;
 /** Ma loi lay tu sheet "Error Format" trong API_DESIGN.xlsx. Them dan khi lam den endpoint tuong ung. */
 public enum ErrorCode {
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại các trường được đánh dấu."),
+    ACCOUNT_DUPLICATED(HttpStatus.CONFLICT, "Email, số điện thoại hoặc CCCD đã được sử dụng."),
+    OTP_INVALID(HttpStatus.BAD_REQUEST, "Mã OTP không đúng hoặc đã hết hạn."),
+    OTP_EXPIRED(HttpStatus.BAD_REQUEST, "Mã OTP đã hết hạn hoặc không còn hiệu lực. Vui lòng yêu cầu mã mới."),
+    OTP_ATTEMPTS_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS, "Bạn đã nhập sai OTP quá 5 lần. Vui lòng yêu cầu mã OTP mới."),
+    ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, "Tài khoản của bạn đã bị khóa."),
+    AUTH_INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "Tài khoản hoặc mật khẩu không chính xác."),
+    ACCOUNT_TEMP_LOCKED(HttpStatus.LOCKED, "Tài khoản tạm thời bị khóa. Vui lòng thử lại sau 15 phút."),
+    OTP_RESEND_TOO_SOON(HttpStatus.TOO_MANY_REQUESTS, "Vui lòng chờ đủ 60 giây trước khi gửi lại mã."),
+    RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "Bạn thao tác quá nhanh. Vui lòng thử lại sau."),
+    RESET_TOKEN_INVALID(HttpStatus.BAD_REQUEST, "Phiên đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Vui lòng thực hiện lại từ đầu."),
     TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "Phiên đăng nhập không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại."),
     FORBIDDEN_ROLE(HttpStatus.FORBIDDEN, "Bạn không có quyền thực hiện thao tác này."),
     NOT_OWNER(HttpStatus.FORBIDDEN, "Bạn không có quyền thao tác trên cơ sở lưu trú này."),
