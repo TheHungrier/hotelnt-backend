@@ -14,12 +14,23 @@ spring:
     url: ${DB_URL:jdbc:sqlserver://localhost:1433;databaseName=HotelNT;encrypt=true;trustServerCertificate=true}
     username: ${DB_USER:sa}
     password: ${DB_PASSWORD:HotelNT@2026}
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   jpa:
     open-in-view: false
     hibernate:
       ddl-auto: none          # bang do db/schema.sql quan ly, KHONG de Hibernate tu tao/sua
       naming:
-        # Giu NGUYEN ten cot camelCase (maCSLT, tenCSLT...) - khong doi sang snake_case
+        # Giu nguyen ten cot camelCase (maCSLT, tenCSLT...) - khong doi sang snake_case
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     properties:
       hibernate:
@@ -32,6 +43,8 @@ spring:
 
 app:
   cors-origins: ${CORS_ORIGINS:*}
+  auth:
+    mail-from: ${MAIL_FROM:${MAIL_USERNAME:}}
 
 springdoc:
   swagger-ui:
