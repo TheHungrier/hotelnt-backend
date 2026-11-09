@@ -12,8 +12,13 @@ public class FilterOptionController {
     public record Ward(int maPhuong, String tenPhuong) {}
     public record PropertyType(int maLoai, String tenLoai) {}
     public record Option(int maTienIch, String tenTienIch, String icon) {}
+    public record PriceRange(long giaMin, long giaMax) {}
+    public record SortOption(String value, String label) {}
+    public record MapBoundsRange(double latMin, double latMax, double lngMin, double lngMax) {}
     public record FilterOptionsResponse(List<Ward> wards, List<PropertyType> propertyTypes,
-                                        List<Option> amenities, List<Option> nearbyPlaces) {}
+                                        List<Option> amenities, List<Option> nearbyPlaces,
+                                        PriceRange priceRange, List<Integer> radiusOptions,
+                                        List<SortOption> sortOptions, MapBoundsRange mapBounds) {}
 
     private final FilterOptionService service;
 
