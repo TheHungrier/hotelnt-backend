@@ -34,8 +34,12 @@ public enum ErrorCode {
     SLUG_DUPLICATED(HttpStatus.CONFLICT, "Slug đã tồn tại."),
     FILE_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "Dung lượng file vượt quá giới hạn cho phép."),
     UNSUPPORTED_MEDIA_TYPE(HttpStatus.UNSUPPORTED_MEDIA_TYPE, "Định dạng media không được hỗ trợ."),
-    INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Hệ thống đang gặp sự cố. Vui lòng thử lại sau.");
-    // TODO: OTP_INVALID, OTP_EXPIRED, ACCOUNT_DUPLICATED, INVALID_STATE_TRANSITION, CHECKLIST_INCOMPLETE, ...
+    INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Hệ thống đang gặp sự cố. Vui lòng thử lại sau."),
+    HOST_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy tài khoản."),
+    STATE_UNCHANGED(HttpStatus.CONFLICT, "Tài khoản đã ở trạng thái này."),
+    CANNOT_LOCK_ADMIN(HttpStatus.FORBIDDEN, "Không thể khóa tài khoản Admin."),
+    AI_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Chatbot tạm thời không khả dụng.");
+    // TODO: OTP_INVALID, OTP_EXPIRED, ACCOUNT_DUPLICATED, ...
 
     private final HttpStatus status;
     private final String message;
