@@ -1,5 +1,7 @@
 package com.hotelnt.modules.config;
 
+import com.hotelnt.modules.admin.AdminIdentityResolver;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -8,50 +10,44 @@ import org.springframework.web.multipart.MultipartFile;
 public class ConfigController {
 
     private final ConfigService configService;
+    private final AdminIdentityResolver identities;
 
-    public ConfigController(ConfigService configService) {
+    public ConfigController(ConfigService configService, AdminIdentityResolver identities) {
         this.configService = configService;
-    }
-
-    // ---- SEO Public ----
-    @GetMapping("/configurations/seo")
-    public ConfigDtos.SeoConfigResponse getSeoConfig() {
-        return configService.getSeoConfig();
+        this.identities = identities;
     }
 
     // ---- SEO Admin ----
     @GetMapping("/admin/configurations/seo")
-    public ConfigDtos.AdminSeoConfigResponse getAdminSeoConfig(
-            // TODO: Bỏ header mock X-Mock-Role khi module Auth tích hợp Spring Security
-            @RequestHeader(value = "X-Mock-Role", defaultValue = "USER") String role) {
-        return configService.getAdminSeoConfig(role);
+    public ConfigDtos.AdminSeoConfigResponse getAdminSeoConfig(HttpServletRequest request) {
+        return configService.getAdminSeoConfig(identities.resolve(request).role());
     }
 
     @PutMapping("/admin/configurations/seo")
     public ConfigDtos.SeoConfigUpdateResponse updateSeoConfig(
-            @RequestHeader(value = "X-Mock-Role", defaultValue = "USER") String role,
-            @Valid @RequestBody ConfigDtos.SeoConfigUpdateRequest request) {
-        return configService.updateSeoConfig(role, request);
+            HttpServletRequest request,
+            @Valid @RequestBody ConfigDtos.SeoConfigUpdateRequest body) {
+        return configService.updateSeoConfig(identities.resolve(request).role(), body);
     }
 
     @PostMapping("/admin/configurations/seo/og-image")
     public ConfigDtos.OgImageUploadResponse uploadOgImage(
-            @RequestHeader(value = "X-Mock-Role", defaultValue = "USER") String role,
+            HttpServletRequest request,
             @RequestParam("file") MultipartFile file) {
-        return configService.uploadOgImage(role, file);
+        return configService.uploadOgImage(identities.resolve(request).role(), file);
     }
 
     // ---- AI Config Admin ----
     @GetMapping("/admin/configurations/ai")
     public ConfigDtos.AiConfigResponse getAiConfig(
-            @RequestHeader(value = "X-Mock-Role", defaultValue = "USER") String role) {
-        return configService.getAiConfig(role);
+            HttpServletRequest request) {
+        return configService.getAiConfig(identities.resolve(request).role());
     }
 
     @PutMapping("/admin/configurations/ai")
     public ConfigDtos.AiConfigUpdateResponse updateAiConfig(
-            @RequestHeader(value = "X-Mock-Role", defaultValue = "USER") String role,
-            @Valid @RequestBody ConfigDtos.AiConfigUpdateRequest request) {
-        return configService.updateAiConfig(role, request);
+            HttpServletRequest request,
+            @Valid @RequestBody ConfigDtos.AiConfigUpdateRequest body) {
+        return configService.updateAiConfig(identities.resolve(request).role(), body);
     }
 }

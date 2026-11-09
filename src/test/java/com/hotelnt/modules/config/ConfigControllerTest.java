@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hotelnt.common.error.AppException;
 import com.hotelnt.common.error.ErrorCode;
 import com.hotelnt.common.error.GlobalExceptionHandler;
+import com.hotelnt.modules.admin.AdminIdentityResolver;
+import jakarta.servlet.http.HttpServletRequest;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -34,21 +37,13 @@ class ConfigControllerTest {
     @MockBean
     private ConfigService configService;
 
-    // ==========================================
-    // SEO Public Endpoint Test
-    // ==========================================
+    @MockBean
+    private AdminIdentityResolver identities;
 
-    @Test
-    void getSeoConfig_Public_Success() throws Exception {
-        when(configService.getSeoConfig())
-                .thenReturn(new ConfigDtos.SeoConfigResponse(
-                        "Hotel Nha Trang", "Tìm nơi lưu trú", "hotel-nha-trang", "OG Title", "/uploads/og.jpg"
-                ));
-
-        mvc.perform(get("/configurations/seo"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.metaTitle").value("Hotel Nha Trang"))
-                .andExpect(jsonPath("$.slugUrl").value("hotel-nha-trang"));
+    @BeforeEach
+    void authenticateAsAdmin() {
+        when(identities.resolve(any(HttpServletRequest.class)))
+                .thenReturn(new AdminIdentityResolver.Identity(1, "admin@example.com", "ADMIN"));
     }
 
     // ==========================================
@@ -70,7 +65,7 @@ class ConfigControllerTest {
 
     @Test
     void getAdminSeoConfig_Fail_Forbidden() throws Exception {
-        when(configService.getAdminSeoConfig("USER"))
+        when(identities.resolve(any(HttpServletRequest.class)))
                 .thenThrow(new AppException(ErrorCode.FORBIDDEN_ROLE));
 
         mvc.perform(get("/admin/configurations/seo")

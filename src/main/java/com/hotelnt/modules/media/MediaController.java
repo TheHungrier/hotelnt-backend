@@ -1,5 +1,7 @@
 package com.hotelnt.modules.media;
 
+import com.hotelnt.modules.host.HostIdentityResolver;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -9,9 +11,11 @@ import org.springframework.web.multipart.MultipartFile;
 public class MediaController {
 
     private final MediaService mediaService;
+    private final HostIdentityResolver identities;
 
-    public MediaController(MediaService mediaService) {
+    public MediaController(MediaService mediaService, HostIdentityResolver identities) {
         this.mediaService = mediaService;
+        this.identities = identities;
     }
 
     @PostMapping
@@ -20,18 +24,15 @@ public class MediaController {
             @PathVariable int maCSLT,
             @RequestParam("file") MultipartFile file,
             @RequestParam(value = "type", defaultValue = "IMAGE") String type,
-            // TODO: Chờ module Auth của Thiên Phú hoàn tất.
-            // Sử dụng header giả X-Mock-Host-Id (mặc định host 2 theo dữ liệu mẫu seed.sql) để test độc lập
-            @RequestHeader(value = "X-Mock-Host-Id", defaultValue = "2") Integer hostId) {
-        return mediaService.upload(maCSLT, hostId, file, type);
+            HttpServletRequest request) {
+        return mediaService.upload(maCSLT, identities.resolve(request).accountId(), file, type);
     }
 
     @DeleteMapping("/{mediaId}")
     public MediaDtos.MediaDeleteResponse deleteMedia(
             @PathVariable int maCSLT,
             @PathVariable int mediaId,
-            // TODO: Chờ module Auth của Thiên Phú hoàn tất.
-            @RequestHeader(value = "X-Mock-Host-Id", defaultValue = "2") Integer hostId) {
-        return mediaService.delete(maCSLT, mediaId, hostId);
+            HttpServletRequest request) {
+        return mediaService.delete(maCSLT, mediaId, identities.resolve(request).accountId());
     }
 }

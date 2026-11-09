@@ -1,5 +1,6 @@
 package com.hotelnt.modules.media;
 
+import com.hotelnt.modules.host.HostIdentityResolver;
 import com.hotelnt.common.error.AppException;
 import com.hotelnt.common.error.ErrorCode;
 import com.hotelnt.common.error.GlobalExceptionHandler;
@@ -26,6 +27,15 @@ class MediaControllerTest {
 
     @MockBean
     private MediaService mediaService;
+
+    @MockBean
+    private HostIdentityResolver identities;
+
+    @org.junit.jupiter.api.BeforeEach
+    void authenticateAsHost() {
+        when(identities.resolve(any()))
+                .thenReturn(new HostIdentityResolver.Identity(2, "session"));
+    }
 
     @Test
     void uploadMedia_Success() throws Exception {
