@@ -40,7 +40,7 @@ public class LocalFileStorageService implements StorageService {
             Path destinationFile = this.rootLocation.resolve(Paths.get(newFilename)).normalize().toAbsolutePath();
 
             if (!destinationFile.getParent().equals(this.rootLocation)) {
-                throw new AppException(ErrorCode.VALIDATION_ERROR, "Path Traversal Attack Detected");
+                throw new AppException(ErrorCode.VALIDATION_ERROR, "Phát hiện truy cập đường dẫn không hợp lệ");
             }
 
             try (InputStream inputStream = file.getInputStream()) {

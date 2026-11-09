@@ -29,8 +29,9 @@ class OtpEmailSender {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setFrom(from);
         message.setTo(recipient);
-        message.setSubject("Hotel Nha Trang - Ma xac thuc OTP");
-        message.setText("Ma OTP cua ban la: " + otp + ". Ma co hieu luc trong 5 phut. Vui long khong chia se ma nay.");
+        message.setSubject("Hotel Nha Trang - Mã xác thực OTP");
+        message.setText("Mã OTP của bạn là: " + otp
+                + ". Mã có hiệu lực trong 5 phút. Vui lòng không chia sẻ mã này.");
         sender.send(message);
     }
 

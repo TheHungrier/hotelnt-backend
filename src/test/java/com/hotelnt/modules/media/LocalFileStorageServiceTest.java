@@ -166,7 +166,7 @@ class LocalFileStorageServiceTest {
         AppException ex = assertThrows(AppException.class, () -> storageService.store(maliciousFile, "IMAGE"));
 
         assertEquals(ErrorCode.VALIDATION_ERROR, ex.getCode());
-        assertEquals("Path Traversal Attack Detected", ex.getDetails());
+        assertEquals("Phát hiện truy cập đường dẫn không hợp lệ", ex.getDetails());
     }
 
     @Test

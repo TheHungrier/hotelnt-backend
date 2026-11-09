@@ -79,7 +79,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleOther(Exception e) {
-        log.error("Unhandled error", e);
+        log.error("Lỗi chưa được xử lý", e);
         ErrorCode c = ErrorCode.INTERNAL_ERROR;
         return ResponseEntity.status(c.getStatus()).body(ApiErrorResponse.of(c.name(), c.getMessage(), null));
     }

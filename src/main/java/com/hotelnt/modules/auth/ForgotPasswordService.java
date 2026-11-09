@@ -45,7 +45,7 @@ class ForgotPasswordService {
         challenges.save(c);
         if (usable) {
             try { email.send(account.getEmail(), otp); }
-            catch (MailException ex) { log.warn("Password recovery email could not be sent"); }
+            catch (MailException ex) { log.warn("Không thể gửi email khôi phục mật khẩu"); }
         }
         return new Response(c.getChallengeId(), OtpTiming.EXPIRES_IN_SECONDS, OtpTiming.RESEND_AFTER_SECONDS,
                 "Nếu thông tin bạn nhập là chính xác, một mã OTP khôi phục đã được gửi đến thiết bị của bạn.");
