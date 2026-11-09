@@ -4,6 +4,14 @@ import org.springframework.http.HttpStatus;
 
 /** Ma loi lay tu sheet "Error Format" trong API_DESIGN.xlsx. Them dan khi lam den endpoint tuong ung. */
 public enum ErrorCode {
+    ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, "Tài khoản của bạn đã bị khóa."),
+    ACCOUNT_DUPLICATED(HttpStatus.CONFLICT, "Email, số điện thoại hoặc CCCD đã được sử dụng."),
+    FIELD_NOT_EDITABLE(HttpStatus.BAD_REQUEST, "Email và CCCD không thể tự chỉnh sửa."),
+    OLD_PASSWORD_INCORRECT(HttpStatus.BAD_REQUEST, "Mật khẩu cũ không chính xác."),
+    LOCATION_OUT_OF_RANGE(HttpStatus.BAD_REQUEST, "Vị trí chọn nằm ngoài khu vực hỗ trợ Nha Trang."),
+    INVALID_STATE_TRANSITION(HttpStatus.CONFLICT, "Trạng thái hiện tại của cơ sở không cho phép thao tác này."),
+    LISTING_NOT_DELETABLE(HttpStatus.CONFLICT, "Không thể xóa cơ sở ở trạng thái hiện tại."),
+    CHECKLIST_INCOMPLETE(HttpStatus.UNPROCESSABLE_ENTITY, "Vui lòng hoàn thiện các trường bắt buộc trước khi gửi/duyệt."),
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại các trường được đánh dấu."),
     ACCOUNT_DUPLICATED(HttpStatus.CONFLICT, "Email, số điện thoại hoặc CCCD đã được sử dụng."),
     OTP_INVALID(HttpStatus.BAD_REQUEST, "Mã OTP không đúng hoặc đã hết hạn."),
