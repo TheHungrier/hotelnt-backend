@@ -1,6 +1,7 @@
 package com.hotelnt.modules.listing;
 
-import com.hotelnt.common.GeoUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hotelnt.common.GoogleDistanceService;
 import com.hotelnt.common.error.AppException;
 import com.hotelnt.common.error.ErrorCode;
 import com.hotelnt.common.util.Times;
@@ -31,9 +32,15 @@ public class ListingService {
     private static final String TIEN_NGHI = "TIEN_NGHI";
 
     private final CoSoLuuTruRepository repo;
+    private final GoogleDistanceService distanceService;
+
+    public ListingService(CoSoLuuTruRepository repo, GoogleDistanceService distanceService) {
+        this.repo = repo;
+        this.distanceService = distanceService;
+    }
 
     public ListingService(CoSoLuuTruRepository repo) {
-        this.repo = repo;
+        this(repo, new GoogleDistanceService(new ObjectMapper()));
     }
 
     // ------------------------------------------------------------------ GET /listings
@@ -150,15 +157,14 @@ public class ListingService {
                 firstImage(c), highlights, distanceOrNull(c, lat, lng));
     }
 
-    /** Khoang cach km (lam tron 2 chu so); null neu thieu toa do khach hoac toa do co so. */
-    private static Double distanceOrNull(CoSoLuuTru c, Double lat, Double lng) {
+    /** Khoang cach km theo tuyen duong thuc te tren Google Maps (lam tron 2 chu so); null neu thieu toa do khach hoac toa do co so. */
+    private Double distanceOrNull(CoSoLuuTru c, Double lat, Double lng) {
         if (lat == null || lng == null || c.getLatitude() == null || c.getLongitude() == null) return null;
-        double km = GeoUtils.distanceKm(lat, lng, c.getLatitude().doubleValue(), c.getLongitude().doubleValue());
-        return Math.round(km * 100.0) / 100.0;
+        return distanceService.calculateDistanceKm(lat, lng, c.getLatitude().doubleValue(), c.getLongitude().doubleValue());
     }
 
     /** Dung khi chac chan co toa do (map-markers da loc isNotNull). */
-    private static double distance(CoSoLuuTru c, Double lat, Double lng) {
+    private double distance(CoSoLuuTru c, Double lat, Double lng) {
         Double d = distanceOrNull(c, lat, lng);
         return d == null ? Double.MAX_VALUE : d;
     }

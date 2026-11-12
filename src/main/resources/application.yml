@@ -1,5 +1,6 @@
 server:
   port: ${PORT:3000}
+  forward-headers-strategy: framework
   servlet:
     context-path: /api        # => http://localhost:3000/api/...
 
@@ -45,6 +46,8 @@ app:
   cors-origins: ${CORS_ORIGINS:*}
   auth:
     mail-from: ${MAIL_FROM:${MAIL_USERNAME:}}
+  google:
+    maps-api-key: ${GOOGLE_MAPS_API_KEY:}
 
 springdoc:
   swagger-ui:
