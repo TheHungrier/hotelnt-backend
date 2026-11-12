@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +39,7 @@ public class GoogleDistanceService {
     @Value("${app.google.maps-api-key:${GOOGLE_MAPS_API_KEY:}}")
     private String apiKey;
 
+    @Autowired
     public GoogleDistanceService(ObjectMapper json) {
         this.json = json;
         this.httpClient = HttpClient.newBuilder()
