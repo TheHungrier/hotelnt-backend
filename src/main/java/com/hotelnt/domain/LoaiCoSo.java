@@ -1,10 +1,16 @@
 package com.hotelnt.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 @Entity
 @Table(name = "LoaiCoSo")
+@Getter
+@Setter
+@NoArgsConstructor
 public class LoaiCoSo {
 
     @Id
@@ -12,11 +18,4 @@ public class LoaiCoSo {
     private Integer maLoai;
 
     private String tenLoai;
-
-    public LoaiCoSo() {}
-
-    public Integer getMaLoai() { return maLoai; }
-    public void setMaLoai(Integer maLoai) { this.maLoai = maLoai; }
-    public String getTenLoai() { return tenLoai; }
-    public void setTenLoai(String tenLoai) { this.tenLoai = tenLoai; }
 }

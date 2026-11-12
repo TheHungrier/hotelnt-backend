@@ -1,9 +1,15 @@
 package com.hotelnt.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "Phuong")
+@Getter
+@Setter
+@NoArgsConstructor
 public class Phuong {
 
     @Id
@@ -11,11 +17,4 @@ public class Phuong {
     private Integer maPhuong;
 
     private String tenPhuong;
-
-    public Phuong() {}
-
-    public Integer getMaPhuong() { return maPhuong; }
-    public void setMaPhuong(Integer maPhuong) { this.maPhuong = maPhuong; }
-    public String getTenPhuong() { return tenPhuong; }
-    public void setTenPhuong(String tenPhuong) { this.tenPhuong = tenPhuong; }
 }

@@ -2,7 +2,10 @@ package com.hotelnt.common.error;
 
 import org.springframework.http.HttpStatus;
 
-/** Ma loi lay tu sheet "Error Format" trong API_DESIGN.xlsx. Them dan khi lam den endpoint tuong ung. */
+/**
+ * Ma loi lay tu sheet "Error Format" trong API_DESIGN.xlsx. Them dan khi lam
+ * den endpoint tuong ung.
+ */
 public enum ErrorCode {
     ACCOUNT_LOCKED(HttpStatus.FORBIDDEN, "Tài khoản của bạn đã bị khóa."),
     ACCOUNT_DUPLICATED(HttpStatus.CONFLICT, "Email, số điện thoại hoặc CCCD đã được sử dụng."),
@@ -11,7 +14,8 @@ public enum ErrorCode {
     LOCATION_OUT_OF_RANGE(HttpStatus.BAD_REQUEST, "Vị trí chọn nằm ngoài khu vực hỗ trợ Nha Trang."),
     INVALID_STATE_TRANSITION(HttpStatus.CONFLICT, "Trạng thái hiện tại của cơ sở không cho phép thao tác này."),
     LISTING_NOT_DELETABLE(HttpStatus.CONFLICT, "Không thể xóa cơ sở ở trạng thái hiện tại."),
-    CHECKLIST_INCOMPLETE(HttpStatus.UNPROCESSABLE_ENTITY, "Vui lòng hoàn thiện các trường bắt buộc trước khi gửi/duyệt."),
+    CHECKLIST_INCOMPLETE(HttpStatus.UNPROCESSABLE_ENTITY,
+            "Vui lòng hoàn thiện các trường bắt buộc trước khi gửi/duyệt."),
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "Dữ liệu không hợp lệ. Vui lòng kiểm tra lại các trường được đánh dấu."),
     OTP_INVALID(HttpStatus.BAD_REQUEST, "Mã OTP không đúng hoặc đã hết hạn."),
     OTP_EXPIRED(HttpStatus.BAD_REQUEST, "Mã OTP đã hết hạn hoặc không còn hiệu lực. Vui lòng yêu cầu mã mới."),
@@ -20,7 +24,8 @@ public enum ErrorCode {
     ACCOUNT_TEMP_LOCKED(HttpStatus.LOCKED, "Tài khoản tạm thời bị khóa. Vui lòng thử lại sau 15 phút."),
     OTP_RESEND_TOO_SOON(HttpStatus.TOO_MANY_REQUESTS, "Vui lòng chờ đủ 60 giây trước khi gửi lại mã."),
     RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "Bạn thao tác quá nhanh. Vui lòng thử lại sau."),
-    RESET_TOKEN_INVALID(HttpStatus.BAD_REQUEST, "Phiên đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Vui lòng thực hiện lại từ đầu."),
+    RESET_TOKEN_INVALID(HttpStatus.BAD_REQUEST,
+            "Phiên đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Vui lòng thực hiện lại từ đầu."),
     TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "Phiên đăng nhập không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại."),
     FORBIDDEN_ROLE(HttpStatus.FORBIDDEN, "Bạn không có quyền thực hiện thao tác này."),
     NOT_OWNER(HttpStatus.FORBIDDEN, "Bạn không có quyền thao tác trên cơ sở lưu trú này."),
@@ -38,7 +43,8 @@ public enum ErrorCode {
     HOST_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy tài khoản."),
     STATE_UNCHANGED(HttpStatus.CONFLICT, "Tài khoản đã ở trạng thái này."),
     CANNOT_LOCK_ADMIN(HttpStatus.FORBIDDEN, "Không thể khóa tài khoản Admin."),
-    AI_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Chatbot tạm thời không khả dụng.");
+    AI_UNAVAILABLE(HttpStatus.SERVICE_UNAVAILABLE, "Chatbot tạm thời không khả dụng."),
+    LOCK_CONFLICT(HttpStatus.CONFLICT, "Dữ liệu đang được xử lý bởi yêu cầu khác. Vui lòng thử lại.");
 
     private final HttpStatus status;
     private final String message;
@@ -48,6 +54,11 @@ public enum ErrorCode {
         this.message = message;
     }
 
-    public HttpStatus getStatus() { return status; }
-    public String getMessage() { return message; }
+    public HttpStatus getStatus() {
+        return status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
 }

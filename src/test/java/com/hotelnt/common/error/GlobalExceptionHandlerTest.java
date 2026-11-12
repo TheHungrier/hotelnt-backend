@@ -1,5 +1,12 @@
 package com.hotelnt.common.error;
 
+import com.hotelnt.config.*;
+import com.hotelnt.controller.*;
+import com.hotelnt.domain.*;
+import com.hotelnt.dto.*;
+import com.hotelnt.helper.*;
+import com.hotelnt.repository.*;
+import com.hotelnt.service.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -13,7 +20,7 @@ class GlobalExceptionHandlerTest {
     private final GlobalExceptionHandler handler = new GlobalExceptionHandler();
 
     @Test
-    @DisplayName("handleMaxUploadSize: Bắt MaxUploadSizeExceededException, trả về HTTP 413 và ApiErrorResponse chuẩn FILE_TOO_LARGE")
+    @DisplayName("handleMaxUploadSize: B?t MaxUploadSizeExceededException, tr? v? HTTP 413 v� ApiErrorResponse chu?n FILE_TOO_LARGE")
     void handleMaxUploadSize_ReturnsPayloadTooLargeAndStandardBody() {
         MaxUploadSizeExceededException ex = new MaxUploadSizeExceededException(105 * 1024 * 1024);
 

@@ -1,6 +1,6 @@
 package com.hotelnt.repository;
 
-import com.hotelnt.domain.CoSoLuuTru;
+import com.hotelnt.domain.*;
 import jakarta.persistence.LockModeType;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;

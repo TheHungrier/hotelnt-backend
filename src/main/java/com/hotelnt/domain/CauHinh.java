@@ -1,10 +1,16 @@
 package com.hotelnt.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "CauHinh")
+@Getter
+@Setter
+@NoArgsConstructor
 public class CauHinh {
 
     @Id
@@ -17,20 +23,10 @@ public class CauHinh {
     @JoinColumn(name = "maTaiKhoan")
     private TaiKhoan taiKhoan;
 
-    public CauHinh() {}
 
     @PrePersist
     void prePersist() {
         LocalDateTime now = LocalDateTime.now();
         if (ngayCapNhat == null) ngayCapNhat = now;
     }
-
-    public String getKhoa() { return khoa; }
-    public void setKhoa(String khoa) { this.khoa = khoa; }
-    public String getGiaTri() { return giaTri; }
-    public void setGiaTri(String giaTri) { this.giaTri = giaTri; }
-    public LocalDateTime getNgayCapNhat() { return ngayCapNhat; }
-    public void setNgayCapNhat(LocalDateTime ngayCapNhat) { this.ngayCapNhat = ngayCapNhat; }
-    public TaiKhoan getTaiKhoan() { return taiKhoan; }
-    public void setTaiKhoan(TaiKhoan taiKhoan) { this.taiKhoan = taiKhoan; }
 }

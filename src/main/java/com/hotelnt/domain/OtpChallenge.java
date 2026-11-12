@@ -1,10 +1,16 @@
 package com.hotelnt.domain;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "OtpChallenge")
+@Getter
+@Setter
+@NoArgsConstructor
 public class OtpChallenge {
 
     @Id
@@ -22,27 +28,4 @@ public class OtpChallenge {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "maTaiKhoan")
     private TaiKhoan taiKhoan;
-
-    public OtpChallenge() {}
-
-    public String getChallengeId() { return challengeId; }
-    public void setChallengeId(String challengeId) { this.challengeId = challengeId; }
-    public String getLoai() { return loai; }
-    public void setLoai(String loai) { this.loai = loai; }
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
-    public String getDuLieuDangKy() { return duLieuDangKy; }
-    public void setDuLieuDangKy(String duLieuDangKy) { this.duLieuDangKy = duLieuDangKy; }
-    public String getOtpHash() { return otpHash; }
-    public void setOtpHash(String otpHash) { this.otpHash = otpHash; }
-    public Integer getSoLanSai() { return soLanSai; }
-    public void setSoLanSai(Integer soLanSai) { this.soLanSai = soLanSai; }
-    public LocalDateTime getHetHanLuc() { return hetHanLuc; }
-    public void setHetHanLuc(LocalDateTime hetHanLuc) { this.hetHanLuc = hetHanLuc; }
-    public LocalDateTime getGuiLaiSauLuc() { return guiLaiSauLuc; }
-    public void setGuiLaiSauLuc(LocalDateTime guiLaiSauLuc) { this.guiLaiSauLuc = guiLaiSauLuc; }
-    public Boolean getDaDung() { return daDung; }
-    public void setDaDung(Boolean daDung) { this.daDung = daDung; }
-    public TaiKhoan getTaiKhoan() { return taiKhoan; }
-    public void setTaiKhoan(TaiKhoan taiKhoan) { this.taiKhoan = taiKhoan; }
 }

@@ -1,6 +1,6 @@
 package com.hotelnt.repository;
 
-import com.hotelnt.domain.LoaiCoSo;
+import com.hotelnt.domain.*;
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 
