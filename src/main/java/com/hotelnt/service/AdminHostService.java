@@ -1,12 +1,7 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
 import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
 import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import com.hotelnt.common.error.AppException;
@@ -28,8 +23,8 @@ public class AdminHostService {
     private final PhienDangNhapRepository phienRepo;
 
     public AdminHostService(TaiKhoanRepository taiKhoanRepo,
-                            CoSoLuuTruRepository coSoRepo,
-                            PhienDangNhapRepository phienRepo) {
+            CoSoLuuTruRepository coSoRepo,
+            PhienDangNhapRepository phienRepo) {
         this.taiKhoanRepo = taiKhoanRepo;
         this.coSoRepo = coSoRepo;
         this.phienRepo = phienRepo;
@@ -37,16 +32,18 @@ public class AdminHostService {
 
     @Transactional(readOnly = true)
     public HostPageResponse getHosts(String trangThai, String keyword, int page, int limit) {
-        if (page < 1) page = 1;
-        if (limit < 1) limit = 10;
-        if (limit > 100) limit = 100;
+        if (page < 1)
+            page = 1;
+        if (limit < 1)
+            limit = 10;
+        if (limit > 100)
+            limit = 100;
 
         if (trangThai != null && !trangThai.isBlank()) {
             String norm = trangThai.trim().toUpperCase();
             if (!AccountStatus.ACTIVE.equals(norm) && !AccountStatus.LOCKED.equals(norm)) {
                 throw new AppException(ErrorCode.VALIDATION_ERROR, List.of(
-                        Map.of("field", "trangThai", "message", "Chỉ nhận ACTIVE hoặc LOCKED")
-                ));
+                        Map.of("field", "trangThai", "message", "Chỉ nhận ACTIVE hoặc LOCKED")));
             }
         }
 
@@ -63,16 +60,14 @@ public class AdminHostService {
                     tk.getTrangThai(),
                     soLuongCSLT,
                     tk.getLyDoKhoa(),
-                    Times.toInstant(tk.getNgayTao())
-            );
+                    Times.toInstant(tk.getNgayTao()));
         }).toList();
 
         Pagination pagination = new Pagination(
                 pageResult.getTotalElements(),
                 pageResult.getTotalPages(),
                 page,
-                limit
-        );
+                limit);
 
         return new HostPageResponse(items, pagination);
     }
@@ -115,8 +110,7 @@ public class AdminHostService {
                 Times.toInstant(tk.getNgayKhoa()),
                 Times.toInstant(tk.getNgayTao()),
                 soLuongCSLT,
-                thongKe
-        );
+                thongKe);
     }
 
     @Transactional
@@ -124,8 +118,7 @@ public class AdminHostService {
         String newStatus = request.trangThai() != null ? request.trangThai().trim().toUpperCase() : "";
         if (!AccountStatus.ACTIVE.equals(newStatus) && !AccountStatus.LOCKED.equals(newStatus)) {
             throw new AppException(ErrorCode.VALIDATION_ERROR, List.of(
-                    Map.of("field", "trangThai", "message", "Chỉ nhận ACTIVE hoặc LOCKED")
-            ));
+                    Map.of("field", "trangThai", "message", "Chỉ nhận ACTIVE hoặc LOCKED")));
         }
 
         TaiKhoan tk = taiKhoanRepo.findByIdForUpdate(hostId)
@@ -158,14 +151,15 @@ public class AdminHostService {
                 tk.getId(),
                 tk.getTrangThai(),
                 tk.getLyDoKhoa(),
-                Times.toInstant(now)
-        );
+                Times.toInstant(now));
     }
 
     private String maskCccd(String cccd) {
-        if (cccd == null || cccd.isBlank()) return null;
+        if (cccd == null || cccd.isBlank())
+            return null;
         int len = cccd.length();
-        if (len <= 6) return "******";
+        if (len <= 6)
+            return "******";
         return cccd.substring(0, 3) + "*".repeat(len - 6) + cccd.substring(len - 3);
     }
 }

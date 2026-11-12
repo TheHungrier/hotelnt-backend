@@ -25,10 +25,10 @@ public class PhienDangNhap {
     @JoinColumn(name = "maTaiKhoan")
     private TaiKhoan taiKhoan;
 
-
     @PrePersist
     void prePersist() {
         LocalDateTime now = LocalDateTime.now();
-        if (ngayTao == null) ngayTao = now;
+        if (ngayTao == null)
+            ngayTao = now;
     }
 }

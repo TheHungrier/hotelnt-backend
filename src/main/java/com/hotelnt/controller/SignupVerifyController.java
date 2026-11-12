@@ -1,13 +1,6 @@
 package com.hotelnt.controller;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
 import com.hotelnt.service.*;
 import com.hotelnt.common.error.AppException;
 import com.hotelnt.common.error.ErrorCode;
@@ -23,7 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class SignupVerifyController {
     private final SignupVerificationService verification;
 
-    SignupVerifyController(SignupVerificationService verification) { this.verification = verification; }
+    SignupVerifyController(SignupVerificationService verification) {
+        this.verification = verification;
+    }
 
     @PostMapping("/signup/verify")
     SignupVerificationService.Response verify(@Valid @RequestBody SignupVerifyRequest request) {

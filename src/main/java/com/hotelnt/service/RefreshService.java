@@ -1,14 +1,6 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
 import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import io.jsonwebtoken.Claims;
@@ -29,14 +21,21 @@ public class RefreshService {
         this.sessions = sessions;
     }
 
-    public enum Status { SUCCESS, INVALID, ACCOUNT_LOCKED }
-    public record Result(Status status, SessionIssuer.TokenPair pair) {}
+    public enum Status {
+        SUCCESS, INVALID, ACCOUNT_LOCKED
+    }
+
+    public record Result(Status status, SessionIssuer.TokenPair pair) {
+    }
 
     @Transactional
     public Result refresh(String refreshToken) {
         Claims claims;
-        try { claims = tokens.verify(refreshToken, "refresh"); }
-        catch (IllegalArgumentException ex) { return new Result(Status.INVALID, null); }
+        try {
+            claims = tokens.verify(refreshToken, "refresh");
+        } catch (IllegalArgumentException ex) {
+            return new Result(Status.INVALID, null);
+        }
         PhienDangNhap session = sessions.findForUpdate(claims.get("sid", String.class)).orElse(null);
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
         if (session == null || !Integer.toString(session.getTaiKhoan().getId()).equals(claims.getSubject())

@@ -1,16 +1,6 @@
 package com.hotelnt.helper;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.domain.*;
 import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
-import com.hotelnt.repository.*;
-import com.hotelnt.service.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.InputStream;
@@ -46,7 +36,8 @@ public class ChatbotGeminiClient {
     }
 
     /**
-     * Goi Gemini REST API de tao cau tra loi tu nhien cho khach dua tren danh sach CSLT tim thay.
+     * Goi Gemini REST API de tao cau tra loi tu nhien cho khach dua tren danh sach
+     * CSLT tim thay.
      * Tra ve null neu khong the ket noi hoac khong co API key de fallback an toan.
      */
     public String generateReply(String userMessage, List<ChatbotDtos.SuggestedListing> listings) {
@@ -57,16 +48,15 @@ public class ChatbotGeminiClient {
         }
 
         String model = (configuredModel != null && !configuredModel.isBlank()) ? configuredModel : DEFAULT_MODEL;
-        String endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;
+        String endpoint = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key="
+                + apiKey;
 
         try {
             String prompt = buildPrompt(userMessage, listings);
 
             Map<String, Object> payload = Map.of(
                     "contents", List.of(
-                            Map.of("parts", List.of(Map.of("text", prompt)))
-                    )
-            );
+                            Map.of("parts", List.of(Map.of("text", prompt)))));
             byte[] bodyBytes = objectMapper.writeValueAsBytes(payload);
 
             URL url = new URL(endpoint);
@@ -109,15 +99,20 @@ public class ChatbotGeminiClient {
         sb.append("Bạn là trợ lý AI tư vấn du lịch và lưu trú của nền tảng HotelNT tại thành phố Nha Trang.\n");
         sb.append("QUY TẮC BẮT BUỘC:\n");
         sb.append("1. Chỉ trả lời các nội dung liên quan đến cơ sở lưu trú và du lịch tại Nha Trang.\n");
-        sb.append("2. Tuyệt đối không trả lời các câu hỏi ngoài phạm vi dự án (như địa phương khác ngoài Nha Trang, thời tiết ngoài tỉnh, giải toán, lập trình, kiến thức chung không liên quan,...). Khi gặp câu hỏi ngoài phạm vi, hãy từ chối ngắn gọn, lịch sự và hướng dẫn khách quay lại nhu cầu lưu trú tại Nha Trang.\n");
-        sb.append("3. Chỉ cung cấp thông tin dựa trên dữ liệu được hệ thống cung cấp dưới đây, không tự bịa ra cơ sở không có thật.\n\n");
+        sb.append(
+                "2. Tuyệt đối không trả lời các câu hỏi ngoài phạm vi dự án (như địa phương khác ngoài Nha Trang, thời tiết ngoài tỉnh, giải toán, lập trình, kiến thức chung không liên quan,...). Khi gặp câu hỏi ngoài phạm vi, hãy từ chối ngắn gọn, lịch sự và hướng dẫn khách quay lại nhu cầu lưu trú tại Nha Trang.\n");
+        sb.append(
+                "3. Chỉ cung cấp thông tin dựa trên dữ liệu được hệ thống cung cấp dưới đây, không tự bịa ra cơ sở không có thật.\n\n");
         sb.append("Câu hỏi của khách: \"").append(userMessage).append("\"\n\n");
 
         if (listings.isEmpty()) {
-            sb.append("Kết quả tra cứu: Hệ thống không tìm thấy cơ sở lưu trú nào phù hợp (hoặc yêu cầu nằm ngoài phạm vi hỗ trợ của HotelNT tại Nha Trang).\n");
-            sb.append("Hãy phản hồi lịch sự, từ chối các nội dung ngoài lề và nhắc nhở khách về phạm vi hỗ trợ lưu trú tại Nha Trang của HotelNT.");
+            sb.append(
+                    "Kết quả tra cứu: Hệ thống không tìm thấy cơ sở lưu trú nào phù hợp (hoặc yêu cầu nằm ngoài phạm vi hỗ trợ của HotelNT tại Nha Trang).\n");
+            sb.append(
+                    "Hãy phản hồi lịch sự, từ chối các nội dung ngoài lề và nhắc nhở khách về phạm vi hỗ trợ lưu trú tại Nha Trang của HotelNT.");
         } else {
-            sb.append("Kết quả tra cứu từ hệ thống tìm thấy ").append(listings.size()).append(" cơ sở lưu trú phù hợp:\n");
+            sb.append("Kết quả tra cứu từ hệ thống tìm thấy ").append(listings.size())
+                    .append(" cơ sở lưu trú phù hợp:\n");
             for (int i = 0; i < listings.size(); i++) {
                 ChatbotDtos.SuggestedListing l = listings.get(i);
                 sb.append(i + 1).append(". ").append(l.tenCSLT())
@@ -125,7 +120,8 @@ public class ChatbotGeminiClient {
                         .append(" - Giá: ").append(l.gia() != null ? l.gia() + " VNĐ/đêm" : "Liên hệ")
                         .append("\n");
             }
-            sb.append("\nHãy tóm tắt ngắn gọn và giới thiệu những lựa chọn phù hợp nhất này cho khách một cách cuốn hút (khoảng 1-3 câu).");
+            sb.append(
+                    "\nHãy tóm tắt ngắn gọn và giới thiệu những lựa chọn phù hợp nhất này cho khách một cách cuốn hút (khoảng 1-3 câu).");
         }
 
         return sb.toString();
@@ -149,7 +145,8 @@ public class ChatbotGeminiClient {
                     }
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         return null;
     }
 }

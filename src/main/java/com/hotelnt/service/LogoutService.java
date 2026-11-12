@@ -1,14 +1,6 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
 import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import io.jsonwebtoken.Claims;
@@ -31,20 +23,25 @@ public class LogoutService {
 
     @Transactional
     public boolean logout(String bearer, String refreshToken) {
-        if (bearer == null || !bearer.startsWith("Bearer ")) return false;
+        if (bearer == null || !bearer.startsWith("Bearer "))
+            return false;
         Claims access;
         Claims refresh;
         try {
             access = tokens.verify(bearer.substring(7), "access");
             refresh = tokens.verify(refreshToken, "refresh");
-        } catch (IllegalArgumentException ex) { return false; }
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
         if (!access.getSubject().equals(refresh.getSubject())
-                || !access.get("sid", String.class).equals(refresh.get("sid", String.class))) return false;
+                || !access.get("sid", String.class).equals(refresh.get("sid", String.class)))
+            return false;
         PhienDangNhap session = sessions.findForUpdate(refresh.get("sid", String.class)).orElse(null);
         if (session == null || !Integer.toString(session.getTaiKhoan().getId()).equals(refresh.getSubject())
                 || !LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).isBefore(session.getHetHanLuc())
                 || !MessageDigest.isEqual(SessionIssuer.hash(refreshToken).getBytes(StandardCharsets.US_ASCII),
-                    session.getRefreshTokenHash().getBytes(StandardCharsets.US_ASCII))) return false;
+                        session.getRefreshTokenHash().getBytes(StandardCharsets.US_ASCII)))
+            return false;
         session.setDaThuHoi(true);
         return true;
     }

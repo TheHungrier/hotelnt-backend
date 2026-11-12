@@ -1,16 +1,7 @@
 package com.hotelnt.helper;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
 import com.hotelnt.repository.*;
-import com.hotelnt.service.*;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -24,11 +15,16 @@ public class CredentialsChecker {
     private final PasswordHasher passwords;
 
     public CredentialsChecker(AuthAccountRepository accounts, PasswordHasher passwords) {
-        this.accounts = accounts; this.passwords = passwords;
+        this.accounts = accounts;
+        this.passwords = passwords;
     }
 
-    public enum Status { SUCCESS, INVALID, TEMP_LOCKED, LOCKED }
-    public record Result(Status status, TaiKhoan account, Object details) {}
+    public enum Status {
+        SUCCESS, INVALID, TEMP_LOCKED, LOCKED
+    }
+
+    public record Result(Status status, TaiKhoan account, Object details) {
+    }
 
     public Result check(String identity, String password, String role, LocalDateTime now) {
         TaiKhoan account = accounts.findForUpdate(identity).orElse(null);
@@ -38,9 +34,13 @@ public class CredentialsChecker {
         }
         if (account.getKhoaDen() != null && now.isBefore(account.getKhoaDen())) {
             long seconds = Math.max(1, Duration.between(now, account.getKhoaDen()).toSeconds() + 1);
-            return new Result(Status.TEMP_LOCKED, null, List.of(Map.of("field", "retryAfter", "message", Long.toString(seconds))));
+            return new Result(Status.TEMP_LOCKED, null,
+                    List.of(Map.of("field", "retryAfter", "message", Long.toString(seconds))));
         }
-        if (account.getKhoaDen() != null) { account.setKhoaDen(null); account.setSoLanDangNhapSai(0); }
+        if (account.getKhoaDen() != null) {
+            account.setKhoaDen(null);
+            account.setSoLanDangNhapSai(0);
+        }
         if (!passwords.matches(password, account.getMatKhau())) {
             int failures = (account.getSoLanDangNhapSai() == null ? 0 : account.getSoLanDangNhapSai()) + 1;
             account.setSoLanDangNhapSai(failures);
@@ -50,7 +50,8 @@ public class CredentialsChecker {
             }
             return new Result(Status.INVALID, null, null);
         }
-        if (!"ACTIVE".equals(account.getTrangThai())) return new Result(Status.LOCKED, null, null);
+        if (!"ACTIVE".equals(account.getTrangThai()))
+            return new Result(Status.LOCKED, null, null);
         account.setSoLanDangNhapSai(0);
         return new Result(Status.SUCCESS, account, null);
     }

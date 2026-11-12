@@ -1,16 +1,6 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
 import com.hotelnt.helper.*;
-import com.hotelnt.repository.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.net.URI;
@@ -28,9 +18,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
- * Tính khoảng cách địa lý giữa người dùng và cơ sở lưu trú theo tuyến đường thực tế trên Google Maps
- * (Google Maps Distance Matrix API), thay vì tính theo đường chim bay (Haversine).
- * Có cơ chế Cache để tối ưu hiệu năng và chi phí API, cùng cơ chế fallback an toàn về công thức hình học.
+ * Tính khoảng cách địa lý giữa người dùng và cơ sở lưu trú theo tuyến đường
+ * thực tế trên Google Maps
+ * (Google Maps Distance Matrix API), thay vì tính theo đường chim bay
+ * (Haversine).
+ * Có cơ chế Cache để tối ưu hiệu năng và chi phí API, cùng cơ chế fallback an
+ * toàn về công thức hình học.
  */
 @Service
 public class GoogleDistanceService {
@@ -60,7 +53,9 @@ public class GoogleDistanceService {
 
     /**
      * Tính khoảng cách km (làm tròn 2 chữ số thập phân).
-     * @return Khoảng cách thực tế theo Google Maps, hoặc fallback theo Haversine nếu thiếu API key/lỗi mạng.
+     * 
+     * @return Khoảng cách thực tế theo Google Maps, hoặc fallback theo Haversine
+     *         nếu thiếu API key/lỗi mạng.
      */
     public Double calculateDistanceKm(Double originLat, Double originLng, Double destLat, Double destLng) {
         if (originLat == null || originLng == null || destLat == null || destLng == null) {
@@ -86,8 +81,10 @@ public class GoogleDistanceService {
         }
 
         try {
-            String url = String.format(Locale.US, "%s?origins=%.6f,%.6f&destinations=%.6f,%.6f&mode=driving&units=metric&key=%s",
-                    DISTANCE_MATRIX_URL, originLat, originLng, destLat, destLng, URLEncoder.encode(key, StandardCharsets.UTF_8));
+            String url = String.format(Locale.US,
+                    "%s?origins=%.6f,%.6f&destinations=%.6f,%.6f&mode=driving&units=metric&key=%s",
+                    DISTANCE_MATRIX_URL, originLat, originLng, destLat, destLng,
+                    URLEncoder.encode(key, StandardCharsets.UTF_8));
 
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(url))

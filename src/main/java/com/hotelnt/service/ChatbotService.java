@@ -1,13 +1,7 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
 import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
 import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import java.math.BigDecimal;
@@ -71,7 +65,8 @@ public class ChatbotService {
         // Sap xep theo diem phu hop giam dan, neu bang diem thi gia thap xep truoc
         scored.sort((a, b) -> {
             int cmp = Integer.compare(b.score, a.score);
-            if (cmp != 0) return cmp;
+            if (cmp != 0)
+                return cmp;
             BigDecimal g1 = a.listing.getGia() != null ? a.listing.getGia() : BigDecimal.ZERO;
             BigDecimal g2 = b.listing.getGia() != null ? b.listing.getGia() : BigDecimal.ZERO;
             return g1.compareTo(g2);
@@ -90,9 +85,11 @@ public class ChatbotService {
         String desc = c.getMoTa() != null ? c.getMoTa().toLowerCase() : "";
         String address = c.getDiaChiChiTiet() != null ? c.getDiaChiChiTiet().toLowerCase() : "";
         String typeName = c.getLoai() != null && c.getLoai().getTenLoai() != null
-                ? c.getLoai().getTenLoai().toLowerCase() : "";
+                ? c.getLoai().getTenLoai().toLowerCase()
+                : "";
         String wardName = c.getPhuong() != null && c.getPhuong().getTenPhuong() != null
-                ? c.getPhuong().getTenPhuong().toLowerCase() : "";
+                ? c.getPhuong().getTenPhuong().toLowerCase()
+                : "";
 
         // Kiem tra loai co so
         if (intent.propertyTypeKeyword != null) {
@@ -145,7 +142,8 @@ public class ChatbotService {
         String fb = null;
         if (c.getLienHe() != null) {
             for (LienHe lh : c.getLienHe()) {
-                if (lh.getLoaiLienHe() == null) continue;
+                if (lh.getLoaiLienHe() == null)
+                    continue;
                 switch (lh.getLoaiLienHe().toUpperCase()) {
                     case "SO_DIEN_THOAI" -> phone = lh.getGiaTri();
                     case "ZALO" -> zalo = lh.getGiaTri();
@@ -161,8 +159,7 @@ public class ChatbotService {
                 c.getGia() != null ? c.getGia().longValue() : null,
                 Times.toInstant(c.getNgayCapNhatGia() != null ? c.getNgayCapNhatGia() : c.getNgayTao()),
                 mainPhoto,
-                new ChatContactInfo(phone, zalo, fb)
-        );
+                new ChatContactInfo(phone, zalo, fb));
     }
 
     private String createFallbackReply(List<SuggestedListing> suggested) {
@@ -196,7 +193,8 @@ public class ChatbotService {
             try {
                 double val = Double.parseDouble(mTrieu.group(1).replace(",", "."));
                 intent.maxPrice = (long) (val * 1_000_000);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         } else {
             Pattern pK = Pattern.compile("(?:dưới|<)?\\s*(\\d+)\\s*(?:k|nghìn|ngàn)");
             Matcher mK = pK.matcher(lower);
@@ -204,7 +202,8 @@ public class ChatbotService {
                 try {
                     long val = Long.parseLong(mK.group(1));
                     intent.maxPrice = val * 1_000;
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
             }
         }
 
@@ -227,7 +226,8 @@ public class ChatbotService {
 
         // 5. Nhan dien yeu cau ngoai pham vi Nha Trang
         List<String> outOfScopeKeywords = List.of("đà lạt", "da lat", "hà nội", "ha noi", "sài gòn", "sai gon",
-                "hồ chí minh", "ho chi minh", "đà nẵng", "da nang", "vũng tàu", "vung tau", "phú quốc", "phu quoc", "sa pa", "sapa");
+                "hồ chí minh", "ho chi minh", "đà nẵng", "da nang", "vũng tàu", "vung tau", "phú quốc", "phu quoc",
+                "sa pa", "sapa");
         for (String kw : outOfScopeKeywords) {
             if (lower.contains(kw)) {
                 intent.isOutOfScope = true;
@@ -246,5 +246,6 @@ public class ChatbotService {
         List<String> amenityKeywords = new ArrayList<>();
     }
 
-    private record ScoredListing(CoSoLuuTru listing, int score) {}
+    private record ScoredListing(CoSoLuuTru listing, int score) {
+    }
 }

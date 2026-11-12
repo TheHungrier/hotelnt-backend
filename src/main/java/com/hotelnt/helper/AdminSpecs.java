@@ -1,23 +1,14 @@
 package com.hotelnt.helper;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
-import com.hotelnt.repository.*;
-import com.hotelnt.service.*;
 import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
 
 public final class AdminSpecs {
-    private AdminSpecs() {}
+    private AdminSpecs() {
+    }
 
     public static Specification<TaiKhoan> hostFilter(String trangThai, String keyword) {
         return (root, query, cb) -> {

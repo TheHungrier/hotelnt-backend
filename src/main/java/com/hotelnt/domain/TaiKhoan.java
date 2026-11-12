@@ -31,11 +31,12 @@ public class TaiKhoan {
     private Integer soLanDangNhapSai = 0;
     private LocalDateTime khoaDen;
 
-
     @PrePersist
     void prePersist() {
         LocalDateTime now = LocalDateTime.now();
-        if (ngayTao == null) ngayTao = now;
-        if (ngayCapNhat == null) ngayCapNhat = now;
+        if (ngayTao == null)
+            ngayTao = now;
+        if (ngayCapNhat == null)
+            ngayCapNhat = now;
     }
 }

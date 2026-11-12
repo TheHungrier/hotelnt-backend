@@ -1,14 +1,7 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.domain.*;
 import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
 import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,7 +28,7 @@ public class SignupService {
     private final ObjectMapper json;
 
     public SignupService(SignupDuplicateChecker duplicates, PasswordHasher passwords, OtpCodeGenerator codes,
-                  OtpHasher otpHasher, OtpChallengeRepository challenges, OtpEmailSender email, ObjectMapper json) {
+            OtpHasher otpHasher, OtpChallengeRepository challenges, OtpEmailSender email, ObjectMapper json) {
         this.duplicates = duplicates;
         this.passwords = passwords;
         this.codes = codes;
@@ -46,8 +39,11 @@ public class SignupService {
     }
 
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public record PendingSignup(String hoTen, String soDienThoai, String email, String cccd, String matKhau) {}
-    public record Response(String registrationId, int otpExpiresIn, int resendAfter, String message) {}
+    public record PendingSignup(String hoTen, String soDienThoai, String email, String cccd, String matKhau) {
+    }
+
+    public record Response(String registrationId, int otpExpiresIn, int resendAfter, String message) {
+    }
 
     @Transactional
     public Response signup(SignupRequest request) {

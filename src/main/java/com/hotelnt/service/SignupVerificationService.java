@@ -1,14 +1,7 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.domain.*;
 import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
 import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -39,10 +32,18 @@ public class SignupVerificationService {
         this.json = json;
     }
 
-    public enum Status { SUCCESS, EXPIRED, INVALID, ATTEMPTS_EXCEEDED, DUPLICATE }
-    public record UserInfo(Integer id, String hoTen, String email, String soDienThoai, String vaiTro) {}
-    public record Response(String accessToken, String refreshToken, long expiresIn, UserInfo userInfo) {}
-    public record Result(Status status, Response response, Object details) {}
+    public enum Status {
+        SUCCESS, EXPIRED, INVALID, ATTEMPTS_EXCEEDED, DUPLICATE
+    }
+
+    public record UserInfo(Integer id, String hoTen, String email, String soDienThoai, String vaiTro) {
+    }
+
+    public record Response(String accessToken, String refreshToken, long expiresIn, UserInfo userInfo) {
+    }
+
+    public record Result(Status status, Response response, Object details) {
+    }
 
     @Transactional
     public Result verify(SignupVerifyRequest request) {
@@ -53,18 +54,23 @@ public class SignupVerificationService {
             return new Result(Status.EXPIRED, null, null);
         }
         int failures = challenge.getSoLanSai() == null ? 0 : challenge.getSoLanSai();
-        if (failures >= 5) return new Result(Status.ATTEMPTS_EXCEEDED, null, null);
+        if (failures >= 5)
+            return new Result(Status.ATTEMPTS_EXCEEDED, null, null);
         if (!otpHasher.matches(request.otpCode(), challenge.getOtpHash())) {
             int remaining = 5 - ++failures;
             challenge.setSoLanSai(failures);
-            if (remaining == 0) return new Result(Status.ATTEMPTS_EXCEEDED, null, null);
-            return new Result(Status.INVALID, null, List.of(Map.of("field", "attemptsLeft", "message", Integer.toString(remaining))));
+            if (remaining == 0)
+                return new Result(Status.ATTEMPTS_EXCEEDED, null, null);
+            return new Result(Status.INVALID, null,
+                    List.of(Map.of("field", "attemptsLeft", "message", Integer.toString(remaining))));
         }
         SignupService.PendingSignup pending = readPending(challenge.getDuLieuDangKy());
-        SignupRequest input = new SignupRequest(pending.hoTen(), pending.soDienThoai(), pending.email(), pending.cccd(), pending.matKhau());
+        SignupRequest input = new SignupRequest(pending.hoTen(), pending.soDienThoai(), pending.email(), pending.cccd(),
+                pending.matKhau());
         List<String> fields = duplicates.findDuplicateFields(input);
-        if (!fields.isEmpty()) return new Result(Status.DUPLICATE, null,
-                fields.stream().map(field -> Map.of("field", field, "message", "Đã được sử dụng")).toList());
+        if (!fields.isEmpty())
+            return new Result(Status.DUPLICATE, null,
+                    fields.stream().map(field -> Map.of("field", field, "message", "Đã được sử dụng")).toList());
         TaiKhoan account = new TaiKhoan();
         account.setVaiTro("HOST");
         account.setTrangThai("ACTIVE");
@@ -78,7 +84,9 @@ public class SignupVerificationService {
         challenge.setDaDung(true);
         challenge.setDuLieuDangKy(null);
         return new Result(Status.SUCCESS, new Response(pair.accessToken(), pair.refreshToken(), pair.expiresIn(),
-                new UserInfo(account.getId(), account.getHoTen(), account.getEmail(), account.getSoDienThoai(), account.getVaiTro())), null);
+                new UserInfo(account.getId(), account.getHoTen(), account.getEmail(), account.getSoDienThoai(),
+                        account.getVaiTro())),
+                null);
     }
 
     private SignupService.PendingSignup readPending(String raw) {

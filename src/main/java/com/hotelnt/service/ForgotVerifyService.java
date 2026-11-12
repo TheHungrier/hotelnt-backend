@@ -1,14 +1,7 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.domain.*;
 import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
 import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -25,10 +18,17 @@ public class ForgotVerifyService {
     private final ChallengeVerifier verifier;
     private final ResetTokenGenerator tokens;
     private final ObjectMapper json;
-    public ForgotVerifyService(AuthChallengeRepository challenges, ChallengeVerifier verifier, ResetTokenGenerator tokens, ObjectMapper json) {
-        this.challenges = challenges; this.verifier = verifier; this.tokens = tokens; this.json = json;
+
+    public ForgotVerifyService(AuthChallengeRepository challenges, ChallengeVerifier verifier,
+            ResetTokenGenerator tokens, ObjectMapper json) {
+        this.challenges = challenges;
+        this.verifier = verifier;
+        this.tokens = tokens;
+        this.json = json;
     }
-    public record Result(ChallengeVerifier.Result verification, String resetToken) {}
+
+    public record Result(ChallengeVerifier.Result verification, String resetToken) {
+    }
 
     @Transactional
     public Result verify(ChallengeVerifyRequest request) {
@@ -38,7 +38,8 @@ public class ForgotVerifyService {
         if (data.path("resetPending").asBoolean(false))
             return new Result(new ChallengeVerifier.Result(ChallengeVerifier.Status.EXPIRED, null), null);
         ChallengeVerifier.Result checked = verifier.check(c, "FORGOT_PASSWORD", request.otpCode(), now);
-        if (checked.status() != ChallengeVerifier.Status.VALID) return new Result(checked, null);
+        if (checked.status() != ChallengeVerifier.Status.VALID)
+            return new Result(checked, null);
         if (c.getTaiKhoan() == null || !"ACTIVE".equals(c.getTaiKhoan().getTrangThai()))
             return new Result(new ChallengeVerifier.Result(ChallengeVerifier.Status.EXPIRED, null), null);
         String token = tokens.generate(c.getChallengeId());
@@ -50,10 +51,14 @@ public class ForgotVerifyService {
     }
 
     private ObjectNode metadata(String raw) {
-        if (raw == null || raw.isBlank()) return json.createObjectNode();
+        if (raw == null || raw.isBlank())
+            return json.createObjectNode();
         try {
-            if (json.readTree(raw) instanceof ObjectNode node) return node;
+            if (json.readTree(raw) instanceof ObjectNode node)
+                return node;
             throw new IllegalStateException("Invalid OTP metadata");
-        } catch (JsonProcessingException ex) { throw new IllegalStateException("Invalid OTP metadata", ex); }
+        } catch (JsonProcessingException ex) {
+            throw new IllegalStateException("Invalid OTP metadata", ex);
+        }
     }
 }

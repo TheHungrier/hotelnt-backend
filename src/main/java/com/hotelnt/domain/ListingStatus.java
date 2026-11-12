@@ -2,7 +2,9 @@ package com.hotelnt.domain;
 
 /** Gia tri cot CoSoLuuTru.trangThai (khop CHECK trong db/schema.sql). */
 public final class ListingStatus {
-    private ListingStatus() {}
+    private ListingStatus() {
+    }
+
     public static final String DRAFT = "DRAFT";
     public static final String PENDING = "PENDING";
     public static final String APPROVED = "APPROVED";

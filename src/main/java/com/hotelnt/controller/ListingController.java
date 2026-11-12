@@ -1,12 +1,7 @@
 package com.hotelnt.controller;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
 import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
 import com.hotelnt.service.*;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +20,7 @@ public class ListingController {
         this.service = service;
     }
 
-    // GET /api/listings  - Tim kiem, loc, sap xep
+    // GET /api/listings - Tim kiem, loc, sap xep
     @GetMapping
     public ListingPage search(@Valid ListingSearchRequest query) {
         query.validateCrossFields();
@@ -43,16 +38,16 @@ public class ListingController {
     // GET /api/listings/{maCSLT}/preview
     @GetMapping("/{maCSLT}/preview")
     public ListingCard preview(@PathVariable int maCSLT,
-                               @RequestParam(required = false) Double latitude,
-                               @RequestParam(required = false) Double longitude) {
+            @RequestParam(required = false) Double latitude,
+            @RequestParam(required = false) Double longitude) {
         return service.preview(maCSLT, latitude, longitude);
     }
 
     // GET /api/listings/{maCSLT}
     @GetMapping("/{maCSLT}")
     public ListingDetail detail(@PathVariable int maCSLT,
-                                @RequestParam(required = false) Double latitude,
-                                @RequestParam(required = false) Double longitude) {
+            @RequestParam(required = false) Double latitude,
+            @RequestParam(required = false) Double longitude) {
         return service.detail(maCSLT, latitude, longitude);
     }
 }

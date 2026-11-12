@@ -1,16 +1,5 @@
 package com.hotelnt.helper;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
-import com.hotelnt.repository.*;
-import com.hotelnt.service.*;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -30,7 +19,8 @@ public class OtpHasher {
     private final SecureRandom random = new SecureRandom();
 
     public String hash(String otp) {
-        if (!isOtp(otp)) throw new IllegalArgumentException("OTP must contain six digits");
+        if (!isOtp(otp))
+            throw new IllegalArgumentException("OTP must contain six digits");
         byte[] salt = new byte[SALT_BYTES];
         random.nextBytes(salt);
         byte[] hash = derive(otp, salt);
@@ -39,13 +29,16 @@ public class OtpHasher {
     }
 
     public boolean matches(String otp, String storedHash) {
-        if (!isOtp(otp) || storedHash == null || storedHash.length() > 255) return false;
+        if (!isOtp(otp) || storedHash == null || storedHash.length() > 255)
+            return false;
         String[] parts = storedHash.split("\\$", -1);
-        if (parts.length != 3 || !FORMAT.equals(parts[0])) return false;
+        if (parts.length != 3 || !FORMAT.equals(parts[0]))
+            return false;
         try {
             byte[] salt = Base64.getDecoder().decode(parts[1]);
             byte[] expected = Base64.getDecoder().decode(parts[2]);
-            if (salt.length != SALT_BYTES || expected.length != HASH_BYTES) return false;
+            if (salt.length != SALT_BYTES || expected.length != HASH_BYTES)
+                return false;
             return MessageDigest.isEqual(expected, derive(otp, salt));
         } catch (IllegalArgumentException ex) {
             return false;

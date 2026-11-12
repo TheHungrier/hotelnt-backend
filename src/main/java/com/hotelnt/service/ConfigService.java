@@ -1,14 +1,7 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.domain.*;
 import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
 import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import com.hotelnt.common.error.AppException;
@@ -31,8 +24,7 @@ import java.util.stream.Collectors;
 public class ConfigService {
 
     private static final List<String> SEO_KEYS = List.of(
-            "seo.metaTitle", "seo.metaDescription", "seo.slugUrl", "seo.ogTitle", "seo.ogImageUrl"
-    );
+            "seo.metaTitle", "seo.metaDescription", "seo.slugUrl", "seo.ogTitle", "seo.ogImageUrl");
 
     private final CauHinhRepository repo;
     private final StorageService storageService;
@@ -51,8 +43,7 @@ public class ConfigService {
                 configs.getOrDefault("seo.metaDescription", ""),
                 configs.getOrDefault("seo.slugUrl", ""),
                 configs.getOrDefault("seo.ogTitle", ""),
-                configs.getOrDefault("seo.ogImageUrl", "")
-        );
+                configs.getOrDefault("seo.ogImageUrl", ""));
     }
 
     public ConfigDtos.AdminSeoConfigResponse getAdminSeoConfig(String role) {
@@ -74,8 +65,7 @@ public class ConfigService {
                 configs.getOrDefault("seo.slugUrl", ""),
                 configs.getOrDefault("seo.ogTitle", ""),
                 configs.getOrDefault("seo.ogImageUrl", ""),
-                Times.toInstant(latestUpdate)
-        );
+                Times.toInstant(latestUpdate));
     }
 
     @Transactional
@@ -87,7 +77,8 @@ public class ConfigService {
         // Serialize SEO updates so the cross-key slug uniqueness check cannot race.
         repo.findByIdForUpdate("seo.slugUrl");
 
-        // Kiểm tra xem slug có bị trùng lặp với cấu hình khác hay không (theo API Design: SLUG_DUPLICATED 409)
+        // Kiểm tra xem slug có bị trùng lặp với cấu hình khác hay không (theo API
+        // Design: SLUG_DUPLICATED 409)
         boolean isDuplicated = repo.findAll().stream()
                 .anyMatch(c -> !c.getKhoa().equals("seo.slugUrl") && newSlug.equalsIgnoreCase(c.getGiaTri()));
         if (isDuplicated) {
@@ -119,10 +110,12 @@ public class ConfigService {
         }
 
         String filename = file.getOriginalFilename();
-        if (filename == null) filename = "";
+        if (filename == null)
+            filename = "";
         filename = filename.toLowerCase();
 
-        if (!filename.endsWith(".jpg") && !filename.endsWith(".jpeg") && !filename.endsWith(".png") && !filename.endsWith(".webp")) {
+        if (!filename.endsWith(".jpg") && !filename.endsWith(".jpeg") && !filename.endsWith(".png")
+                && !filename.endsWith(".webp")) {
             throw new AppException(ErrorCode.UNSUPPORTED_MEDIA_TYPE);
         }
 
@@ -155,16 +148,18 @@ public class ConfigService {
         validateAdminRole(role);
 
         CauHinh entity = repo.findById("ai.tinNhanMacDinh").orElse(null);
-        String tinNhan = entity != null ? entity.getGiaTri() : "Xin chào! Mình có thể giúp bạn tìm nơi lưu trú tại Nha Trang.";
-        LocalDateTime updateTime = entity != null && entity.getNgayCapNhat() != null ? entity.getNgayCapNhat() : LocalDateTime.now();
+        String tinNhan = entity != null ? entity.getGiaTri()
+                : "Xin chào! Mình có thể giúp bạn tìm nơi lưu trú tại Nha Trang.";
+        LocalDateTime updateTime = entity != null && entity.getNgayCapNhat() != null ? entity.getNgayCapNhat()
+                : LocalDateTime.now();
 
-        // Tuân thủ API Design & SRS FR-26: nguonDuLieu và phamViTraLoi là cố định, chỉ đọc
+        // Tuân thủ API Design & SRS FR-26: nguonDuLieu và phamViTraLoi là cố định, chỉ
+        // đọc
         return new ConfigDtos.AiConfigResponse(
                 tinNhan,
                 "APPROVED_ONLY",
                 "LISTING_INFO_ONLY",
-                Times.toInstant(updateTime)
-        );
+                Times.toInstant(updateTime));
     }
 
     @Transactional

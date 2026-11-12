@@ -1,14 +1,6 @@
 package com.hotelnt.helper;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
 import com.hotelnt.repository.*;
 import com.hotelnt.service.*;
 import java.nio.charset.StandardCharsets;
@@ -30,7 +22,8 @@ public class SessionIssuer {
         this.sessions = sessions;
     }
 
-    public record TokenPair(String accessToken, String refreshToken, long expiresIn) {}
+    public record TokenPair(String accessToken, String refreshToken, long expiresIn) {
+    }
 
     public TokenPair issue(TaiKhoan account) {
         String id = UUID.randomUUID().toString();
@@ -46,7 +39,8 @@ public class SessionIssuer {
 
     public static String hash(String token) {
         try {
-            return HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(token.getBytes(StandardCharsets.UTF_8)));
+            return HexFormat.of()
+                    .formatHex(MessageDigest.getInstance("SHA-256").digest(token.getBytes(StandardCharsets.UTF_8)));
         } catch (NoSuchAlgorithmException ex) {
             throw new IllegalStateException("SHA-256 unavailable", ex);
         }

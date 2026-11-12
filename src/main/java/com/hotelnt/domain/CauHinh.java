@@ -23,10 +23,10 @@ public class CauHinh {
     @JoinColumn(name = "maTaiKhoan")
     private TaiKhoan taiKhoan;
 
-
     @PrePersist
     void prePersist() {
         LocalDateTime now = LocalDateTime.now();
-        if (ngayCapNhat == null) ngayCapNhat = now;
+        if (ngayCapNhat == null)
+            ngayCapNhat = now;
     }
 }

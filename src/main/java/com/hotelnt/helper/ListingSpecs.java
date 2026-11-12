@@ -1,16 +1,7 @@
 package com.hotelnt.helper;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.domain.*;
 import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
-import com.hotelnt.repository.*;
-import com.hotelnt.service.*;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
@@ -24,10 +15,12 @@ import org.springframework.data.jpa.domain.Specification;
 
 /** Xay dieu kien WHERE dong cho bo loc tim kiem. */
 public final class ListingSpecs {
-    private ListingSpecs() {}
+    private ListingSpecs() {
+    }
 
     /**
-     * Chi lay co so APPROVED va chu co so ACTIVE. Cac tieu chi khac ket hop bang AND;
+     * Chi lay co so APPROVED va chu co so ACTIVE. Cac tieu chi khac ket hop bang
+     * AND;
      * maPhuong, maLoai la OR trong cung nhom; tien ich phai khop tat ca.
      *
      * @param bounds          khung ban do (chi map-markers), null neu khong dung
@@ -56,8 +49,10 @@ public final class ListingSpecs {
             if (f.giaMax() != null) {
                 p.add(cb.lessThanOrEqualTo(root.<BigDecimal>get("gia"), BigDecimal.valueOf(f.giaMax())));
             }
-            if (notEmpty(f.maPhuong())) p.add(root.get("phuong").get("maPhuong").in(f.maPhuong()));
-            if (notEmpty(f.maLoai())) p.add(root.get("loai").get("maLoai").in(f.maLoai()));
+            if (notEmpty(f.maPhuong()))
+                p.add(root.get("phuong").get("maPhuong").in(f.maPhuong()));
+            if (notEmpty(f.maLoai()))
+                p.add(root.get("loai").get("maLoai").in(f.maLoai()));
 
             List<Integer> amenityList = f.allAmenityIds();
             if (!amenityList.isEmpty()) {

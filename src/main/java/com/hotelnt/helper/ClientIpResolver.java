@@ -1,24 +1,15 @@
 package com.hotelnt.helper;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
-import com.hotelnt.repository.*;
-import com.hotelnt.service.*;
 import jakarta.servlet.http.HttpServletRequest;
 
 /**
- * Trích xuất IP thật của client, xử lý các trường hợp đứng sau Reverse Proxy (Nginx, Cloudflare, Load Balancer, FE proxy).
+ * Trích xuất IP thật của client, xử lý các trường hợp đứng sau Reverse Proxy
+ * (Nginx, Cloudflare, Load Balancer, FE proxy).
  */
 public final class ClientIpResolver {
 
-    private ClientIpResolver() {}
+    private ClientIpResolver() {
+    }
 
     public static String resolveClientIp(HttpServletRequest request) {
         // 1. Kiểm tra X-Forwarded-For: định dạng chuẩn "client, proxy1, proxy2"

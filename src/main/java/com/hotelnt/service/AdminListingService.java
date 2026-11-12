@@ -1,15 +1,9 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
 import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
 import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
-import com.hotelnt.common.error.ApiErrorResponse;
 import com.hotelnt.common.error.AppException;
 import com.hotelnt.common.error.ErrorCode;
 import java.math.BigDecimal;
@@ -35,8 +29,7 @@ public class AdminListingService {
             ListingStatus.APPROVED,
             ListingStatus.REJECTED,
             ListingStatus.HIDDEN,
-            ListingStatus.REMOVED
-    );
+            ListingStatus.REMOVED);
 
     private final CoSoLuuTruRepository repo;
 
@@ -44,37 +37,36 @@ public class AdminListingService {
         this.repo = repo;
     }
 
-    // ------------------------------------------------------------------ GET /admin/listings (FR-21)
+    // ------------------------------------------------------------------ GET
+    // /admin/listings (FR-21)
     public ListingReviewPageResponse getListings(String trangThai, int page, int limit) {
-        String status = (trangThai == null || trangThai.isBlank()) ? ListingStatus.PENDING : trangThai.trim().toUpperCase();
+        String status = (trangThai == null || trangThai.isBlank()) ? ListingStatus.PENDING
+                : trangThai.trim().toUpperCase();
 
         if (ListingStatus.DRAFT.equalsIgnoreCase(status)) {
             throw new AppException(ErrorCode.VALIDATION_ERROR, List.of(
-                    new FieldError("trangThai", "Không hỗ trợ DRAFT")
-            ));
+                    new FieldError("trangThai", "Không hỗ trợ DRAFT")));
         }
 
         if (!VALID_STATUSES.contains(status)) {
             throw new AppException(ErrorCode.VALIDATION_ERROR, List.of(
-                    new FieldError("trangThai", "Trạng thái không hợp lệ")
-            ));
+                    new FieldError("trangThai", "Trạng thái không hợp lệ")));
         }
 
         if (page < 1) {
             throw new AppException(ErrorCode.VALIDATION_ERROR, List.of(
-                    new FieldError("page", "page phải lớn hơn hoặc bằng 1")
-            ));
+                    new FieldError("page", "page phải lớn hơn hoặc bằng 1")));
         }
 
         if (limit < 1 || limit > 100) {
             throw new AppException(ErrorCode.VALIDATION_ERROR, List.of(
-                    new FieldError("limit", "limit phải từ 1 đến 100")
-            ));
+                    new FieldError("limit", "limit phải từ 1 đến 100")));
         }
 
         Sort sort;
         if (ListingStatus.PENDING.equals(status)) {
-            // FIFO theo SRS FR-21: sắp xếp tăng dần theo ngày gửi duyệt (ai gửi trước duyệt trước)
+            // FIFO theo SRS FR-21: sắp xếp tăng dần theo ngày gửi duyệt (ai gửi trước duyệt
+            // trước)
             sort = Sort.by(Sort.Order.asc("ngayGuiDuyet"), Sort.Order.asc("ngayTao"), Sort.Order.asc("maCSLT"));
         } else {
             sort = Sort.by(Sort.Order.desc("ngayCapNhat"), Sort.Order.desc("maCSLT"));
@@ -88,11 +80,11 @@ public class AdminListingService {
 
         return new ListingReviewPageResponse(
                 items,
-                new Pagination(result.getTotalElements(), result.getTotalPages(), page, limit)
-        );
+                new Pagination(result.getTotalElements(), result.getTotalPages(), page, limit));
     }
 
-    // ------------------------------------------------------------- GET /admin/listings/{maCSLT}
+    // ------------------------------------------------------------- GET
+    // /admin/listings/{maCSLT}
     public ListingReviewDetail getListingDetail(int maCSLT) {
         CoSoLuuTru c = repo.findById(maCSLT)
                 .orElseThrow(() -> new AppException(ErrorCode.LISTING_NOT_FOUND));
@@ -127,11 +119,11 @@ public class AdminListingService {
                 Times.toInstant(c.getNgayGuiDuyet()),
                 Times.toInstant(c.getNgayCapNhat()),
                 checklist,
-                allowedActions
-        );
+                allowedActions);
     }
 
-    // ------------------------------------------------------------- PATCH /admin/listings/{maCSLT}/moderation (FR-22, FR-23)
+    // ------------------------------------------------------------- PATCH
+    // /admin/listings/{maCSLT}/moderation (FR-22, FR-23)
     @Transactional
     public ModerateListingResponse moderateListing(int maCSLT, ModerateListingRequest req) {
         CoSoLuuTru c = repo.findByIdForUpdate(maCSLT)
@@ -177,11 +169,11 @@ public class AdminListingService {
                 c.getTrangThai(),
                 c.getLyDoTuChoi(),
                 Times.toInstant(c.getNgayCapNhat()),
-                Times.toInstant(c.getNgayDuyet())
-        );
+                Times.toInstant(c.getNgayDuyet()));
     }
 
-    // ------------------------------------------------------------- PATCH /admin/listings/{maCSLT}/unpublish (FR-24)
+    // ------------------------------------------------------------- PATCH
+    // /admin/listings/{maCSLT}/unpublish (FR-24)
     @Transactional
     public UnpublishListingResponse unpublishListing(int maCSLT, UnpublishListingRequest req) {
         CoSoLuuTru c = repo.findByIdForUpdate(maCSLT)
@@ -203,8 +195,7 @@ public class AdminListingService {
             c.setTrangThai(ListingStatus.REMOVED);
         } else {
             throw new AppException(ErrorCode.VALIDATION_ERROR, List.of(
-                    new FieldError("hinhThuc", "Chỉ nhận HIDE hoặc REMOVE")
-            ));
+                    new FieldError("hinhThuc", "Chỉ nhận HIDE hoặc REMOVE")));
         }
 
         LocalDateTime now = LocalDateTime.now();
@@ -217,8 +208,7 @@ public class AdminListingService {
                 c.getMaCSLT(),
                 c.getTrangThai(),
                 c.getLyDoViPham(),
-                Times.toInstant(c.getNgayCapNhat())
-        );
+                Times.toInstant(c.getNgayCapNhat()));
     }
 
     // ------------------------------------------------------------------ Helpers
@@ -238,12 +228,12 @@ public class AdminListingService {
                 c.getTrangThai(),
                 Times.toInstant(c.getNgayTao()),
                 Times.toInstant(c.getNgayGuiDuyet()),
-                Times.toInstant(c.getNgayCapNhat())
-        );
+                Times.toInstant(c.getNgayCapNhat()));
     }
 
     private String firstImage(CoSoLuuTru c) {
-        if (c.getMedia() == null) return null;
+        if (c.getMedia() == null)
+            return null;
         return c.getMedia().stream()
                 .filter(m -> "IMAGE".equalsIgnoreCase(m.getLoai()))
                 .sorted(Comparator.comparing(Media::getThuTu, Comparator.nullsLast(Comparator.naturalOrder())))
@@ -256,12 +246,14 @@ public class AdminListingService {
         String sdt = null, zalo = null, facebook = null;
         if (c.getLienHe() != null) {
             for (LienHe l : c.getLienHe()) {
-                if (l.getLoaiLienHe() == null) continue;
+                if (l.getLoaiLienHe() == null)
+                    continue;
                 switch (l.getLoaiLienHe()) {
                     case "SO_DIEN_THOAI" -> sdt = l.getGiaTri();
                     case "ZALO" -> zalo = l.getGiaTri();
                     case "FACEBOOK" -> facebook = l.getGiaTri();
-                    default -> {}
+                    default -> {
+                    }
                 }
             }
         }
@@ -269,7 +261,8 @@ public class AdminListingService {
     }
 
     private List<AmenityItem> extractAmenities(CoSoLuuTru c) {
-        if (c.getTienIch() == null) return List.of();
+        if (c.getTienIch() == null)
+            return List.of();
         return c.getTienIch().stream()
                 .sorted(Comparator.comparing(TienIch::getMaTienIch))
                 .map(t -> new AmenityItem(t.getMaTienIch(), t.getTenTienIch(), t.getNhom()))
@@ -277,7 +270,8 @@ public class AdminListingService {
     }
 
     private List<MediaItem> extractMedia(CoSoLuuTru c) {
-        if (c.getMedia() == null) return List.of();
+        if (c.getMedia() == null)
+            return List.of();
         return c.getMedia().stream()
                 .sorted(Comparator.comparing(Media::getThuTu, Comparator.nullsLast(Comparator.naturalOrder())))
                 .map(m -> new MediaItem(m.getMediaId(), m.getDuongDan(), m.getLoai(), m.getThuTu()))
@@ -285,7 +279,8 @@ public class AdminListingService {
     }
 
     private HostInfo extractHost(CoSoLuuTru c) {
-        if (c.getHost() == null) return null;
+        if (c.getHost() == null)
+            return null;
         TaiKhoan h = c.getHost();
         return new HostInfo(h.getId(), h.getHoTen(), h.getEmail(), h.getSoDienThoai(), h.getTrangThai());
     }
@@ -297,9 +292,10 @@ public class AdminListingService {
                 && c.getLoai() != null
                 && c.getPhuong() != null;
 
-        long imageCount = c.getMedia() == null ? 0 : c.getMedia().stream()
-                .filter(m -> "IMAGE".equalsIgnoreCase(m.getLoai()))
-                .count();
+        long imageCount = c.getMedia() == null ? 0
+                : c.getMedia().stream()
+                        .filter(m -> "IMAGE".equalsIgnoreCase(m.getLoai()))
+                        .count();
         boolean anhToiThieu3 = imageCount >= 3;
 
         boolean toaDoTrongNhaTrang = false;
@@ -314,7 +310,8 @@ public class AdminListingService {
     }
 
     private List<String> computeAllowedActions(String trangThai) {
-        if (trangThai == null) return List.of();
+        if (trangThai == null)
+            return List.of();
         return switch (trangThai.toUpperCase()) {
             case ListingStatus.PENDING -> List.of("APPROVE", "REJECT");
             case ListingStatus.APPROVED -> List.of("HIDE", "REMOVE");

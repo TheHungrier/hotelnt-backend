@@ -1,16 +1,5 @@
 package com.hotelnt.helper;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
-import com.hotelnt.repository.*;
-import com.hotelnt.service.*;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -24,7 +13,7 @@ public class OtpEmailSender {
     private final String from;
 
     public OtpEmailSender(ObjectProvider<JavaMailSender> senders,
-                   @Value("${app.auth.mail-from:${spring.mail.username:}}") String from) {
+            @Value("${app.auth.mail-from:${spring.mail.username:}}") String from) {
         this.senders = senders;
         this.from = from;
     }

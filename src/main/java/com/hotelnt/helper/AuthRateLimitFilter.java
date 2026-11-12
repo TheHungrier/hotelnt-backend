@@ -1,16 +1,5 @@
 package com.hotelnt.helper;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
-import com.hotelnt.repository.*;
-import com.hotelnt.service.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hotelnt.common.error.ApiErrorResponse;
@@ -29,9 +18,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 /**
  * Bo loc gioi han toc do (Rate Limit):
- * - Tach rieng theo IP (xu ly dung qua Reverse Proxy) va theo Token (Access / Refresh token).
- * - Tranh ban oan nguoi dung trong cung mang NAT / cung endpoint / di qua reverse proxy cua FE.
- * - Co rate limit rieng cho Refresh token de chong bypass va spam endpoint /auth/refresh.
+ * - Tach rieng theo IP (xu ly dung qua Reverse Proxy) va theo Token (Access /
+ * Refresh token).
+ * - Tranh ban oan nguoi dung trong cung mang NAT / cung endpoint / di qua
+ * reverse proxy cua FE.
+ * - Co rate limit rieng cho Refresh token de chong bypass va spam endpoint
+ * /auth/refresh.
  */
 @Component
 public class AuthRateLimitFilter extends OncePerRequestFilter {
@@ -61,7 +53,8 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI().substring(request.getContextPath().length());
-        // Khong bo qua /auth/refresh nua de chong bypass; chi bo qua ngoai POST /auth/* va /auth/logout
+        // Khong bo qua /auth/refresh nua de chong bypass; chi bo qua ngoai POST /auth/*
+        // va /auth/logout
         return !"POST".equals(request.getMethod()) || !path.startsWith("/auth/")
                 || path.equals("/auth/logout");
     }
@@ -113,7 +106,8 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
             // Cac endpoint POST /auth/* khac
             String bearerToken = extractTokenFromHeader(request);
             if (bearerToken != null && !bearerToken.isBlank()) {
-                // Nguoi dung da co token: rate limit theo token rieng, khong anh huong nguoi khac cung IP
+                // Nguoi dung da co token: rate limit theo token rieng, khong anh huong nguoi
+                // khac cung IP
                 String tokenKey = "TOKEN:" + path + ":" + hash(bearerToken);
                 if (!checkRateLimit(tokenKey, MAX_TOKEN_REQUESTS, now)) {
                     reject(response);
@@ -189,7 +183,8 @@ public class AuthRateLimitFilter extends OncePerRequestFilter {
             StringBuilder sb = new StringBuilder();
             for (byte b : digest) {
                 String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) sb.append('0');
+                if (hex.length() == 1)
+                    sb.append('0');
                 sb.append(hex);
             }
             return sb.toString();

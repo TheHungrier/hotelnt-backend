@@ -1,16 +1,5 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
-import com.hotelnt.helper.*;
-import com.hotelnt.repository.*;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
@@ -31,9 +20,10 @@ public class AuthTokenService {
     private final long refreshSeconds;
 
     public AuthTokenService(@Value("${app.auth.jwt-secret:}") String secret,
-                     @Value("${app.auth.refresh-seconds:604800}") long refreshSeconds) {
+            @Value("${app.auth.refresh-seconds:604800}") long refreshSeconds) {
         this.secret = secret;
-        if (refreshSeconds <= 0) throw new IllegalArgumentException("Invalid refresh token lifetime");
+        if (refreshSeconds <= 0)
+            throw new IllegalArgumentException("Invalid refresh token lifetime");
         this.refreshSeconds = refreshSeconds;
     }
 
@@ -45,10 +35,13 @@ public class AuthTokenService {
         return issue(accountId, sessionId, "refresh", refreshSeconds);
     }
 
-    public long refreshSeconds() { return refreshSeconds; }
+    public long refreshSeconds() {
+        return refreshSeconds;
+    }
 
     public Claims verify(String token, String expectedType) {
-        if (token == null || token.isBlank()) throw new IllegalArgumentException("Missing token");
+        if (token == null || token.isBlank())
+            throw new IllegalArgumentException("Missing token");
         try {
             Claims claims = Jwts.parser().verifyWith(key()).build().parseSignedClaims(token).getPayload();
             if (!expectedType.equals(claims.get("type", String.class))
@@ -74,7 +67,8 @@ public class AuthTokenService {
 
     private SecretKey key() {
         byte[] bytes = secret.getBytes(StandardCharsets.UTF_8);
-        if (bytes.length < 32) throw new IllegalStateException("APP_AUTH_JWT_SECRET must contain at least 32 bytes");
+        if (bytes.length < 32)
+            throw new IllegalStateException("APP_AUTH_JWT_SECRET must contain at least 32 bytes");
         return Keys.hmacShaKeyFor(bytes);
     }
 }

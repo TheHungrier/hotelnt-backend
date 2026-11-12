@@ -1,14 +1,7 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.domain.*;
 import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
 import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -35,26 +28,42 @@ public class OtpResendService {
     private final ObjectMapper json;
 
     public OtpResendService(AuthChallengeRepository challenges, OtpCodeGenerator codes, OtpHasher hashes,
-                     OtpEmailSender email, ObjectMapper json) {
-        this.challenges = challenges; this.codes = codes; this.hashes = hashes; this.email = email; this.json = json;
+            OtpEmailSender email, ObjectMapper json) {
+        this.challenges = challenges;
+        this.codes = codes;
+        this.hashes = hashes;
+        this.email = email;
+        this.json = json;
     }
-    public enum Status { SUCCESS, EXPIRED, TOO_SOON, LIMIT }
-    public record Response(String challengeId, int otpExpiresIn, int resendAfter) {}
-    public record Result(Status status, Response response, Object details) {}
+
+    public enum Status {
+        SUCCESS, EXPIRED, TOO_SOON, LIMIT
+    }
+
+    public record Response(String challengeId, int otpExpiresIn, int resendAfter) {
+    }
+
+    public record Result(Status status, Response response, Object details) {
+    }
 
     @Transactional
     public Result resend(OtpResendRequest request) {
-        if (!email.isConfigured()) throw new IllegalStateException("SMTP is not configured");
+        if (!email.isConfigured())
+            throw new IllegalStateException("SMTP is not configured");
         OtpChallenge c = challenges.findForUpdate(request.challengeId()).orElse(null);
-        if (c == null || Boolean.TRUE.equals(c.getDaDung())) return new Result(Status.EXPIRED, null, null);
+        if (c == null || Boolean.TRUE.equals(c.getDaDung()))
+            return new Result(Status.EXPIRED, null, null);
         ObjectNode data = metadata(c.getDuLieuDangKy());
-        if (data.path("resetPending").asBoolean(false)) return new Result(Status.EXPIRED, null, null);
+        if (data.path("resetPending").asBoolean(false))
+            return new Result(Status.EXPIRED, null, null);
         LocalDateTime now = LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
         long wait = OtpTiming.secondsUntilResend(c.getGuiLaiSauLuc(), now);
-        if (wait > 0) return new Result(Status.TOO_SOON, null,
-                List.of(Map.of("field", "retryAfter", "message", Long.toString(wait))));
+        if (wait > 0)
+            return new Result(Status.TOO_SOON, null,
+                    List.of(Map.of("field", "retryAfter", "message", Long.toString(wait))));
         int count = data.path("resendCount").asInt(0);
-        if (count >= 5) return new Result(Status.LIMIT, null, null);
+        if (count >= 5)
+            return new Result(Status.LIMIT, null, null);
         String code = codes.generate();
         data.put("resendCount", count + 1);
         c.setDuLieuDangKy(data.toString());
@@ -90,10 +99,14 @@ public class OtpResendService {
     }
 
     private ObjectNode metadata(String raw) {
-        if (raw == null || raw.isBlank()) return json.createObjectNode();
+        if (raw == null || raw.isBlank())
+            return json.createObjectNode();
         try {
-            if (json.readTree(raw) instanceof ObjectNode node) return node;
+            if (json.readTree(raw) instanceof ObjectNode node)
+                return node;
             throw new IllegalStateException("Invalid OTP metadata");
-        } catch (JsonProcessingException ex) { throw new IllegalStateException("Invalid OTP metadata", ex); }
+        } catch (JsonProcessingException ex) {
+            throw new IllegalStateException("Invalid OTP metadata", ex);
+        }
     }
 }

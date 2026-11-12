@@ -28,10 +28,10 @@ public class Media {
     @JoinColumn(name = "maCSLT")
     private CoSoLuuTru coSo;
 
-
     @PrePersist
     void prePersist() {
         LocalDateTime now = LocalDateTime.now();
-        if (ngayTao == null) ngayTao = now;
+        if (ngayTao == null)
+            ngayTao = now;
     }
 }

@@ -1,17 +1,5 @@
 package com.hotelnt.config;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
-import com.hotelnt.helper.*;
-import com.hotelnt.repository.*;
-import com.hotelnt.service.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
@@ -28,7 +16,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${app.upload.dir:uploads}")
     private String uploadDir;
 
-    /** Cho phep front end (domain khac) goi API. Dat CORS_ORIGINS=http://localhost:5173 khi deploy. */
+    /**
+     * Cho phep front end (domain khac) goi API. Dat
+     * CORS_ORIGINS=http://localhost:5173 khi deploy.
+     */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")

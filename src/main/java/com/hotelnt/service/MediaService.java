@@ -1,12 +1,7 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.domain.*;
 import com.hotelnt.dto.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
-import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import com.hotelnt.common.error.AppException;
 import com.hotelnt.common.error.ErrorCode;
@@ -102,7 +97,8 @@ public class MediaService {
             media.setDuongDan(url);
             media.setKichThuoc((int) file.getSize());
             media.setLoai(normType);
-            media.setMimeType(file.getContentType() != null ? file.getContentType() : (isImage ? "image/jpeg" : "video/mp4"));
+            media.setMimeType(
+                    file.getContentType() != null ? file.getContentType() : (isImage ? "image/jpeg" : "video/mp4"));
             int nextThuTu = currentMedia.stream()
                     .mapToInt(m -> m.getThuTu() != null ? m.getThuTu() : 0)
                     .max()
@@ -112,7 +108,8 @@ public class MediaService {
 
             Media savedMedia = mediaRepo.save(media);
 
-            // Quy tắc nghiệp vụ từ API Design: CSLT đã duyệt mà upload thì chuyển về PENDING
+            // Quy tắc nghiệp vụ từ API Design: CSLT đã duyệt mà upload thì chuyển về
+            // PENDING
             if (ListingStatus.APPROVED.equals(coSo.getTrangThai())) {
                 coSo.setTrangThai(ListingStatus.PENDING);
                 coSo.setNgayGuiDuyet(LocalDateTime.now());
@@ -124,7 +121,8 @@ public class MediaService {
             int newVideoCount = (int) (!isImage ? videoCount + 1 : videoCount);
             int mediaId = savedMedia.getMediaId() != null ? savedMedia.getMediaId() : 0;
 
-            return new MediaDtos.MediaUploadResponse(mediaId, url, normType, media.getKichThuoc(), media.getThuTu(), newImageCount, newVideoCount);
+            return new MediaDtos.MediaUploadResponse(mediaId, url, normType, media.getKichThuoc(), media.getThuTu(),
+                    newImageCount, newVideoCount);
         } catch (AppException e) {
             storageService.delete(url);
             throw e;
@@ -160,7 +158,8 @@ public class MediaService {
         long videoCount = currentMedia.stream().filter(m -> "VIDEO".equalsIgnoreCase(m.getLoai())).count();
 
         // Quy tắc: CSLT không phải DRAFT thì không được xóa làm còn < 3 ảnh
-        if (!ListingStatus.DRAFT.equals(coSo.getTrangThai()) && "IMAGE".equalsIgnoreCase(media.getLoai()) && imageCount <= MIN_IMAGES) {
+        if (!ListingStatus.DRAFT.equals(coSo.getTrangThai()) && "IMAGE".equalsIgnoreCase(media.getLoai())
+                && imageCount <= MIN_IMAGES) {
             throw new AppException(ErrorCode.MIN_IMAGES_REQUIRED);
         }
 
@@ -188,7 +187,8 @@ public class MediaService {
         }
 
         boolean thayDoiTrangThai = false;
-        // Quy tắc nghiệp vụ từ API Design: CSLT đã duyệt mà xóa media thì chuyển về PENDING
+        // Quy tắc nghiệp vụ từ API Design: CSLT đã duyệt mà xóa media thì chuyển về
+        // PENDING
         if (ListingStatus.APPROVED.equals(coSo.getTrangThai())) {
             coSo.setTrangThai(ListingStatus.PENDING);
             coSo.setNgayGuiDuyet(LocalDateTime.now());
@@ -197,20 +197,24 @@ public class MediaService {
             thayDoiTrangThai = true;
         }
 
-        int newImageCount = (int) ("IMAGE".equalsIgnoreCase(media.getLoai()) ? Math.max(0, imageCount - 1) : imageCount);
-        int newVideoCount = (int) ("VIDEO".equalsIgnoreCase(media.getLoai()) ? Math.max(0, videoCount - 1) : videoCount);
+        int newImageCount = (int) ("IMAGE".equalsIgnoreCase(media.getLoai()) ? Math.max(0, imageCount - 1)
+                : imageCount);
+        int newVideoCount = (int) ("VIDEO".equalsIgnoreCase(media.getLoai()) ? Math.max(0, videoCount - 1)
+                : videoCount);
 
         return new MediaDtos.MediaDeleteResponse("Xóa file thành công", newImageCount, newVideoCount, thayDoiTrangThai);
     }
 
     private void validateFileType(MultipartFile file, String type) {
         String filename = file.getOriginalFilename();
-        if (filename == null) filename = "";
+        if (filename == null)
+            filename = "";
         filename = filename.toLowerCase();
 
         boolean isImage = "IMAGE".equals(type);
         if (isImage) {
-            if (!filename.endsWith(".jpg") && !filename.endsWith(".jpeg") && !filename.endsWith(".png") && !filename.endsWith(".webp")) {
+            if (!filename.endsWith(".jpg") && !filename.endsWith(".jpeg") && !filename.endsWith(".png")
+                    && !filename.endsWith(".webp")) {
                 throw new AppException(ErrorCode.UNSUPPORTED_MEDIA_TYPE);
             }
         } else if ("VIDEO".equals(type)) {
@@ -235,15 +239,18 @@ public class MediaService {
             if (isImage) {
                 boolean isJpeg = (filename.endsWith(".jpg") || filename.endsWith(".jpeg")) && hex.startsWith("FFD8FF");
                 boolean isPng = filename.endsWith(".png") && hex.startsWith("89504E47");
-                boolean isWebp = filename.endsWith(".webp") && read >= 12 && hex.startsWith("52494646") && hex.substring(16, 24).equalsIgnoreCase("57454250");
+                boolean isWebp = filename.endsWith(".webp") && read >= 12 && hex.startsWith("52494646")
+                        && hex.substring(16, 24).equalsIgnoreCase("57454250");
                 if (!isJpeg && !isPng && !isWebp) {
-                    throw new AppException(ErrorCode.UNSUPPORTED_MEDIA_TYPE, "Định dạng nội dung file không khớp với phần mở rộng.");
+                    throw new AppException(ErrorCode.UNSUPPORTED_MEDIA_TYPE,
+                            "Định dạng nội dung file không khớp với phần mở rộng.");
                 }
             } else if ("VIDEO".equals(type)) {
                 // MP4: box ftyp ở byte 4-7 (hex characters 8-15)
                 boolean isMp4 = read >= 8 && hex.length() >= 16 && hex.substring(8, 16).equalsIgnoreCase("66747970");
                 if (!isMp4) {
-                    throw new AppException(ErrorCode.UNSUPPORTED_MEDIA_TYPE, "Định dạng nội dung file không phải MP4 hợp lệ.");
+                    throw new AppException(ErrorCode.UNSUPPORTED_MEDIA_TYPE,
+                            "Định dạng nội dung file không phải MP4 hợp lệ.");
                 }
             }
         } catch (AppException e) {

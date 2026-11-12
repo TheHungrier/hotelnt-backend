@@ -1,16 +1,5 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
-import com.hotelnt.helper.*;
-import com.hotelnt.repository.*;
 import com.hotelnt.common.error.AppException;
 import com.hotelnt.common.error.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,7 +27,8 @@ public class LocalFileStorageService implements StorageService {
     @Override
     public String store(MultipartFile file, String type) {
         try {
-            if (file.isEmpty()) throw new AppException(ErrorCode.VALIDATION_ERROR, "File rỗng");
+            if (file.isEmpty())
+                throw new AppException(ErrorCode.VALIDATION_ERROR, "File rỗng");
 
             String originalFilename = file.getOriginalFilename();
             String extension = "";
@@ -65,7 +55,8 @@ public class LocalFileStorageService implements StorageService {
 
     @Override
     public void delete(String fileUrl) {
-        if (fileUrl == null || !fileUrl.startsWith("/uploads/")) return;
+        if (fileUrl == null || !fileUrl.startsWith("/uploads/"))
+            return;
         String filename = fileUrl.substring("/uploads/".length());
         try {
             Path fileToDelete = this.rootLocation.resolve(filename).normalize().toAbsolutePath();

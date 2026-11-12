@@ -47,9 +47,7 @@ public class CoSoLuuTru {
     private LoaiCoSo loai;
 
     @ManyToMany
-    @JoinTable(name = "TienIchCSLT",
-            joinColumns = @JoinColumn(name = "maCSLT"),
-            inverseJoinColumns = @JoinColumn(name = "maTienIch"))
+    @JoinTable(name = "TienIchCSLT", joinColumns = @JoinColumn(name = "maCSLT"), inverseJoinColumns = @JoinColumn(name = "maTienIch"))
     private Set<TienIch> tienIch = new HashSet<>();
 
     @OneToMany(mappedBy = "coSo")
@@ -59,11 +57,12 @@ public class CoSoLuuTru {
     @OneToMany(mappedBy = "coSo")
     private List<LienHe> lienHe = new ArrayList<>();
 
-
     @PrePersist
     void prePersist() {
         LocalDateTime now = LocalDateTime.now();
-        if (ngayTao == null) ngayTao = now;
-        if (ngayCapNhat == null) ngayCapNhat = now;
+        if (ngayTao == null)
+            ngayTao = now;
+        if (ngayCapNhat == null)
+            ngayCapNhat = now;
     }
 }

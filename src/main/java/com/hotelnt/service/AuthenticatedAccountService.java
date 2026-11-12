@@ -1,15 +1,6 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
 import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.dto.MediaDtos.*;
-import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import io.jsonwebtoken.Claims;
 import java.util.Optional;
@@ -28,9 +19,11 @@ public class AuthenticatedAccountService {
 
     @Transactional(readOnly = true)
     public Optional<Identity> resolve(String authorization, String expectedRole) {
-        if (authorization == null || !authorization.startsWith("Bearer ")) return Optional.empty();
+        if (authorization == null || !authorization.startsWith("Bearer "))
+            return Optional.empty();
         String token = authorization.substring("Bearer ".length()).trim();
-        if (token.isEmpty()) return Optional.empty();
+        if (token.isEmpty())
+            return Optional.empty();
 
         Claims claims;
         try {
@@ -58,5 +51,6 @@ public class AuthenticatedAccountService {
         return Optional.of(new Identity(account.getId(), account.getEmail(), account.getVaiTro(), sessionId));
     }
 
-    public record Identity(Integer accountId, String email, String role, String sessionId) {}
+    public record Identity(Integer accountId, String email, String role, String sessionId) {
+    }
 }
