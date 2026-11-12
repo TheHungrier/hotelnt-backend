@@ -728,9 +728,9 @@ class MediaServiceTest {
         f2.get();
         executor.shutdown();
 
-        assertEquals(1, successCount.get(), "Ch?nh x?c 1 request thành công");
-        assertEquals(1, limitExceededCount.get(), "Ch?nh x?c 1 request nhận MEDIA_LIMIT_EXCEEDED");
-        assertEquals(100, mockCoSo.getMedia().size(), "Database c? d?ng 100 ảnh");
+        assertEquals(1, successCount.get(), "Chính xác 1 request thành công");
+        assertEquals(1, limitExceededCount.get(), "Chính xác 1 request nhận MEDIA_LIMIT_EXCEEDED");
+        assertEquals(100, mockCoSo.getMedia().size(), "Database có đúng 100 ảnh");
     }
 
     @Test
@@ -784,9 +784,9 @@ class MediaServiceTest {
         f2.get();
         executor.shutdown();
 
-        assertEquals(1, successCount.get(), "Ch?nh x?c 1 request thành công");
-        assertEquals(1, limitExceededCount.get(), "Ch?nh x?c 1 request nhận MEDIA_LIMIT_EXCEEDED");
-        assertEquals(5, mockCoSo.getMedia().size(), "Database c? d?ng 5 video");
+        assertEquals(1, successCount.get(), "Chính xác 1 request thành công");
+        assertEquals(1, limitExceededCount.get(), "Chính xác 1 request nhận MEDIA_LIMIT_EXCEEDED");
+        assertEquals(5, mockCoSo.getMedia().size(), "Database có đúng 5 video");
     }
 
     @Test
@@ -851,7 +851,7 @@ class MediaServiceTest {
         MediaDtos.MediaUploadResponse res = mediaService.upload(15, 2, file, "IMAGE");
 
         assertNotNull(res);
-        assertEquals(6, res.thuTu(), "Số thẻ tự mới phải l? max(1, 2, 5) + 1 = 6");
+        assertEquals(6, res.thuTu(), "Số thứ tự mới phải là max(1, 2, 5) + 1 = 6");
     }
 
     @Test

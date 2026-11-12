@@ -140,7 +140,7 @@ class ConfigServiceTest {
 
     @Test
     void uploadOgImage_Success_ValidRatio() throws IOException {
-        // T?o ?nh 1200x630 (t? l? chu?n ~1.9048)
+        // Tạo ảnh 1200x630 (tỷ lệ chuẩn ~1.9048)
         BufferedImage img = new BufferedImage(1200, 630, BufferedImage.TYPE_INT_RGB);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(img, "jpg", baos);

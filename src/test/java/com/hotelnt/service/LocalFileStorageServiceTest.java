@@ -108,12 +108,12 @@ class LocalFileStorageServiceTest {
     @DisplayName("constructor: Tự động tạo thư mục con trên đĩa nếu chưa tồn tại")
     void constructor_CreatesDirectoryIfNotExists() {
         Path nestedDir = tempDir.resolve("nested").resolve("sub-uploads");
-        assertFalse(Files.exists(nestedDir), "Thu m?c chua du?c t?o tru?c khi kh?i t?o service");
+        assertFalse(Files.exists(nestedDir), "Thư mục chưa được tạo trước khi khởi tạo service");
 
         LocalFileStorageService customStorageService = new LocalFileStorageService(nestedDir.toString());
 
         assertNotNull(customStorageService);
-        assertTrue(Files.exists(nestedDir), "Thu m?c ph?i du?c t? d?ng t?o sau khi kh?i t?o service");
+        assertTrue(Files.exists(nestedDir), "Thư mục phải được tự động tạo sau khi khởi tạo service");
         assertTrue(Files.isDirectory(nestedDir), "Đường dẫn được tạo phải là thư mục");
     }
 
