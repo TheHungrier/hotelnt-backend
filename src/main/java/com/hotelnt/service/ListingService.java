@@ -13,6 +13,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -32,6 +34,7 @@ public class ListingService {
     private final CoSoLuuTruRepository repo;
     private final GoogleDistanceService distanceService;
 
+    @Autowired
     public ListingService(CoSoLuuTruRepository repo, GoogleDistanceService distanceService) {
         this.repo = repo;
         this.distanceService = distanceService;
