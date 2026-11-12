@@ -12,7 +12,7 @@ import com.hotelnt.dto.SeoDtos.SeoResponse;
 @Service
 @Transactional(readOnly = true)
 public class SeoService {
-    // Khoa trong bang CauHinh (khop db/seed.sql)
+    // Khoa trong bang CauHinh (khop seed reference/demo cua Liquibase)
     private static final String PREFIX = "seo.";
 
     private final CauHinhRepository repo;

@@ -1,12 +1,7 @@
 package com.hotelnt.service;
 
-import com.hotelnt.dto.MediaDtos.*;
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.controller.*;
 import com.hotelnt.domain.*;
 import com.hotelnt.dto.*;
-import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import com.hotelnt.common.error.AppException;
 import com.hotelnt.common.error.ErrorCode;
@@ -37,19 +32,20 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class MediaServiceTest {
 
-    private static final byte[] VALID_JPEG_HEADER = new byte[]{(byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0, 0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01};
-    private static final byte[] VALID_PNG_HEADER = new byte[]{(byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D};
-    private static final byte[] VALID_WEBP_HEADER = new byte[]{
+    private static final byte[] VALID_JPEG_HEADER = new byte[] { (byte) 0xFF, (byte) 0xD8, (byte) 0xFF, (byte) 0xE0,
+            0x00, 0x10, 0x4A, 0x46, 0x49, 0x46, 0x00, 0x01 };
+    private static final byte[] VALID_PNG_HEADER = new byte[] { (byte) 0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
+            0x00, 0x00, 0x00, 0x0D };
+    private static final byte[] VALID_WEBP_HEADER = new byte[] {
             0x52, 0x49, 0x46, 0x46, // 'RIFF'
             0x24, 0x00, 0x00, 0x00, // file size
-            0x57, 0x45, 0x42, 0x50  // 'WEBP'
+            0x57, 0x45, 0x42, 0x50 // 'WEBP'
     };
-    private static final byte[] VALID_MP4_HEADER = new byte[]{
+    private static final byte[] VALID_MP4_HEADER = new byte[] {
             0x00, 0x00, 0x00, 0x20, // box size 32
             0x66, 0x74, 0x79, 0x70, // 'ftyp'
-            0x69, 0x73, 0x6F, 0x6D  // 'isom'
+            0x69, 0x73, 0x6F, 0x6D // 'isom'
     };
-
 
     @Mock
     private CoSoLuuTruRepository coSoRepo;
@@ -85,8 +81,7 @@ class MediaServiceTest {
     @Test
     void upload_Success_ValidImage() {
         MockMultipartFile file = new MockMultipartFile(
-                "file", "room.jpg", "image/jpeg", VALID_JPEG_HEADER
-        );
+                "file", "room.jpg", "image/jpeg", VALID_JPEG_HEADER);
 
         when(coSoRepo.findByIdForUpdate(15)).thenReturn(Optional.of(mockCoSo));
         when(storageService.store(any(), eq("IMAGE"))).thenReturn("/uploads/uuid.jpg");
@@ -112,8 +107,7 @@ class MediaServiceTest {
         mockCoSo.setTrangThai(ListingStatus.APPROVED);
 
         MockMultipartFile file = new MockMultipartFile(
-                "file", "room.jpg", "image/jpeg", VALID_JPEG_HEADER
-        );
+                "file", "room.jpg", "image/jpeg", VALID_JPEG_HEADER);
 
         when(coSoRepo.findByIdForUpdate(15)).thenReturn(Optional.of(mockCoSo));
         when(storageService.store(any(), eq("IMAGE"))).thenReturn("/uploads/uuid.jpg");
@@ -133,8 +127,7 @@ class MediaServiceTest {
     @Test
     void upload_Success_ValidVideo() {
         MockMultipartFile file = new MockMultipartFile(
-                "file", "tour.mp4", "video/mp4", VALID_MP4_HEADER
-        );
+                "file", "tour.mp4", "video/mp4", VALID_MP4_HEADER);
 
         when(coSoRepo.findByIdForUpdate(15)).thenReturn(Optional.of(mockCoSo));
         when(storageService.store(any(), eq("VIDEO"))).thenReturn("/uploads/video.mp4");
@@ -157,8 +150,7 @@ class MediaServiceTest {
     @Test
     void upload_Fail_EmptyFile() {
         MockMultipartFile emptyFile = new MockMultipartFile(
-                "file", "empty.jpg", "image/jpeg", new byte[0]
-        );
+                "file", "empty.jpg", "image/jpeg", new byte[0]);
 
         AppException ex = assertThrows(AppException.class, () -> mediaService.upload(15, 2, emptyFile, "IMAGE"));
         assertEquals(ErrorCode.VALIDATION_ERROR, ex.getCode());
@@ -167,8 +159,7 @@ class MediaServiceTest {
     @Test
     void upload_Fail_NotOwner() {
         MockMultipartFile file = new MockMultipartFile(
-                "file", "room.jpg", "image/jpeg", "bytes".getBytes()
-        );
+                "file", "room.jpg", "image/jpeg", "bytes".getBytes());
         when(coSoRepo.findByIdForUpdate(15)).thenReturn(Optional.of(mockCoSo));
 
         AppException ex = assertThrows(AppException.class, () -> mediaService.upload(15, 999, file, "IMAGE"));
@@ -179,8 +170,7 @@ class MediaServiceTest {
     void upload_Fail_ListingPending() {
         mockCoSo.setTrangThai(ListingStatus.PENDING);
         MockMultipartFile file = new MockMultipartFile(
-                "file", "room.jpg", "image/jpeg", "bytes".getBytes()
-        );
+                "file", "room.jpg", "image/jpeg", "bytes".getBytes());
         when(coSoRepo.findByIdForUpdate(15)).thenReturn(Optional.of(mockCoSo));
 
         AppException ex = assertThrows(AppException.class, () -> mediaService.upload(15, 2, file, "IMAGE"));
@@ -191,8 +181,7 @@ class MediaServiceTest {
     void upload_Fail_ListingRemoved() {
         mockCoSo.setTrangThai(ListingStatus.REMOVED);
         MockMultipartFile file = new MockMultipartFile(
-                "file", "room.jpg", "image/jpeg", "bytes".getBytes()
-        );
+                "file", "room.jpg", "image/jpeg", "bytes".getBytes());
         when(coSoRepo.findByIdForUpdate(15)).thenReturn(Optional.of(mockCoSo));
 
         AppException ex = assertThrows(AppException.class, () -> mediaService.upload(15, 2, file, "IMAGE"));
@@ -209,7 +198,6 @@ class MediaServiceTest {
         assertEquals(ErrorCode.FILE_TOO_LARGE, ex.getCode());
     }
 
-
     @Test
     void upload_Image_ExactBoundary_10MB_Success() {
         MultipartFile file = mock(MultipartFile.class);
@@ -218,7 +206,8 @@ class MediaServiceTest {
         when(file.getSize()).thenReturn(10 * 1024 * 1024L); // 10,485,760 bytes
         try {
             when(file.getInputStream()).thenReturn(new ByteArrayInputStream(VALID_JPEG_HEADER));
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
 
         when(coSoRepo.findByIdForUpdate(15)).thenReturn(Optional.of(mockCoSo));
         when(storageService.store(any(), eq("IMAGE"))).thenReturn("/uploads/photo_10mb.jpg");
@@ -254,7 +243,8 @@ class MediaServiceTest {
         when(file.getSize()).thenReturn(100 * 1024 * 1024L); // 104,857,600 bytes
         try {
             when(file.getInputStream()).thenReturn(new ByteArrayInputStream(VALID_MP4_HEADER));
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
 
         when(coSoRepo.findByIdForUpdate(15)).thenReturn(Optional.of(mockCoSo));
         when(storageService.store(any(), eq("VIDEO"))).thenReturn("/uploads/video_100mb.mp4");
@@ -294,7 +284,8 @@ class MediaServiceTest {
 
     @Test
     void upload_Fail_UnsupportedFormat() {
-        MockMultipartFile file = new MockMultipartFile("file", "document.pdf", "application/pdf", "pdf-data".getBytes());
+        MockMultipartFile file = new MockMultipartFile("file", "document.pdf", "application/pdf",
+                "pdf-data".getBytes());
         when(coSoRepo.findByIdForUpdate(15)).thenReturn(Optional.of(mockCoSo));
 
         AppException ex = assertThrows(AppException.class, () -> mediaService.upload(15, 2, file, "IMAGE"));
@@ -303,15 +294,14 @@ class MediaServiceTest {
 
     @Test
     void upload_Fail_FakeExecutableFile() {
-        byte[] fakeExe = new byte[]{0x4D, 0x5A, (byte) 0x90, 0x00}; // MZ header
+        byte[] fakeExe = new byte[] { 0x4D, 0x5A, (byte) 0x90, 0x00 }; // MZ header
         MockMultipartFile file = new MockMultipartFile("file", "virus.jpg", "image/jpeg", fakeExe);
         when(coSoRepo.findByIdForUpdate(15)).thenReturn(Optional.of(mockCoSo));
 
         AppException ex = assertThrows(AppException.class, () -> mediaService.upload(15, 2, file, "IMAGE"));
         assertEquals(ErrorCode.VALIDATION_ERROR, ex.getCode());
-        assertTrue(ex.getDetails().toString().contains("m� d?c"));
+        assertTrue(ex.getDetails().toString().contains("m� được"));
     }
-
 
     @Test
     void upload_Fail_FakeTxtFile_DisguisedAsJpg() {
@@ -488,7 +478,7 @@ class MediaServiceTest {
         MediaDtos.MediaDeleteResponse res = mediaService.delete(15, 1, 2);
 
         assertNotNull(res);
-        assertEquals("X�a file th�nh c�ng", res.message());
+        assertEquals("Xóa file thành công", res.message());
         assertEquals(0, res.soAnh());
         assertFalse(res.thayDoiTrangThai());
         verify(mediaRepo, times(1)).delete(m);
@@ -523,13 +513,12 @@ class MediaServiceTest {
         verify(coSoRepo, times(1)).save(mockCoSo);
     }
 
-
     @Test
     void delete_Success_Video_WhenApprovedListingHasLessThanThreeImages() {
         mockCoSo.setTrangThai(ListingStatus.APPROVED);
 
         List<Media> mediaList = new ArrayList<>();
-        // 2 ?nh (du?i ngu?ng MIN_IMAGES = 3 c?a ?nh)
+        // 2 ảnh (dưới ngưỡng MIN_IMAGES = 3 của ảnh)
         for (int i = 1; i <= 2; i++) {
             Media img = new Media();
             img.setMediaId(i);
@@ -554,7 +543,7 @@ class MediaServiceTest {
         MediaDtos.MediaDeleteResponse res = mediaService.delete(15, 10, 2);
 
         assertNotNull(res);
-        assertEquals("X�a file th�nh c�ng", res.message());
+        assertEquals("Xóa file thành công", res.message());
         assertEquals(2, res.soAnh());
         assertEquals(0, res.soVideo());
         assertTrue(res.thayDoiTrangThai());
@@ -635,13 +624,13 @@ class MediaServiceTest {
 
             mediaService.delete(15, 1, 2);
 
-            // Tru?c khi commit, storageService.delete chua du?c g?i
+            // Truýc khi commit, storageService.delete chứa được gọi
             verify(storageService, never()).delete("/uploads/photo1.jpg");
 
-            // Gi? l?p Spring Transaction commit th�nh c�ng
+            // Giả lặp Spring Transaction commit thành công
             TransactionSynchronizationUtils.triggerAfterCommit();
 
-            // Sau khi commit, storageService.delete �� du?c g?i
+            // Sau khi commit, storageService.delete �� được gọi
             verify(storageService, times(1)).delete("/uploads/photo1.jpg");
         } finally {
             TransactionSynchronizationManager.clearSynchronization();
@@ -664,8 +653,8 @@ class MediaServiceTest {
 
             mediaService.delete(15, 1, 2);
 
-            // Gi? l?p DB Rollback (kh�ng g?i triggerAfterCommit)
-            // storageService.delete tuy?t d?i KH�NG du?c g?i
+            // Giả lặp DB Rollback (kh?ng gọi triggerAfterCommit)
+            // storageService.delete tuyệt đài KH�NG được gọi
             verify(storageService, never()).delete("/uploads/photo1.jpg");
         } finally {
             TransactionSynchronizationManager.clearSynchronization();
@@ -727,9 +716,9 @@ class MediaServiceTest {
         f2.get();
         executor.shutdown();
 
-        assertEquals(1, successCount.get(), "Ch�nh x�c 1 request th�nh c�ng");
-        assertEquals(1, limitExceededCount.get(), "Ch�nh x�c 1 request nh?n MEDIA_LIMIT_EXCEEDED");
-        assertEquals(100, mockCoSo.getMedia().size(), "Database c� d�ng 100 ?nh");
+        assertEquals(1, successCount.get(), "Ch?nh x?c 1 request thành công");
+        assertEquals(1, limitExceededCount.get(), "Ch?nh x?c 1 request nhận MEDIA_LIMIT_EXCEEDED");
+        assertEquals(100, mockCoSo.getMedia().size(), "Database c? d?ng 100 ảnh");
     }
 
     @Test
@@ -783,9 +772,9 @@ class MediaServiceTest {
         f2.get();
         executor.shutdown();
 
-        assertEquals(1, successCount.get(), "Ch�nh x�c 1 request th�nh c�ng");
-        assertEquals(1, limitExceededCount.get(), "Ch�nh x�c 1 request nh?n MEDIA_LIMIT_EXCEEDED");
-        assertEquals(5, mockCoSo.getMedia().size(), "Database c� d�ng 5 video");
+        assertEquals(1, successCount.get(), "Ch?nh x?c 1 request thành công");
+        assertEquals(1, limitExceededCount.get(), "Ch?nh x?c 1 request nhận MEDIA_LIMIT_EXCEEDED");
+        assertEquals(5, mockCoSo.getMedia().size(), "Database c? d?ng 5 video");
     }
 
     @Test
@@ -833,7 +822,7 @@ class MediaServiceTest {
     @Test
     void concurrency_UploadAndThuTuCalculation_AlwaysUniqueAndMonotonic() {
         List<Media> mediaList = new ArrayList<>();
-        for (int id : new int[]{1, 2, 5}) {
+        for (int id : new int[] { 1, 2, 5 }) {
             Media m = new Media();
             m.setMediaId(id);
             m.setLoai("IMAGE");
@@ -850,7 +839,7 @@ class MediaServiceTest {
         MediaDtos.MediaUploadResponse res = mediaService.upload(15, 2, file, "IMAGE");
 
         assertNotNull(res);
-        assertEquals(6, res.thuTu(), "S? th? t? m?i ph?i l� max(1, 2, 5) + 1 = 6");
+        assertEquals(6, res.thuTu(), "Số thẻ tự mới phải l? max(1, 2, 5) + 1 = 6");
     }
 
     @Test

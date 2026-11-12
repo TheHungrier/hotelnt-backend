@@ -1,12 +1,6 @@
 package com.hotelnt.controller;
 
 import com.hotelnt.dto.FilterOptionDtos.*;
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.helper.*;
-import com.hotelnt.repository.*;
 import com.hotelnt.service.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -24,13 +18,16 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(FilterOptionController.class)
 class FilterOptionControllerTest {
 
-    @Autowired MockMvc mvc;
-    @MockBean FilterOptionService service;
+    @Autowired
+    MockMvc mvc;
+    @MockBean
+    FilterOptionService service;
 
-    @Test void getOk() throws Exception {
+    @Test
+    void getOk() throws Exception {
         when(service.get()).thenReturn(new FilterOptionsResponse(List.of(), List.of(), List.of(), List.of(),
                 new PriceRange(500_000L, 100_000_000L), List.of(1, 2, 3, 5, 10),
-                List.of(new SortOption("GIA_ASC", "Gi� tang d?n")),
+                List.of(new SortOption("GIA_ASC", "Giá tăng dần")),
                 new MapBoundsRange(12.1, 12.45, 109.1, 109.3)));
         mvc.perform(get("/filter-options"))
                 .andExpect(status().isOk())

@@ -1,19 +1,12 @@
 package com.hotelnt.service;
 
 import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.controller.*;
 import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-
 import com.hotelnt.common.error.AppException;
 import com.hotelnt.common.error.ErrorCode;
 import java.math.BigDecimal;
@@ -56,7 +49,7 @@ class AdminListingServiceTest {
                     List<FieldError> details = (List<FieldError>) appEx.getDetails();
                     assertThat(details).hasSize(1);
                     assertThat(details.get(0).field()).isEqualTo("trangThai");
-                    assertThat(details.get(0).message()).isEqualTo("Kh�ng h? tr? DRAFT");
+                    assertThat(details.get(0).message()).isEqualTo("Không hỗ trợ DRAFT");
                 });
 
         verifyNoInteractions(repo);
@@ -105,9 +98,9 @@ class AdminListingServiceTest {
 
         assertThat(res.items()).hasSize(1);
         assertThat(res.items().get(0).maCSLT()).isEqualTo(15);
-        assertThat(res.items().get(0).tenCSLT()).isEqualTo("Villa Bi?n Xanh");
+        assertThat(res.items().get(0).tenCSLT()).isEqualTo("Villa Biển Xanh");
         assertThat(res.items().get(0).tenLoai()).isEqualTo("Villa");
-        assertThat(res.items().get(0).hoTen()).isEqualTo("Nguy?n Van A");
+        assertThat(res.items().get(0).hoTen()).isEqualTo("Nguyễn Văn A");
         assertThat(res.items().get(0).soDienThoaiHost()).isEqualTo("0905123456");
         assertThat(res.items().get(0).duongDanAnh()).isEqualTo("https://cdn.example.com/img1.jpg");
         assertThat(res.pagination().totalItems()).isEqualTo(1);
@@ -138,13 +131,13 @@ class AdminListingServiceTest {
         ListingReviewDetail detail = service.getListingDetail(15);
 
         assertThat(detail.maCSLT()).isEqualTo(15);
-        assertThat(detail.tenCSLT()).isEqualTo("Villa Bi?n Xanh");
+        assertThat(detail.tenCSLT()).isEqualTo("Villa Biển Xanh");
         assertThat(detail.gia()).isEqualTo(1500000L);
         assertThat(detail.checklistDuyet().thongTinBatBuoc()).isTrue();
         assertThat(detail.checklistDuyet().anhToiThieu3()).isTrue();
         assertThat(detail.checklistDuyet().toaDoTrongNhaTrang()).isTrue();
         assertThat(detail.allowedActions()).containsExactly("APPROVE", "REJECT");
-        assertThat(detail.chuCoSo().hoTen()).isEqualTo("Nguy?n Van A");
+        assertThat(detail.chuCoSo().hoTen()).isEqualTo("Nguyễn Văn A");
         assertThat(detail.lienHe().soDienThoai()).isEqualTo("0905123456");
         assertThat(detail.tienIch()).hasSize(1);
         assertThat(detail.media()).hasSize(3);
@@ -153,7 +146,7 @@ class AdminListingServiceTest {
     private CoSoLuuTru createSampleListing(int id, String status) {
         TaiKhoan host = new TaiKhoan();
         host.setId(3);
-        host.setHoTen("Nguy?n Van A");
+        host.setHoTen("Nguyễn Văn A");
         host.setEmail("host01@example.com");
         host.setSoDienThoai("0905123456");
         host.setTrangThai("ACTIVE");
@@ -164,13 +157,13 @@ class AdminListingServiceTest {
 
         Phuong phuong = new Phuong();
         phuong.setMaPhuong(1);
-        phuong.setTenPhuong("Vinh Nguy�n");
+        phuong.setTenPhuong("Vĩnh Nguyên");
 
         CoSoLuuTru c = new CoSoLuuTru();
         c.setMaCSLT(id);
-        c.setTenCSLT("Villa Bi?n Xanh");
-        c.setDiaChiChiTiet("12 Tr?n Ph�, Nha Trang");
-        c.setMoTa("Villa view bi?n");
+        c.setTenCSLT("Villa Biển Xanh");
+        c.setDiaChiChiTiet("12 Trần Phú, Nha Trang");
+        c.setMoTa("Villa view biển");
         c.setGia(new BigDecimal("1500000"));
         c.setLatitude(new BigDecimal("12.2451"));
         c.setLongitude(new BigDecimal("109.1943"));
@@ -217,14 +210,15 @@ class AdminListingServiceTest {
         // 1 amenity
         TienIch t = new TienIch();
         t.setMaTienIch(1);
-        t.setTenTienIch("H? boi");
+        t.setTenTienIch("Hồ bơi");
         t.setNhom("TIEN_NGHI");
         c.setTienIch(Set.of(t));
 
         return c;
     }
 
-    // ------------------------------------------------------------- FR-22 & FR-23 Moderate Tests
+    // ------------------------------------------------------------- FR-22 & FR-23
+    // Moderate Tests
     @Test
     void moderateListing_notFound_throwsListingNotFound() {
         when(repo.findById(999)).thenReturn(Optional.empty());
@@ -250,7 +244,7 @@ class AdminListingServiceTest {
     @Test
     void moderateListing_approveChecklistIncomplete_throwsChecklistIncomplete() {
         CoSoLuuTru c = createSampleListing(15, "PENDING");
-        c.setMedia(List.of()); // 0 ?nh < 3
+        c.setMedia(List.of()); // 0 ảnh < 3
         when(repo.findById(15)).thenReturn(Optional.of(c));
 
         assertThatThrownBy(() -> service.moderateListing(15, new ModerateListingRequest("APPROVE", null)))
@@ -267,7 +261,7 @@ class AdminListingServiceTest {
     @Test
     void moderateListing_approveSuccess() {
         CoSoLuuTru c = createSampleListing(15, "PENDING");
-        c.setLyDoTuChoi("L� do cu");
+        c.setLyDoTuChoi("Lý do cu");
         when(repo.findById(15)).thenReturn(Optional.of(c));
 
         ModerateListingResponse res = service.moderateListing(15, new ModerateListingRequest("APPROVE", null));
@@ -287,23 +281,24 @@ class AdminListingServiceTest {
         CoSoLuuTru c = createSampleListing(15, "PENDING");
         when(repo.findById(15)).thenReturn(Optional.of(c));
 
-        ModerateListingResponse res = service.moderateListing(15, new ModerateListingRequest("REJECT", "?nh m?"));
+        ModerateListingResponse res = service.moderateListing(15, new ModerateListingRequest("REJECT", "Ảnh mờ"));
 
         assertThat(res.maCSLT()).isEqualTo(15);
         assertThat(res.trangThai()).isEqualTo("REJECTED");
-        assertThat(res.lyDoTuChoi()).isEqualTo("?nh m?");
+        assertThat(res.lyDoTuChoi()).isEqualTo("Ảnh mờ");
         assertThat(res.ngayCapNhat()).isNotNull();
         verify(repo).save(c);
         assertThat(c.getTrangThai()).isEqualTo("REJECTED");
-        assertThat(c.getLyDoTuChoi()).isEqualTo("?nh m?");
+        assertThat(c.getLyDoTuChoi()).isEqualTo("Ảnh mờ");
     }
 
-    // ------------------------------------------------------------- FR-24 Unpublish Tests
+    // ------------------------------------------------------------- FR-24 Unpublish
+    // Tests
     @Test
     void unpublishListing_notFound_throwsListingNotFound() {
         when(repo.findById(999)).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> service.unpublishListing(999, new UnpublishListingRequest("HIDE", "Vi ph?m")))
+        assertThatThrownBy(() -> service.unpublishListing(999, new UnpublishListingRequest("HIDE", "Vi phạm")))
                 .isInstanceOf(AppException.class)
                 .satisfies(ex -> assertThat(((AppException) ex).getCode()).isEqualTo(ErrorCode.LISTING_NOT_FOUND));
     }
@@ -313,7 +308,7 @@ class AdminListingServiceTest {
         CoSoLuuTru c = createSampleListing(15, "PENDING");
         when(repo.findById(15)).thenReturn(Optional.of(c));
 
-        assertThatThrownBy(() -> service.unpublishListing(15, new UnpublishListingRequest("HIDE", "Vi ph?m")))
+        assertThatThrownBy(() -> service.unpublishListing(15, new UnpublishListingRequest("HIDE", "Vi phạm")))
                 .isInstanceOf(AppException.class)
                 .satisfies(ex -> {
                     AppException appEx = (AppException) ex;
@@ -326,15 +321,16 @@ class AdminListingServiceTest {
         CoSoLuuTru c = createSampleListing(15, "APPROVED");
         when(repo.findById(15)).thenReturn(Optional.of(c));
 
-        UnpublishListingResponse res = service.unpublishListing(15, new UnpublishListingRequest("HIDE", "Th�ng tin sai"));
+        UnpublishListingResponse res = service.unpublishListing(15,
+                new UnpublishListingRequest("HIDE", "Thông tin sai"));
 
         assertThat(res.maCSLT()).isEqualTo(15);
         assertThat(res.trangThai()).isEqualTo("HIDDEN");
-        assertThat(res.lyDoViPham()).isEqualTo("Th�ng tin sai");
+        assertThat(res.lyDoViPham()).isEqualTo("Thông tin sai");
         assertThat(res.ngayCapNhat()).isNotNull();
         verify(repo).save(c);
         assertThat(c.getTrangThai()).isEqualTo("HIDDEN");
-        assertThat(c.getLyDoViPham()).isEqualTo("Th�ng tin sai");
+        assertThat(c.getLyDoViPham()).isEqualTo("Thông tin sai");
     }
 
     @Test
@@ -342,11 +338,12 @@ class AdminListingServiceTest {
         CoSoLuuTru c = createSampleListing(15, "APPROVED");
         when(repo.findById(15)).thenReturn(Optional.of(c));
 
-        UnpublishListingResponse res = service.unpublishListing(15, new UnpublishListingRequest("REMOVE", "N?i dung ph?n c?m"));
+        UnpublishListingResponse res = service.unpublishListing(15,
+                new UnpublishListingRequest("REMOVE", "Nội dung phần cấm"));
 
         assertThat(res.maCSLT()).isEqualTo(15);
         assertThat(res.trangThai()).isEqualTo("REMOVED");
-        assertThat(res.lyDoViPham()).isEqualTo("N?i dung ph?n c?m");
+        assertThat(res.lyDoViPham()).isEqualTo("Nội dung phần cấm");
         verify(repo).save(c);
         assertThat(c.getTrangThai()).isEqualTo("REMOVED");
     }
@@ -356,7 +353,8 @@ class AdminListingServiceTest {
         CoSoLuuTru c = createSampleListing(15, "HIDDEN");
         when(repo.findById(15)).thenReturn(Optional.of(c));
 
-        UnpublishListingResponse res = service.unpublishListing(15, new UnpublishListingRequest("REMOVE", "G? vinh vi?n"));
+        UnpublishListingResponse res = service.unpublishListing(15,
+                new UnpublishListingRequest("REMOVE", "Gỡ vĩnh viễn"));
 
         assertThat(res.maCSLT()).isEqualTo(15);
         assertThat(res.trangThai()).isEqualTo("REMOVED");
@@ -368,7 +366,7 @@ class AdminListingServiceTest {
         CoSoLuuTru c = createSampleListing(15, "PENDING");
         when(repo.findById(15)).thenReturn(Optional.of(c));
 
-        assertThatThrownBy(() -> service.unpublishListing(15, new UnpublishListingRequest("REMOVE", "L� do")))
+        assertThatThrownBy(() -> service.unpublishListing(15, new UnpublishListingRequest("REMOVE", "Lý do")))
                 .isInstanceOf(AppException.class)
                 .satisfies(ex -> {
                     AppException appEx = (AppException) ex;

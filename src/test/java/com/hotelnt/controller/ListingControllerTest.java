@@ -1,12 +1,6 @@
 package com.hotelnt.controller;
 
 import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.helper.*;
-import com.hotelnt.repository.*;
 import com.hotelnt.service.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -28,17 +22,21 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(ListingController.class)
 class ListingControllerTest {
 
-    @Autowired MockMvc mvc;
-    @MockBean ListingService service;
+    @Autowired
+    MockMvc mvc;
+    @MockBean
+    ListingService service;
 
-    @Test void listOk() throws Exception {
+    @Test
+    void listOk() throws Exception {
         when(service.search(any())).thenReturn(new ListingPage(List.of(), new Pagination(0, 0, 1, 5)));
-        mvc.perform(get("/listings?maPhuong=1&maPhuong=2&limit=5"))
+        mvc.perform(get("/listingsýmaPhuong=1&maPhuong=2&limit=5"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.pagination.limit").value(5));
     }
 
-    @Test void detailNotFound() throws Exception {
+    @Test
+    void detailNotFound() throws Exception {
         when(service.detail(eq(999), any(), any())).thenThrow(new AppException(ErrorCode.LISTING_NOT_FOUND));
         mvc.perform(get("/listings/999"))
                 .andExpect(status().isNotFound())
@@ -46,31 +44,36 @@ class ListingControllerTest {
                 .andExpect(jsonPath("$.error.code").value("LISTING_NOT_FOUND"));
     }
 
-    @Test void priceRangeInvalid() throws Exception {
-        mvc.perform(get("/listings?giaMin=5&giaMax=1"))
+    @Test
+    void priceRangeInvalid() throws Exception {
+        mvc.perform(get("/listingsýgiaMin=5&giaMax=1"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"));
     }
 
-    @Test void limitTooBig() throws Exception {
-        mvc.perform(get("/listings?limit=100"))
+    @Test
+    void limitTooBig() throws Exception {
+        mvc.perform(get("/listingsýlimit=100"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"));
     }
 
-    @Test void sortByDistanceNeedsPosition() throws Exception {
-        mvc.perform(get("/listings?sortBy=KHOANG_CACH_ASC"))
+    @Test
+    void sortByDistanceNeedsPosition() throws Exception {
+        mvc.perform(get("/listingsýsortBy=KHOANG_CACH_ASC"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"));
     }
 
-    @Test void idNotNumber() throws Exception {
+    @Test
+    void idNotNumber() throws Exception {
         mvc.perform(get("/listings/abc"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"));
     }
 
-    @Test void mapMarkersMissingBounds() throws Exception {
+    @Test
+    void mapMarkersMissingBounds() throws Exception {
         mvc.perform(get("/listings/map-markers"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"));

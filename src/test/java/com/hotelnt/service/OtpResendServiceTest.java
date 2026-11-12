@@ -1,8 +1,5 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.controller.*;
 import com.hotelnt.domain.*;
 import com.hotelnt.dto.*;
 import com.hotelnt.helper.*;
@@ -27,12 +24,15 @@ class OtpResendServiceTest {
 
     @Test
     void replacesOtpAndRetainsSignupData() {
-        OtpChallenge c = new OtpChallenge(); c.setChallengeId("id"); c.setEmail("host@example.com");
+        OtpChallenge c = new OtpChallenge();
+        c.setChallengeId("id");
+        c.setEmail("host@example.com");
         c.setDuLieuDangKy("{\"hoTen\":\"Host\"}");
         c.setGuiLaiSauLuc(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).minusSeconds(1));
         when(email.isConfigured()).thenReturn(true);
         when(challenges.findForUpdate("id")).thenReturn(Optional.of(c));
-        when(codes.generate()).thenReturn("001234"); when(hashes.hash("001234")).thenReturn("new-hash");
+        when(codes.generate()).thenReturn("001234");
+        when(hashes.hash("001234")).thenReturn("new-hash");
         assertEquals(OtpResendService.Status.SUCCESS, service.resend(new OtpResendRequest("id")).status());
         assertEquals("new-hash", c.getOtpHash());
         assertTrue(c.getDuLieuDangKy().contains("Host"));

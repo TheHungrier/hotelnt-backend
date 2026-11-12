@@ -1,10 +1,6 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.controller.*;
 import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
 import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import java.time.LocalDateTime;
@@ -26,8 +22,11 @@ class LogoutServiceTest {
     void revokesSessionAndAllowsRepeatedLogout() {
         String refresh = tokens.refreshToken(42, "session-id");
         String access = "Bearer " + tokens.accessToken(42, "session-id");
-        TaiKhoan account = new TaiKhoan(); account.setId(42);
-        PhienDangNhap session = new PhienDangNhap(); session.setMaPhien("session-id"); session.setTaiKhoan(account);
+        TaiKhoan account = new TaiKhoan();
+        account.setId(42);
+        PhienDangNhap session = new PhienDangNhap();
+        session.setMaPhien("session-id");
+        session.setTaiKhoan(account);
         session.setRefreshTokenHash(SessionIssuer.hash(refresh));
         session.setHetHanLuc(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).plusDays(1));
         when(repository.findForUpdate("session-id")).thenReturn(Optional.of(session));

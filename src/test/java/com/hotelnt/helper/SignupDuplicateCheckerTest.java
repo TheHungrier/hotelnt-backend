@@ -1,12 +1,7 @@
 package com.hotelnt.helper;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.controller.*;
-import com.hotelnt.domain.*;
 import com.hotelnt.dto.*;
 import com.hotelnt.repository.*;
-import com.hotelnt.service.*;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -18,7 +13,7 @@ class SignupDuplicateCheckerTest {
     private final SignupAccountRepository accounts = mock(SignupAccountRepository.class);
     private final SignupDuplicateChecker checker = new SignupDuplicateChecker(accounts);
     private final SignupRequest request = new SignupRequest(
-            "Nguy?n Van A", "0905123456", "host01@example.com", "079203001234", "Password123!");
+            "Nguyễn Văn A", "0905123456", "host01@example.com", "079203001234", "Password123!");
 
     @Test
     void returnsNoFieldsWhenAccountDoesNotExist() {

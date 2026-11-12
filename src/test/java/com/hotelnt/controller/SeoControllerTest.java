@@ -1,12 +1,6 @@
 package com.hotelnt.controller;
 
 import com.hotelnt.dto.SeoDtos.*;
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.helper.*;
-import com.hotelnt.repository.*;
 import com.hotelnt.service.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -23,11 +17,15 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(SeoController.class)
 class SeoControllerTest {
 
-    @Autowired MockMvc mvc;
-    @MockBean SeoService service;
+    @Autowired
+    MockMvc mvc;
+    @MockBean
+    SeoService service;
 
-    @Test void getOk() throws Exception {
-        when(service.get()).thenReturn(new SeoResponse("Tieu de", "Mo ta", "khach-san-nha-trang", "OG", "https://x/og.jpg"));
+    @Test
+    void getOk() throws Exception {
+        when(service.get())
+                .thenReturn(new SeoResponse("Tieu de", "Mo ta", "khach-san-nha-trang", "OG", "https://x/og.jpg"));
         mvc.perform(get("/configurations/seo"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.metaTitle").value("Tieu de"))

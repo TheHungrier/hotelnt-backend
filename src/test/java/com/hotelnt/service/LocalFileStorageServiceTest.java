@@ -173,7 +173,7 @@ class LocalFileStorageServiceTest {
         AppException ex = assertThrows(AppException.class, () -> storageService.store(maliciousFile, "IMAGE"));
 
         assertEquals(ErrorCode.VALIDATION_ERROR, ex.getCode());
-        assertEquals("Ph�t hi?n truy c?p du?ng d?n kh�ng h?p l?", ex.getDetails());
+        assertEquals("Phát hiện truy cập đường dẫn không hợp lệ", ex.getDetails());
     }
 
     @Test
@@ -210,7 +210,7 @@ class LocalFileStorageServiceTest {
         AppException ex = assertThrows(AppException.class, () -> storageService.store(emptyFile, "IMAGE"));
 
         assertEquals(ErrorCode.VALIDATION_ERROR, ex.getCode());
-        assertEquals("File r?ng", ex.getDetails());
+        assertEquals("File rỗng", ex.getDetails());
     }
 
     @Test
@@ -224,6 +224,6 @@ class LocalFileStorageServiceTest {
         AppException ex = assertThrows(AppException.class, () -> storageService.store(brokenFile, "IMAGE"));
 
         assertEquals(ErrorCode.INTERNAL_ERROR, ex.getCode());
-        assertEquals("L?i khi luu file v?t l�.", ex.getDetails());
+        assertEquals("Lỗi khi lưu file vật lý.", ex.getDetails());
     }
 }

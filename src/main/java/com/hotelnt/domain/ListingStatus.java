@@ -1,6 +1,6 @@
 package com.hotelnt.domain;
 
-/** Gia tri cot CoSoLuuTru.trangThai (khop CHECK trong db/schema.sql). */
+/** Gia tri cot CoSoLuuTru.trangThai (khop CHECK trong Liquibase changelog). */
 public final class ListingStatus {
     private ListingStatus() {
     }

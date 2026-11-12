@@ -5,12 +5,11 @@ services:
     container_name: hotelnt-sqlserver
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "HotelNT@2026"      # doi mat khau neu deploy that
+      MSSQL_SA_PASSWORD: ${MSSQL_SA_PASSWORD:?Set MSSQL_SA_PASSWORD before starting SQL Server}
       MSSQL_COLLATION: "Vietnamese_CI_AS"
     ports:
       - "1433:1433"
     volumes:
       - sqldata:/var/opt/mssql
-      - ./db:/db:ro
 volumes:
   sqldata:

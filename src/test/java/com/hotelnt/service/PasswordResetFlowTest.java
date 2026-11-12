@@ -1,8 +1,5 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.controller.*;
 import com.hotelnt.domain.*;
 import com.hotelnt.dto.*;
 import com.hotelnt.helper.*;
@@ -28,9 +25,15 @@ class PasswordResetFlowTest {
         ResetTokenGenerator tokens = new ResetTokenGenerator();
         ObjectMapper json = new ObjectMapper();
         String id = "2b98e997-2423-410b-9ad4-4a888ef60571";
-        TaiKhoan account = new TaiKhoan(); account.setId(42); account.setTrangThai("ACTIVE");
-        OtpChallenge c = new OtpChallenge(); c.setChallengeId(id); c.setLoai("FORGOT_PASSWORD"); c.setTaiKhoan(account);
-        c.setDuLieuDangKy("{}"); c.setHetHanLuc(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).plusMinutes(5));
+        TaiKhoan account = new TaiKhoan();
+        account.setId(42);
+        account.setTrangThai("ACTIVE");
+        OtpChallenge c = new OtpChallenge();
+        c.setChallengeId(id);
+        c.setLoai("FORGOT_PASSWORD");
+        c.setTaiKhoan(account);
+        c.setDuLieuDangKy("{}");
+        c.setHetHanLuc(LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh")).plusMinutes(5));
         when(challenges.findForUpdate(id)).thenReturn(Optional.of(c));
         when(verifier.check(org.mockito.ArgumentMatchers.eq(c), org.mockito.ArgumentMatchers.eq("FORGOT_PASSWORD"),
                 org.mockito.ArgumentMatchers.eq("123456"), org.mockito.ArgumentMatchers.any()))

@@ -1,14 +1,7 @@
 package com.hotelnt.service;
 
 import com.hotelnt.dto.AdminDtos.*;
-import com.hotelnt.dto.HostDtos.*;
-import com.hotelnt.helper.HostIdentityResolver.Identity;
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.controller.*;
 import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -51,7 +44,7 @@ class AdminHostServiceTest {
     void getHosts_validStatus_returnsPage() {
         TaiKhoan tk = new TaiKhoan();
         tk.setId(3);
-        tk.setHoTen("Nguy?n Van A");
+        tk.setHoTen("Nguyễn Văn A");
         tk.setEmail("host01@example.com");
         tk.setSoDienThoai("0905123456");
         tk.setTrangThai("ACTIVE");
@@ -65,7 +58,7 @@ class AdminHostServiceTest {
         HostPageResponse res = service.getHosts("ACTIVE", null, 1, 10);
 
         assertEquals(1, res.items().size());
-        assertEquals("Nguy?n Van A", res.items().get(0).hoTen());
+        assertEquals("Nguyễn Văn A", res.items().get(0).hoTen());
         assertEquals(2L, res.items().get(0).soLuongCSLT());
     }
 
@@ -79,7 +72,7 @@ class AdminHostServiceTest {
     void getHostDetail_success_masksCccdAndBuildsStats() {
         TaiKhoan tk = new TaiKhoan();
         tk.setId(3);
-        tk.setHoTen("Nguy?n Van A");
+        tk.setHoTen("Nguyễn Văn A");
         tk.setEmail("host01@example.com");
         tk.setSoDienThoai("0905123456");
         tk.setCccd("079123456234");
@@ -89,9 +82,8 @@ class AdminHostServiceTest {
         when(taiKhoanRepo.findById(3)).thenReturn(Optional.of(tk));
         when(coSoRepo.countByHostId(3)).thenReturn(3L);
         when(coSoRepo.countByHostIdGroupByTrangThai(3)).thenReturn(List.of(
-                new Object[]{"APPROVED", 2L},
-                new Object[]{"DRAFT", 1L}
-        ));
+                new Object[] { "APPROVED", 2L },
+                new Object[] { "DRAFT", 1L }));
 
         HostDetail detail = service.getHostDetail(3);
 
@@ -124,11 +116,11 @@ class AdminHostServiceTest {
 
         when(taiKhoanRepo.findById(3)).thenReturn(Optional.of(host));
 
-        UpdateHostStatusRequest req = new UpdateHostStatusRequest("LOCKED", "Vi ph?m ch�nh s�ch");
+        UpdateHostStatusRequest req = new UpdateHostStatusRequest("LOCKED", "Vi phạm chính sách");
         UpdateHostStatusResponse res = service.updateHostStatus(3, req);
 
         assertEquals("LOCKED", res.trangThai());
-        assertEquals("Vi ph?m ch�nh s�ch", res.lyDoKhoa());
+        assertEquals("Vi phạm chính sách", res.lyDoKhoa());
         assertEquals(AccountStatus.LOCKED, host.getTrangThai());
         assertNotNull(host.getNgayKhoa());
         verify(phienRepo).revokeAllByAccountId(3);
@@ -144,7 +136,7 @@ class AdminHostServiceTest {
 
         when(taiKhoanRepo.findById(1)).thenReturn(Optional.of(admin));
 
-        UpdateHostStatusRequest req = new UpdateHostStatusRequest("LOCKED", "Kh�a th?");
+        UpdateHostStatusRequest req = new UpdateHostStatusRequest("LOCKED", "Khóa thẻ");
         AppException ex = assertThrows(AppException.class, () -> service.updateHostStatus(1, req));
         assertEquals(ErrorCode.CANNOT_LOCK_ADMIN, ex.getCode());
     }
@@ -158,7 +150,7 @@ class AdminHostServiceTest {
 
         when(taiKhoanRepo.findById(3)).thenReturn(Optional.of(host));
 
-        UpdateHostStatusRequest req = new UpdateHostStatusRequest("LOCKED", "Kh�a ti?p");
+        UpdateHostStatusRequest req = new UpdateHostStatusRequest("LOCKED", "Khóa tiếp");
         AppException ex = assertThrows(AppException.class, () -> service.updateHostStatus(3, req));
         assertEquals(ErrorCode.STATE_UNCHANGED, ex.getCode());
     }

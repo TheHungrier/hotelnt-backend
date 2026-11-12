@@ -1,12 +1,5 @@
 package com.hotelnt.helper;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.controller.*;
-import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
-import com.hotelnt.repository.*;
-import com.hotelnt.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.Test;
@@ -46,7 +39,8 @@ class AuthRateLimitFilterTest {
         AuthRateLimitFilter filter = new AuthRateLimitFilter(new ObjectMapper());
         FilterChain chain = mock(FilterChain.class);
 
-        // Client 1 sau Reverse Proxy (remoteAddr la 10.0.0.1 cua proxy, nhung X-Forwarded-For la 1.1.1.1)
+        // Client 1 sau Reverse Proxy (remoteAddr la 10.0.0.1 cua proxy, nhung
+        // X-Forwarded-For la 1.1.1.1)
         for (int i = 0; i < 10; i++) {
             MockHttpServletRequest req = new MockHttpServletRequest("POST", "/api/auth/signin");
             req.setContextPath("/api");
@@ -64,7 +58,8 @@ class AuthRateLimitFilterTest {
         filter.doFilter(req1Blocked, res1, chain);
         assertEquals(429, res1.getStatus());
 
-        // Client 2 cung di qua Reverse Proxy (remoteAddr 10.0.0.1, nhung X-Forwarded-For la 2.2.2.2) KHONG BI BAN OAN!
+        // Client 2 cung di qua Reverse Proxy (remoteAddr 10.0.0.1, nhung
+        // X-Forwarded-For la 2.2.2.2) KHONG BI BAN OAN!
         MockHttpServletRequest req2 = new MockHttpServletRequest("POST", "/api/auth/signin");
         req2.setContextPath("/api");
         req2.setRemoteAddr("10.0.0.1");

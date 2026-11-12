@@ -1,11 +1,7 @@
 package com.hotelnt.service;
 
 import com.hotelnt.dto.ChatbotDtos.*;
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.controller.*;
 import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
 import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,8 +41,8 @@ class ChatbotServiceTest {
         c.setMaCSLT(id);
         c.setTenCSLT(name);
         c.setGia(price);
-        c.setDiaChiChiTiet("12 Tr?n Ph�");
-        c.setMoTa("View bi?n tuy?t d?p");
+        c.setDiaChiChiTiet("12 Trần Phú");
+        c.setMoTa("View biển tuyệt đẹp");
         c.setTrangThai("APPROVED");
         c.setNgayTao(LocalDateTime.now());
 
@@ -62,7 +58,7 @@ class ChatbotServiceTest {
 
         TaiKhoan host = new TaiKhoan();
         host.setId(2);
-        host.setHoTen("Nguy?n Van A");
+        host.setHoTen("Nguyễn Văn A");
         host.setTrangThai("ACTIVE");
         c.setHost(host);
 
@@ -84,18 +80,19 @@ class ChatbotServiceTest {
 
     @Test
     void handleMessage_matchingQuery_returnsSuggestionsWithGeminiReply() {
-        CoSoLuuTru l1 = createMockListing(1, "Villa View Bi?n Nha Trang", "Villa", BigDecimal.valueOf(1500000), "Phu?c H?i");
-        CoSoLuuTru l2 = createMockListing(2, "Kh�ch s?n Sao Bi?n", "Kh�ch s?n", BigDecimal.valueOf(800000), "L?c Th?");
+        CoSoLuuTru l1 = createMockListing(1, "Villa View Biển Nha Trang", "Villa", BigDecimal.valueOf(1500000),
+                "Phước Hải");
+        CoSoLuuTru l2 = createMockListing(2, "Khách sạn Sao Biển", "Khách sạn", BigDecimal.valueOf(800000), "Lộc Thọ");
 
         when(listingRepo.findAll(any(Specification.class))).thenReturn(List.of(l1, l2));
         when(geminiClient.generateReply(anyString(), anyList()))
-                .thenReturn("D?, HotelNT g?i � cho b?n Villa View Bi?n Nha Trang r?t th�ch h?p cho k? ngh? ?!");
+                .thenReturn("Dạ, HotelNT gợi ý cho bạn Villa View Biển Nha Trang rất thích hợp cho kỳ nghỉ!");
 
-        ChatMessageRequest req = new ChatMessageRequest("T�m cho t�i villa view bi?n gi� du?i 2 tri?u", "session-01");
+        ChatMessageRequest req = new ChatMessageRequest("Tìm cho tôi villa view biển giá dưới 2 triệu", "session-01");
         ChatMessageResponse res = service.handleMessage(req);
 
         assertThat(res.sessionId()).isEqualTo("session-01");
-        assertThat(res.replyText()).contains("Villa View Bi?n Nha Trang");
+        assertThat(res.replyText()).contains("Villa View Biển Nha Trang");
         assertThat(res.suggestedListings()).isNotEmpty();
         assertThat(res.suggestedListings().get(0).maCSLT()).isEqualTo(1);
         assertThat(res.suggestedListings().get(0).tenLoai()).isEqualTo("Villa");
@@ -103,17 +100,17 @@ class ChatbotServiceTest {
 
     @Test
     void handleMessage_noMatch_returnsEmptySuggestionsWithFallback() {
-        CoSoLuuTru l1 = createMockListing(1, "Villa Cao C?p", "Villa", BigDecimal.valueOf(10000000), "Phu?c H?i");
+        CoSoLuuTru l1 = createMockListing(1, "Villa Cao Cấp", "Villa", BigDecimal.valueOf(10000000), "Phước Hải");
 
         when(listingRepo.findAll(any(Specification.class))).thenReturn(List.of(l1));
         when(geminiClient.generateReply(anyString(), anyList())).thenReturn(null); // Gemini fallback
 
-        ChatMessageRequest req = new ChatMessageRequest("T�m ph�ng gi� du?i 100k", "session-02");
+        ChatMessageRequest req = new ChatMessageRequest("Tìm phòng giá dưới 100k", "session-02");
         ChatMessageResponse res = service.handleMessage(req);
 
         assertThat(res.sessionId()).isEqualTo("session-02");
         assertThat(res.suggestedListings()).isEmpty();
-        assertThat(res.replyText()).contains("Xin l?i, m�nh chua t�m th?y th�ng tin ph� h?p");
+        assertThat(res.replyText()).contains("Xin lỗi, mình chưa tìm thấy thông tin phù hợp");
     }
 
     @Test
@@ -121,7 +118,7 @@ class ChatbotServiceTest {
         when(listingRepo.findAll(any(Specification.class))).thenReturn(List.of());
         when(geminiClient.generateReply(anyString(), anyList())).thenReturn(null);
 
-        ChatMessageRequest req = new ChatMessageRequest("Ch�o b?n", null);
+        ChatMessageRequest req = new ChatMessageRequest("Chào bạn", null);
         ChatMessageResponse res = service.handleMessage(req);
 
         assertThat(res.sessionId()).isNotNull().isNotBlank();

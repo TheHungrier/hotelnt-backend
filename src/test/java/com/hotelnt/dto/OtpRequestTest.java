@@ -1,12 +1,5 @@
 package com.hotelnt.dto;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.controller.*;
-import com.hotelnt.domain.*;
-import com.hotelnt.helper.*;
-import com.hotelnt.repository.*;
-import com.hotelnt.service.*;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import java.util.Set;

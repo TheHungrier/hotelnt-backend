@@ -1,12 +1,7 @@
 package com.hotelnt.helper;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.controller.*;
 import com.hotelnt.domain.*;
-import com.hotelnt.dto.*;
 import com.hotelnt.repository.*;
-import com.hotelnt.service.*;
 import java.time.LocalDateTime;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
@@ -18,10 +13,14 @@ class CredentialsCheckerTest {
     private final AuthAccountRepository repository = mock(AuthAccountRepository.class);
     private final PasswordHasher passwords = mock(PasswordHasher.class);
     private final CredentialsChecker checker = new CredentialsChecker(repository, passwords);
+
     @Test
     void locksAccountAfterFiveIncorrectPasswords() {
-        TaiKhoan account = new TaiKhoan(); account.setVaiTro("HOST"); account.setTrangThai("ACTIVE");
-        account.setMatKhau("hash"); account.setSoLanDangNhapSai(4);
+        TaiKhoan account = new TaiKhoan();
+        account.setVaiTro("HOST");
+        account.setTrangThai("ACTIVE");
+        account.setMatKhau("hash");
+        account.setSoLanDangNhapSai(4);
         when(repository.findForUpdate("identity")).thenReturn(Optional.of(account));
         LocalDateTime now = LocalDateTime.of(2026, 1, 1, 12, 0);
         assertEquals(CredentialsChecker.Status.TEMP_LOCKED, checker.check("identity", "bad", "HOST", now).status());

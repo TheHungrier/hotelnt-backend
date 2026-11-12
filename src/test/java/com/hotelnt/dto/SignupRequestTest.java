@@ -1,12 +1,5 @@
 package com.hotelnt.dto;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.controller.*;
-import com.hotelnt.domain.*;
-import com.hotelnt.helper.*;
-import com.hotelnt.repository.*;
-import com.hotelnt.service.*;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import java.util.Set;
@@ -22,7 +15,7 @@ class SignupRequestTest {
     @Test
     void acceptsValidSignup() {
         assertTrue(validator.validate(new SignupRequest(
-                "Nguy?n Van A", "0905123456", "host01@example.com", "079203001234", "Password123!"))
+                "Nguyễn Văn A", "0905123456", "host01@example.com", "079203001234", "Password123!"))
                 .isEmpty());
     }
 
@@ -38,7 +31,7 @@ class SignupRequestTest {
     @Test
     void rejectsPasswordMissingSpecialCharacter() {
         SignupRequest request = new SignupRequest(
-                "Nguy?n Van A", "0905123456", "host01@example.com", "079203001234", "Password123");
+                "Nguyễn Văn A", "0905123456", "host01@example.com", "079203001234", "Password123");
         assertEquals(Set.of("matKhau"), validator.validate(request).stream()
                 .map(violation -> violation.getPropertyPath().toString())
                 .collect(Collectors.toSet()));

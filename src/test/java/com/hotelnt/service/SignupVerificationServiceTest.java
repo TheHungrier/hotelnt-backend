@@ -1,8 +1,5 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.controller.*;
 import com.hotelnt.domain.*;
 import com.hotelnt.dto.*;
 import com.hotelnt.helper.*;
@@ -66,7 +63,9 @@ class SignupVerificationServiceTest {
         when(otpHasher.matches("123456", "hash")).thenReturn(true);
         when(duplicates.findDuplicateFields(any())).thenReturn(List.of());
         when(accounts.saveAndFlush(any())).thenAnswer(invocation -> {
-            TaiKhoan a = invocation.getArgument(0); a.setId(42); return a;
+            TaiKhoan a = invocation.getArgument(0);
+            a.setId(42);
+            return a;
         });
         when(sessions.issue(any())).thenReturn(new SessionIssuer.TokenPair("access", "refresh", 1800));
 

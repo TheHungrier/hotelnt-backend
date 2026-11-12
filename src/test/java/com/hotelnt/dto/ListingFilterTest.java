@@ -1,13 +1,5 @@
 package com.hotelnt.dto;
 
-import com.hotelnt.dto.ListingDtos.*;
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.controller.*;
-import com.hotelnt.domain.*;
-import com.hotelnt.helper.*;
-import com.hotelnt.repository.*;
-import com.hotelnt.service.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -18,36 +10,42 @@ import org.junit.jupiter.api.Test;
 class ListingFilterTest {
 
     private static ListingFilter filter(Long giaMin, Long giaMax, List<Integer> tienIch, List<Integer> lanCan,
-                                        Double lat, Double lng, Double radiusKm) {
+            Double lat, Double lng, Double radiusKm) {
         return new ListingFilter(null, giaMin, giaMax, null, null, tienIch, lanCan, lat, lng, radiusKm);
     }
 
-    @Test void allAmenityIdsMergesBothGroups() {
+    @Test
+    void allAmenityIdsMergesBothGroups() {
         ListingFilter f = filter(null, null, List.of(1, 2), List.of(3), null, null, null);
         assertEquals(List.of(1, 2, 3), f.allAmenityIds());
     }
 
-    @Test void allAmenityIdsEmptyWhenNothingSelected() {
+    @Test
+    void allAmenityIdsEmptyWhenNothingSelected() {
         assertTrue(filter(null, null, null, null, null, null, null).allAmenityIds().isEmpty());
     }
 
-    @Test void minPriceGreaterThanMaxIsError() {
+    @Test
+    void minPriceGreaterThanMaxIsError() {
         var errors = filter(5L, 1L, null, null, null, null, null).crossFieldErrors();
         assertEquals(1, errors.size());
         assertEquals("giaMin", errors.get(0).get("field"));
     }
 
-    @Test void radiusWithoutPositionIsError() {
+    @Test
+    void radiusWithoutPositionIsError() {
         var errors = filter(null, null, null, null, null, null, 3.0).crossFieldErrors();
         assertEquals(1, errors.size());
         assertEquals("radiusKm", errors.get(0).get("field"));
     }
 
-    @Test void radiusWithPositionIsOk() {
+    @Test
+    void radiusWithPositionIsOk() {
         assertTrue(filter(null, null, null, null, 12.24, 109.19, 3.0).crossFieldErrors().isEmpty());
     }
 
-    @Test void validPriceRangeIsOk() {
+    @Test
+    void validPriceRangeIsOk() {
         assertTrue(filter(1L, 5L, null, null, null, null, null).crossFieldErrors().isEmpty());
     }
 }

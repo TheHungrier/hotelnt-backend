@@ -1,8 +1,5 @@
 package com.hotelnt.service;
 
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.controller.*;
 import com.hotelnt.domain.*;
 import com.hotelnt.dto.*;
 import com.hotelnt.helper.*;
@@ -33,7 +30,7 @@ class SignupServiceTest {
     private final SignupService service = new SignupService(duplicates, passwords, codes, otpHasher,
             challenges, email, new ObjectMapper());
     private final SignupRequest request = new SignupRequest(
-            "Nguy?n Van A", "0905123456", "host01@example.com", "079203001234", "Password123!");
+            "Nguyễn Văn A", "0905123456", "host01@example.com", "079203001234", "Password123!");
 
     @Test
     void createsChallengeWithHashedSecretsAndSendsOtp() {
