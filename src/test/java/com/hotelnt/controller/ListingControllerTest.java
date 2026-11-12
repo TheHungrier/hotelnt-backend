@@ -30,7 +30,7 @@ class ListingControllerTest {
     @Test
     void listOk() throws Exception {
         when(service.search(any())).thenReturn(new ListingPage(List.of(), new Pagination(0, 0, 1, 5)));
-        mvc.perform(get("/listingsýmaPhuong=1&maPhuong=2&limit=5"))
+        mvc.perform(get("/listings?maPhuong=1&maPhuong=2&limit=5"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.pagination.limit").value(5));
     }
@@ -46,21 +46,21 @@ class ListingControllerTest {
 
     @Test
     void priceRangeInvalid() throws Exception {
-        mvc.perform(get("/listingsýgiaMin=5&giaMax=1"))
+        mvc.perform(get("/listings?giaMin=5&giaMax=1"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"));
     }
 
     @Test
     void limitTooBig() throws Exception {
-        mvc.perform(get("/listingsýlimit=100"))
+        mvc.perform(get("/listings?limit=100"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"));
     }
 
     @Test
     void sortByDistanceNeedsPosition() throws Exception {
-        mvc.perform(get("/listingsýsortBy=KHOANG_CACH_ASC"))
+        mvc.perform(get("/listings?sortBy=KHOANG_CACH_ASC"))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"));
     }

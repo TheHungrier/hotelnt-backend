@@ -73,7 +73,7 @@ class HostControllerTest {
 
     @Test
     void rejectsInvalidPagination() throws Exception {
-        mvc.perform(get("/host/listingsýpage=0&limit=100")).andExpect(status().isBadRequest());
+        mvc.perform(get("/host/listings?page=0&limit=100")).andExpect(status().isBadRequest());
     }
 
     @Test

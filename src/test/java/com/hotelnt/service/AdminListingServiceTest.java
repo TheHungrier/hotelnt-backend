@@ -221,17 +221,18 @@ class AdminListingServiceTest {
     // Moderate Tests
     @Test
     void moderateListing_notFound_throwsListingNotFound() {
-        when(repo.findById(999)).thenReturn(Optional.empty());
+        when(repo.findByIdForUpdate(999)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.moderateListing(999, new ModerateListingRequest("APPROVE", null)))
                 .isInstanceOf(AppException.class)
                 .satisfies(ex -> assertThat(((AppException) ex).getCode()).isEqualTo(ErrorCode.LISTING_NOT_FOUND));
+        verify(repo).findByIdForUpdate(999);
     }
 
     @Test
     void moderateListing_notPending_throwsInvalidStateTransition() {
         CoSoLuuTru c = createSampleListing(15, "APPROVED");
-        when(repo.findById(15)).thenReturn(Optional.of(c));
+        when(repo.findByIdForUpdate(15)).thenReturn(Optional.of(c));
 
         assertThatThrownBy(() -> service.moderateListing(15, new ModerateListingRequest("APPROVE", null)))
                 .isInstanceOf(AppException.class)
@@ -239,13 +240,14 @@ class AdminListingServiceTest {
                     AppException appEx = (AppException) ex;
                     assertThat(appEx.getCode()).isEqualTo(ErrorCode.INVALID_STATE_TRANSITION);
                 });
+        verify(repo).findByIdForUpdate(15);
     }
 
     @Test
     void moderateListing_approveChecklistIncomplete_throwsChecklistIncomplete() {
         CoSoLuuTru c = createSampleListing(15, "PENDING");
         c.setMedia(List.of()); // 0 ảnh < 3
-        when(repo.findById(15)).thenReturn(Optional.of(c));
+        when(repo.findByIdForUpdate(15)).thenReturn(Optional.of(c));
 
         assertThatThrownBy(() -> service.moderateListing(15, new ModerateListingRequest("APPROVE", null)))
                 .isInstanceOf(AppException.class)
@@ -256,16 +258,18 @@ class AdminListingServiceTest {
                     List<FieldError> details = (List<FieldError>) appEx.getDetails();
                     assertThat(details).anyMatch(d -> "hinhAnh".equals(d.field()));
                 });
+        verify(repo).findByIdForUpdate(15);
     }
 
     @Test
     void moderateListing_approveSuccess() {
         CoSoLuuTru c = createSampleListing(15, "PENDING");
         c.setLyDoTuChoi("Lý do cu");
-        when(repo.findById(15)).thenReturn(Optional.of(c));
+        when(repo.findByIdForUpdate(15)).thenReturn(Optional.of(c));
 
         ModerateListingResponse res = service.moderateListing(15, new ModerateListingRequest("APPROVE", null));
 
+        verify(repo).findByIdForUpdate(15);
         assertThat(res.maCSLT()).isEqualTo(15);
         assertThat(res.trangThai()).isEqualTo("APPROVED");
         assertThat(res.lyDoTuChoi()).isNull();
@@ -279,10 +283,11 @@ class AdminListingServiceTest {
     @Test
     void moderateListing_rejectSuccess() {
         CoSoLuuTru c = createSampleListing(15, "PENDING");
-        when(repo.findById(15)).thenReturn(Optional.of(c));
+        when(repo.findByIdForUpdate(15)).thenReturn(Optional.of(c));
 
         ModerateListingResponse res = service.moderateListing(15, new ModerateListingRequest("REJECT", "Ảnh mờ"));
 
+        verify(repo).findByIdForUpdate(15);
         assertThat(res.maCSLT()).isEqualTo(15);
         assertThat(res.trangThai()).isEqualTo("REJECTED");
         assertThat(res.lyDoTuChoi()).isEqualTo("Ảnh mờ");
@@ -296,17 +301,18 @@ class AdminListingServiceTest {
     // Tests
     @Test
     void unpublishListing_notFound_throwsListingNotFound() {
-        when(repo.findById(999)).thenReturn(Optional.empty());
+        when(repo.findByIdForUpdate(999)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.unpublishListing(999, new UnpublishListingRequest("HIDE", "Vi phạm")))
                 .isInstanceOf(AppException.class)
                 .satisfies(ex -> assertThat(((AppException) ex).getCode()).isEqualTo(ErrorCode.LISTING_NOT_FOUND));
+        verify(repo).findByIdForUpdate(999);
     }
 
     @Test
     void unpublishListing_hideWhenNotApproved_throwsInvalidStateTransition() {
         CoSoLuuTru c = createSampleListing(15, "PENDING");
-        when(repo.findById(15)).thenReturn(Optional.of(c));
+        when(repo.findByIdForUpdate(15)).thenReturn(Optional.of(c));
 
         assertThatThrownBy(() -> service.unpublishListing(15, new UnpublishListingRequest("HIDE", "Vi phạm")))
                 .isInstanceOf(AppException.class)
@@ -314,16 +320,18 @@ class AdminListingServiceTest {
                     AppException appEx = (AppException) ex;
                     assertThat(appEx.getCode()).isEqualTo(ErrorCode.INVALID_STATE_TRANSITION);
                 });
+        verify(repo).findByIdForUpdate(15);
     }
 
     @Test
     void unpublishListing_hideSuccess() {
         CoSoLuuTru c = createSampleListing(15, "APPROVED");
-        when(repo.findById(15)).thenReturn(Optional.of(c));
+        when(repo.findByIdForUpdate(15)).thenReturn(Optional.of(c));
 
         UnpublishListingResponse res = service.unpublishListing(15,
                 new UnpublishListingRequest("HIDE", "Thông tin sai"));
 
+        verify(repo).findByIdForUpdate(15);
         assertThat(res.maCSLT()).isEqualTo(15);
         assertThat(res.trangThai()).isEqualTo("HIDDEN");
         assertThat(res.lyDoViPham()).isEqualTo("Thông tin sai");
@@ -336,11 +344,12 @@ class AdminListingServiceTest {
     @Test
     void unpublishListing_removeSuccess_fromApproved() {
         CoSoLuuTru c = createSampleListing(15, "APPROVED");
-        when(repo.findById(15)).thenReturn(Optional.of(c));
+        when(repo.findByIdForUpdate(15)).thenReturn(Optional.of(c));
 
         UnpublishListingResponse res = service.unpublishListing(15,
                 new UnpublishListingRequest("REMOVE", "Nội dung phần cấm"));
 
+        verify(repo).findByIdForUpdate(15);
         assertThat(res.maCSLT()).isEqualTo(15);
         assertThat(res.trangThai()).isEqualTo("REMOVED");
         assertThat(res.lyDoViPham()).isEqualTo("Nội dung phần cấm");
@@ -351,11 +360,12 @@ class AdminListingServiceTest {
     @Test
     void unpublishListing_removeSuccess_fromHidden() {
         CoSoLuuTru c = createSampleListing(15, "HIDDEN");
-        when(repo.findById(15)).thenReturn(Optional.of(c));
+        when(repo.findByIdForUpdate(15)).thenReturn(Optional.of(c));
 
         UnpublishListingResponse res = service.unpublishListing(15,
                 new UnpublishListingRequest("REMOVE", "Gỡ vĩnh viễn"));
 
+        verify(repo).findByIdForUpdate(15);
         assertThat(res.maCSLT()).isEqualTo(15);
         assertThat(res.trangThai()).isEqualTo("REMOVED");
         verify(repo).save(c);
@@ -364,7 +374,7 @@ class AdminListingServiceTest {
     @Test
     void unpublishListing_removeWhenDraftOrPending_throwsInvalidStateTransition() {
         CoSoLuuTru c = createSampleListing(15, "PENDING");
-        when(repo.findById(15)).thenReturn(Optional.of(c));
+        when(repo.findByIdForUpdate(15)).thenReturn(Optional.of(c));
 
         assertThatThrownBy(() -> service.unpublishListing(15, new UnpublishListingRequest("REMOVE", "Lý do")))
                 .isInstanceOf(AppException.class)
@@ -372,5 +382,6 @@ class AdminListingServiceTest {
                     AppException appEx = (AppException) ex;
                     assertThat(appEx.getCode()).isEqualTo(ErrorCode.INVALID_STATE_TRANSITION);
                 });
+        verify(repo).findByIdForUpdate(15);
     }
 }

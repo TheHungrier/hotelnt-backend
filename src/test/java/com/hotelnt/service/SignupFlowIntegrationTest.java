@@ -22,13 +22,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import com.hotelnt.integration.AbstractIntegrationTest;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-@TestPropertySource(properties = "app.auth.jwt-secret=01234567890123456789012345678901")
-class SignupFlowIntegrationTest {
+class SignupFlowIntegrationTest extends AbstractIntegrationTest {
         @Autowired
         MockMvc mvc;
         @Autowired

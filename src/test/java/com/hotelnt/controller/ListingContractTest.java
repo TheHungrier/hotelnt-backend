@@ -35,7 +35,7 @@ class ListingContractTest {
         ListingService service;
 
         private static ListingCard card() {
-                return new ListingCard(1, "Villa View Biển", "Villa", "Phđược Hải", "12 Trần Phú", 1_500_000L, NOW,
+                return new ListingCard(1, "Villa View Biển", "Villa", "Phước Hải", "12 Trần Phú", 1_500_000L, NOW,
                                 12.2451, 109.1943, "https://x/1.jpg", List.of(new Amenity(1, "Hồ bơi", "pool")), 0.75);
         }
 
@@ -45,7 +45,7 @@ class ListingContractTest {
                                 List.of(new Marker(1, "Villa View Biển", "Villa", 1_500_000L, 12.2451, 109.1943,
                                                 "https://x/1.jpg")),
                                 1, false));
-                mvc.perform(get("/listings/map-markersý" + BOUNDS))
+                mvc.perform(get("/listings/map-markers?" + BOUNDS))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.markers[0].maCSLT").value(1))
                                 .andExpect(jsonPath("$.markers[0].tenLoai").value("Villa"))
@@ -63,7 +63,7 @@ class ListingContractTest {
 
         @Test
         void mapMarkersBadBoundsFormat() throws Exception {
-                mvc.perform(get("/listings/map-markersýboundsNorthEast=abc&boundsSouthWest=12.1,109.1"))
+                mvc.perform(get("/listings/map-markers?boundsNorthEast=abc&boundsSouthWest=12.1,109.1"))
                                 .andExpect(status().isBadRequest())
                                 .andExpect(jsonPath("$.success").value(false))
                                 .andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"));
@@ -71,7 +71,7 @@ class ListingContractTest {
 
         @Test
         void mapMarkersRadiusNeedsPosition() throws Exception {
-                mvc.perform(get("/listings/map-markersý" + BOUNDS + "&radiusKm=2"))
+                mvc.perform(get("/listings/map-markers?" + BOUNDS + "&radiusKm=2"))
                                 .andExpect(status().isBadRequest())
                                 .andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"));
         }
@@ -79,10 +79,10 @@ class ListingContractTest {
         @Test
         void previewOk() throws Exception {
                 when(service.preview(eq(1), any(), any())).thenReturn(card());
-                mvc.perform(get("/listings/1/previewýlatitude=12.24&longitude=109.19"))
+                mvc.perform(get("/listings/1/preview?latitude=12.24&longitude=109.19"))
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.maCSLT").value(1))
-                                .andExpect(jsonPath("$.tenPhuong").value("Phđược Hải"))
+                                .andExpect(jsonPath("$.tenPhuong").value("Phước Hải"))
                                 .andExpect(jsonPath("$.gia").value(1500000))
                                 .andExpect(jsonPath("$.tienIchNoiBat[0].icon").value("pool"))
                                 .andExpect(jsonPath("$.khoangCach").value(0.75));

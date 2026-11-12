@@ -111,7 +111,7 @@ class AdminListingControllerTest {
         void getListingDetail_success_returns200() throws Exception {
                 ListingReviewDetail detail = new ListingReviewDetail(
                                 15, "Villa Biển Xanh Nha Trang", 2, "Villa", "Vĩnh Nguyên",
-                                "12 Trần Phú, Vĩnh Nguyên, Nha Trang", "Villa 3 phùng ngý, view biển.",
+                                "12 Trần Phú, Vĩnh Nguyên, Nha Trang", "Villa 3 phòng ngủ, view biển.",
                                 12.2451, 109.1943, 1500000L,
                                 Instant.parse("2026-10-10T08:15:00Z"),
                                 new ContactInfo("0905123456", "https://zalo.me/0905123456",

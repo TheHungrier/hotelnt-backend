@@ -114,11 +114,12 @@ class AdminHostServiceTest {
         host.setVaiTro("HOST");
         host.setTrangThai("ACTIVE");
 
-        when(taiKhoanRepo.findById(3)).thenReturn(Optional.of(host));
+        when(taiKhoanRepo.findByIdForUpdate(3)).thenReturn(Optional.of(host));
 
         UpdateHostStatusRequest req = new UpdateHostStatusRequest("LOCKED", "Vi phạm chính sách");
         UpdateHostStatusResponse res = service.updateHostStatus(3, req);
 
+        verify(taiKhoanRepo).findByIdForUpdate(3);
         assertEquals("LOCKED", res.trangThai());
         assertEquals("Vi phạm chính sách", res.lyDoKhoa());
         assertEquals(AccountStatus.LOCKED, host.getTrangThai());
@@ -134,10 +135,11 @@ class AdminHostServiceTest {
         admin.setVaiTro("ADMIN");
         admin.setTrangThai("ACTIVE");
 
-        when(taiKhoanRepo.findById(1)).thenReturn(Optional.of(admin));
+        when(taiKhoanRepo.findByIdForUpdate(1)).thenReturn(Optional.of(admin));
 
         UpdateHostStatusRequest req = new UpdateHostStatusRequest("LOCKED", "Khóa thẻ");
         AppException ex = assertThrows(AppException.class, () -> service.updateHostStatus(1, req));
+        verify(taiKhoanRepo).findByIdForUpdate(1);
         assertEquals(ErrorCode.CANNOT_LOCK_ADMIN, ex.getCode());
     }
 
@@ -148,10 +150,11 @@ class AdminHostServiceTest {
         host.setVaiTro("HOST");
         host.setTrangThai("LOCKED");
 
-        when(taiKhoanRepo.findById(3)).thenReturn(Optional.of(host));
+        when(taiKhoanRepo.findByIdForUpdate(3)).thenReturn(Optional.of(host));
 
         UpdateHostStatusRequest req = new UpdateHostStatusRequest("LOCKED", "Khóa tiếp");
         AppException ex = assertThrows(AppException.class, () -> service.updateHostStatus(3, req));
+        verify(taiKhoanRepo).findByIdForUpdate(3);
         assertEquals(ErrorCode.STATE_UNCHANGED, ex.getCode());
     }
 }

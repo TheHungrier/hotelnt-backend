@@ -40,6 +40,19 @@ public class MediaService {
             throw new AppException(ErrorCode.VALIDATION_ERROR, "Tệp tải lên không được để trống.");
         }
 
+        CoSoLuuTru coSo = coSoRepo.findByIdForUpdate(maCSLT)
+                .orElseThrow(() -> new AppException(ErrorCode.LISTING_NOT_FOUND));
+
+        if (coSo.getHost() == null || !coSo.getHost().getId().equals(hostId)) {
+            throw new AppException(ErrorCode.NOT_OWNER);
+        }
+        if (ListingStatus.PENDING.equals(coSo.getTrangThai())) {
+            throw new AppException(ErrorCode.LISTING_LOCKED_PENDING);
+        }
+        if (ListingStatus.REMOVED.equals(coSo.getTrangThai())) {
+            throw new AppException(ErrorCode.LISTING_REMOVED);
+        }
+
         if (type == null || (!"IMAGE".equalsIgnoreCase(type) && !"VIDEO".equalsIgnoreCase(type))) {
             throw new AppException(ErrorCode.VALIDATION_ERROR, "Loại media phải là IMAGE hoặc VIDEO.");
         }
@@ -52,6 +65,16 @@ public class MediaService {
         }
 
         validateFileType(file, normType);
+
+        List<Media> currentMedia = coSo.getMedia() != null ? coSo.getMedia() : List.of();
+        long imageCount = currentMedia.stream().filter(m -> "IMAGE".equalsIgnoreCase(m.getLoai())).count();
+        long videoCount = currentMedia.stream().filter(m -> "VIDEO".equalsIgnoreCase(m.getLoai())).count();
+        if (isImage && imageCount >= MAX_IMAGES) {
+            throw new AppException(ErrorCode.MEDIA_LIMIT_EXCEEDED);
+        }
+        if (!isImage && videoCount >= MAX_VIDEOS) {
+            throw new AppException(ErrorCode.MEDIA_LIMIT_EXCEEDED);
+        }
 
         String url = storageService.store(file, normType);
 
@@ -70,29 +93,6 @@ public class MediaService {
         }
 
         try {
-            CoSoLuuTru coSo = coSoRepo.findByIdForUpdate(maCSLT)
-                    .orElseThrow(() -> new AppException(ErrorCode.LISTING_NOT_FOUND));
-
-            if (coSo.getHost() == null || !coSo.getHost().getId().equals(hostId)) {
-                throw new AppException(ErrorCode.NOT_OWNER);
-            }
-            if (ListingStatus.PENDING.equals(coSo.getTrangThai())) {
-                throw new AppException(ErrorCode.LISTING_LOCKED_PENDING);
-            }
-            if (ListingStatus.REMOVED.equals(coSo.getTrangThai())) {
-                throw new AppException(ErrorCode.LISTING_REMOVED);
-            }
-
-            List<Media> currentMedia = coSo.getMedia() != null ? coSo.getMedia() : List.of();
-            long imageCount = currentMedia.stream().filter(m -> "IMAGE".equalsIgnoreCase(m.getLoai())).count();
-            long videoCount = currentMedia.stream().filter(m -> "VIDEO".equalsIgnoreCase(m.getLoai())).count();
-            if (isImage && imageCount >= MAX_IMAGES) {
-                throw new AppException(ErrorCode.MEDIA_LIMIT_EXCEEDED);
-            }
-            if (!isImage && videoCount >= MAX_VIDEOS) {
-                throw new AppException(ErrorCode.MEDIA_LIMIT_EXCEEDED);
-            }
-
             Media media = new Media();
             media.setDuongDan(url);
             media.setKichThuoc((int) file.getSize());

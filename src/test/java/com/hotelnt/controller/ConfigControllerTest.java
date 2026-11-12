@@ -1,12 +1,7 @@
 package com.hotelnt.controller;
 
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.domain.*;
 import com.hotelnt.dto.*;
 import com.hotelnt.helper.*;
-import com.hotelnt.repository.*;
 import com.hotelnt.service.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hotelnt.common.error.AppException;
@@ -61,7 +56,7 @@ class ConfigControllerTest {
     void getAdminSeoConfig_Success() throws Exception {
         when(configService.getAdminSeoConfig("ADMIN"))
                 .thenReturn(new ConfigDtos.AdminSeoConfigResponse(
-                        "Hotel Nha Trang", "T�m noi luu tr�", "hotel-nha-trang", "OG Title", "/uploads/og.jpg", Instant.now()
+                        "Hotel Nha Trang", "Tìm nơi lưu trú", "hotel-nha-trang", "OG Title", "/uploads/og.jpg", Instant.now()
                 ));
 
         mvc.perform(get("/admin/configurations/seo")
@@ -84,25 +79,25 @@ class ConfigControllerTest {
     @Test
     void updateSeoConfig_Success() throws Exception {
         ConfigDtos.SeoConfigUpdateRequest req = new ConfigDtos.SeoConfigUpdateRequest(
-                "Ti�u d? m?i", "M� t? m?i", "slug-moi", "OG Title", "/uploads/og.jpg"
+                "Tiêu đề mới", "Mô tả mới", "slug-moi", "OG Title", "/uploads/og.jpg"
         );
 
         when(configService.updateSeoConfig(eq("ADMIN"), any()))
-                .thenReturn(new ConfigDtos.SeoConfigUpdateResponse("C?p nh?t c?u h�nh SEO th�nh c�ng", Instant.now()));
+                .thenReturn(new ConfigDtos.SeoConfigUpdateResponse("Cập nhật cấu hình SEO thành công", Instant.now()));
 
         mvc.perform(put("/admin/configurations/seo")
                         .header("X-Mock-Role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("C?p nh?t c?u h�nh SEO th�nh c�ng"));
+                .andExpect(jsonPath("$.message").value("Cập nhật cấu hình SEO thành công"));
     }
 
     @Test
     void updateSeoConfig_Fail_ValidationError_InvalidSlug() throws Exception {
-        // Slug ch?a k� t? hoa v� kho?ng tr?ng -> vi ph?m regex ^[a-z0-9-]+$
+        // Slug chứa ký tự hoa và khoảng trắng -> vi phạm regex ^[a-z0-9-]+$
         ConfigDtos.SeoConfigUpdateRequest req = new ConfigDtos.SeoConfigUpdateRequest(
-                "Ti�u d?", "M� t?", "Slug Kh�ng H?p L?!", "OG Title", "/uploads/og.jpg"
+                "Tiêu đề", "Mô tả", "Slug Không Hợp Lệ!", "OG Title", "/uploads/og.jpg"
         );
 
         mvc.perform(put("/admin/configurations/seo")
@@ -135,35 +130,35 @@ class ConfigControllerTest {
     void getAiConfig_Success() throws Exception {
         when(configService.getAiConfig("ADMIN"))
                 .thenReturn(new ConfigDtos.AiConfigResponse(
-                        "Xin ch�o!", "APPROVED_ONLY", "LISTING_INFO_ONLY", Instant.now()
+                        "Xin chào!", "APPROVED_ONLY", "LISTING_INFO_ONLY", Instant.now()
                 ));
 
         mvc.perform(get("/admin/configurations/ai")
                         .header("X-Mock-Role", "ADMIN"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.tinNhanMacDinh").value("Xin ch�o!"))
+                .andExpect(jsonPath("$.tinNhanMacDinh").value("Xin chào!"))
                 .andExpect(jsonPath("$.nguonDuLieu").value("APPROVED_ONLY"))
                 .andExpect(jsonPath("$.phamViTraLoi").value("LISTING_INFO_ONLY"));
     }
 
     @Test
     void updateAiConfig_Success() throws Exception {
-        ConfigDtos.AiConfigUpdateRequest req = new ConfigDtos.AiConfigUpdateRequest("Tin nh?n m?i");
+        ConfigDtos.AiConfigUpdateRequest req = new ConfigDtos.AiConfigUpdateRequest("Tin nhắn mới");
 
         when(configService.updateAiConfig(eq("ADMIN"), any()))
-                .thenReturn(new ConfigDtos.AiConfigUpdateResponse("C?p nh?t c?u h�nh AI th�nh c�ng", Instant.now()));
+                .thenReturn(new ConfigDtos.AiConfigUpdateResponse("Cập nhật cấu hình AI thành công", Instant.now()));
 
         mvc.perform(put("/admin/configurations/ai")
                         .header("X-Mock-Role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(req)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("C?p nh?t c?u h�nh AI th�nh c�ng"));
+                .andExpect(jsonPath("$.message").value("Cập nhật cấu hình AI thành công"));
     }
 
     @Test
     void updateAiConfig_Fail_ValidationError_TooLong() throws Exception {
-        String longText = "a".repeat(201); // 201 k� t? > max 200
+        String longText = "a".repeat(201); // 201 ký tự > max 200
         ConfigDtos.AiConfigUpdateRequest req = new ConfigDtos.AiConfigUpdateRequest(longText);
 
         mvc.perform(put("/admin/configurations/ai")

@@ -159,7 +159,7 @@ class MediaServiceTest {
     @Test
     void upload_Fail_NotOwner() {
         MockMultipartFile file = new MockMultipartFile(
-                "file", "room.jpg", "image/jpeg", "bytes".getBytes());
+                "file", "room.jpg", "image/jpeg", VALID_JPEG_HEADER);
         when(coSoRepo.findByIdForUpdate(15)).thenReturn(Optional.of(mockCoSo));
 
         AppException ex = assertThrows(AppException.class, () -> mediaService.upload(15, 999, file, "IMAGE"));
@@ -167,10 +167,22 @@ class MediaServiceTest {
     }
 
     @Test
+    void upload_Fail_NotOwner_WithCorruptedFile_ReturnsNotOwner() {
+        byte[] fakeExe = new byte[] { 0x4D, 0x5A, (byte) 0x90, 0x00 };
+        MockMultipartFile corruptedFile = new MockMultipartFile("file", "virus.exe", "image/jpeg", fakeExe);
+        when(coSoRepo.findByIdForUpdate(15)).thenReturn(Optional.of(mockCoSo));
+
+        AppException ex = assertThrows(AppException.class, () -> mediaService.upload(15, 999, corruptedFile, "IMAGE"));
+        assertEquals(ErrorCode.NOT_OWNER, ex.getCode());
+        verify(coSoRepo).findByIdForUpdate(15);
+        verify(storageService, never()).store(any(), any());
+    }
+
+    @Test
     void upload_Fail_ListingPending() {
         mockCoSo.setTrangThai(ListingStatus.PENDING);
         MockMultipartFile file = new MockMultipartFile(
-                "file", "room.jpg", "image/jpeg", "bytes".getBytes());
+                "file", "room.jpg", "image/jpeg", VALID_JPEG_HEADER);
         when(coSoRepo.findByIdForUpdate(15)).thenReturn(Optional.of(mockCoSo));
 
         AppException ex = assertThrows(AppException.class, () -> mediaService.upload(15, 2, file, "IMAGE"));
@@ -181,7 +193,7 @@ class MediaServiceTest {
     void upload_Fail_ListingRemoved() {
         mockCoSo.setTrangThai(ListingStatus.REMOVED);
         MockMultipartFile file = new MockMultipartFile(
-                "file", "room.jpg", "image/jpeg", "bytes".getBytes());
+                "file", "room.jpg", "image/jpeg", VALID_JPEG_HEADER);
         when(coSoRepo.findByIdForUpdate(15)).thenReturn(Optional.of(mockCoSo));
 
         AppException ex = assertThrows(AppException.class, () -> mediaService.upload(15, 2, file, "IMAGE"));
@@ -300,7 +312,7 @@ class MediaServiceTest {
 
         AppException ex = assertThrows(AppException.class, () -> mediaService.upload(15, 2, file, "IMAGE"));
         assertEquals(ErrorCode.VALIDATION_ERROR, ex.getCode());
-        assertTrue(ex.getDetails().toString().contains("m� được"));
+        assertTrue(ex.getDetails().toString().contains("mã độc"));
     }
 
     @Test
@@ -624,13 +636,13 @@ class MediaServiceTest {
 
             mediaService.delete(15, 1, 2);
 
-            // Truýc khi commit, storageService.delete chứa được gọi
+            // Trước khi commit, storageService.delete chưa được gọi
             verify(storageService, never()).delete("/uploads/photo1.jpg");
 
-            // Giả lặp Spring Transaction commit thành công
+            // Giả lập Spring Transaction commit thành công
             TransactionSynchronizationUtils.triggerAfterCommit();
 
-            // Sau khi commit, storageService.delete �� được gọi
+            // Sau khi commit, storageService.delete đã được gọi
             verify(storageService, times(1)).delete("/uploads/photo1.jpg");
         } finally {
             TransactionSynchronizationManager.clearSynchronization();
@@ -653,8 +665,8 @@ class MediaServiceTest {
 
             mediaService.delete(15, 1, 2);
 
-            // Giả lặp DB Rollback (kh?ng gọi triggerAfterCommit)
-            // storageService.delete tuyệt đài KH�NG được gọi
+            // Giả lập DB Rollback (không gọi triggerAfterCommit)
+            // storageService.delete tuyệt đối KHÔNG được gọi
             verify(storageService, never()).delete("/uploads/photo1.jpg");
         } finally {
             TransactionSynchronizationManager.clearSynchronization();

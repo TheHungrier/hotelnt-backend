@@ -1,12 +1,7 @@
 package com.hotelnt.service;
 
-import com.hotelnt.dto.ConfigDtos.*;
-import com.hotelnt.common.error.*;
-import com.hotelnt.config.*;
-import com.hotelnt.controller.*;
 import com.hotelnt.domain.*;
 import com.hotelnt.dto.*;
-import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import com.hotelnt.common.error.AppException;
 import com.hotelnt.common.error.ErrorCode;
@@ -17,7 +12,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -61,7 +55,7 @@ class ConfigServiceTest {
 
         aiMsgConfig = new CauHinh();
         aiMsgConfig.setKhoa("ai.tinNhanMacDinh");
-        aiMsgConfig.setGiaTri("Xin ch�o! M�nh c� th? gi�p g� cho b?n?");
+        aiMsgConfig.setGiaTri("Xin chào! Mình có thể giúp gì cho bạn?");
         aiMsgConfig.setNgayCapNhat(LocalDateTime.now());
     }
 
@@ -100,16 +94,17 @@ class ConfigServiceTest {
     @Test
     void updateSeoConfig_Success() {
         ConfigDtos.SeoConfigUpdateRequest req = new ConfigDtos.SeoConfigUpdateRequest(
-                "Ti�u d? m?i", "M� t? m?i", "slug-moi", "OG Title", "/uploads/og.jpg"
+                "Tiêu đề mới", "Mô tả mới", "slug-moi", "OG Title", "/uploads/og.jpg"
         );
 
         when(repo.findAll()).thenReturn(List.of(slugConfig));
-        when(repo.findById(anyString())).thenReturn(Optional.of(new CauHinh()));
+        when(repo.findByIdForUpdate(anyString())).thenReturn(Optional.of(new CauHinh()));
 
         ConfigDtos.SeoConfigUpdateResponse res = configService.updateSeoConfig("ADMIN", req);
 
         assertNotNull(res);
-        assertTrue(res.message().contains("th�nh c�ng"));
+        assertTrue(res.message().contains("thành công"));
+        verify(repo, atLeastOnce()).findByIdForUpdate("seo.slugUrl");
         verify(repo, atLeastOnce()).save(any(CauHinh.class));
     }
 
@@ -122,7 +117,7 @@ class ConfigServiceTest {
         when(repo.findAll()).thenReturn(List.of(otherConfig));
 
         ConfigDtos.SeoConfigUpdateRequest req = new ConfigDtos.SeoConfigUpdateRequest(
-                "Ti�u d? m?i", "M� t? m?i", "slug-da-co", "OG Title", "/uploads/og.jpg"
+                "Tiêu đề mới", "Mô tả mới", "slug-da-co", "OG Title", "/uploads/og.jpg"
         );
 
         AppException ex = assertThrows(AppException.class, () -> configService.updateSeoConfig("ADMIN", req));
@@ -132,7 +127,7 @@ class ConfigServiceTest {
     @Test
     void updateSeoConfig_Fail_ForbiddenRole() {
         ConfigDtos.SeoConfigUpdateRequest req = new ConfigDtos.SeoConfigUpdateRequest(
-                "Ti�u d? m?i", "M� t? m?i", "slug-moi", "OG Title", "/uploads/og.jpg"
+                "Tiêu đề mới", "Mô tả mới", "slug-moi", "OG Title", "/uploads/og.jpg"
         );
 
         AppException ex = assertThrows(AppException.class, () -> configService.updateSeoConfig("HOST", req));
@@ -161,7 +156,7 @@ class ConfigServiceTest {
 
     @Test
     void uploadOgImage_Fail_InvalidRatio() throws IOException {
-        // T?o ?nh vu�ng 500x500 (t? l? 1:1, sai chu?n 1.91:1)
+        // Tạo ảnh vuông 500x500 (tỷ lệ 1:1, sai chuẩn 1.91:1)
         BufferedImage img = new BufferedImage(500, 500, BufferedImage.TYPE_INT_RGB);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ImageIO.write(img, "png", baos);
@@ -207,7 +202,7 @@ class ConfigServiceTest {
         ConfigDtos.AiConfigResponse res = configService.getAiConfig("ADMIN");
 
         assertNotNull(res);
-        assertEquals("Xin ch�o! M�nh c� th? gi�p g� cho b?n?", res.tinNhanMacDinh());
+        assertEquals("Xin chào! Mình có thể giúp gì cho bạn?", res.tinNhanMacDinh());
         assertEquals("APPROVED_ONLY", res.nguonDuLieu());
         assertEquals("LISTING_INFO_ONLY", res.phamViTraLoi());
         assertNotNull(res.ngayCapNhat());
@@ -221,21 +216,22 @@ class ConfigServiceTest {
 
     @Test
     void updateAiConfig_Success() {
-        ConfigDtos.AiConfigUpdateRequest req = new ConfigDtos.AiConfigUpdateRequest("Tin nh?n h? tr? m?i.");
-        when(repo.findById("ai.tinNhanMacDinh")).thenReturn(Optional.of(aiMsgConfig));
+        ConfigDtos.AiConfigUpdateRequest req = new ConfigDtos.AiConfigUpdateRequest("Tin nhắn hỗ trợ mới.");
+        when(repo.findByIdForUpdate("ai.tinNhanMacDinh")).thenReturn(Optional.of(aiMsgConfig));
 
         ConfigDtos.AiConfigUpdateResponse res = configService.updateAiConfig("ADMIN", req);
 
+        verify(repo).findByIdForUpdate("ai.tinNhanMacDinh");
         assertNotNull(res);
-        assertTrue(res.message().contains("th�nh c�ng"));
+        assertTrue(res.message().contains("thành công"));
         verify(repo, times(1)).save(argThat(c ->
-                c.getKhoa().equals("ai.tinNhanMacDinh") && c.getGiaTri().equals("Tin nh?n h? tr? m?i.")
+                c.getKhoa().equals("ai.tinNhanMacDinh") && c.getGiaTri().equals("Tin nhắn hỗ trợ mới.")
         ));
     }
 
     @Test
     void updateAiConfig_Fail_ForbiddenRole() {
-        ConfigDtos.AiConfigUpdateRequest req = new ConfigDtos.AiConfigUpdateRequest("Tin nh?n h? tr? m?i.");
+        ConfigDtos.AiConfigUpdateRequest req = new ConfigDtos.AiConfigUpdateRequest("Tin nhắn hỗ trợ mới.");
 
         AppException ex = assertThrows(AppException.class, () -> configService.updateAiConfig("HOST", req));
         assertEquals(ErrorCode.FORBIDDEN_ROLE, ex.getCode());
@@ -243,13 +239,13 @@ class ConfigServiceTest {
 
     @Test
     void uploadOgImage_WebpSupport_ImageReaderAvailable() {
-        // Ki?m tra thu vi?n TwelveMonkeys WebP ImageReader d� dang k� th�nh c�ng trong ImageIO SPI
-        assertTrue(ImageIO.getImageReadersByFormatName("webp").hasNext(), "TwelveMonkeys WebP ImageReader ph?i c� s?n trong ImageIO");
+        // Kiểm tra thư viện TwelveMonkeys WebP ImageReader đã đăng ký thành công trong ImageIO SPI
+        assertTrue(ImageIO.getImageReadersByFormatName("webp").hasNext(), "TwelveMonkeys WebP ImageReader phải có sẵn trong ImageIO");
     }
 
     @Test
     void uploadOgImage_WebpSupport_DecodeAndValidateRatio() {
-        // Byte array c?a ?nh WebP h?p l? 1x1 (lossless WebP chu?n)
+        // Byte array của ảnh WebP hợp lệ 1x1 (lossless WebP chuẩn)
         byte[] minimal1x1Webp = new byte[]{
             0x52, 0x49, 0x46, 0x46, 0x1A, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50,
             0x56, 0x50, 0x38, 0x4C, 0x0E, 0x00, 0x00, 0x00, 0x2F, 0x00, 0x00, 0x00,
@@ -258,7 +254,7 @@ class ConfigServiceTest {
 
         MockMultipartFile file = new MockMultipartFile("file", "image.webp", "image/webp", minimal1x1Webp);
 
-        // Khi d?c du?c ?nh WebP (1x1), t? l? 1:1 s? b? t? ch?i v?i INVALID_IMAGE_RATIO (ch? kh�ng ph?i UNSUPPORTED_MEDIA_TYPE)
+        // Khi đọc được ảnh WebP (1x1), tỷ lệ 1:1 sẽ bị từ chối với INVALID_IMAGE_RATIO (chứ không phải UNSUPPORTED_MEDIA_TYPE)
         AppException ex = assertThrows(AppException.class, () -> configService.uploadOgImage("ADMIN", file));
         assertEquals(ErrorCode.INVALID_IMAGE_RATIO, ex.getCode());
     }
