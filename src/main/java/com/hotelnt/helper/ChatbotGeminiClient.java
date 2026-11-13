@@ -18,58 +18,58 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ChatbotDeepSeekClient {
+public class ChatbotGeminiClient {
 
-    private static final Logger log = LoggerFactory.getLogger(ChatbotDeepSeekClient.class);
-    private static final String DEFAULT_MODEL = "deepseek-chat";
-    private static final String DEFAULT_ENDPOINT = "https://api.deepseek.com/chat/completions";
+    private static final Logger log = LoggerFactory.getLogger(ChatbotGeminiClient.class);
+    private static final String DEFAULT_MODEL = "gemini-2.5-flash";
+    private static final String DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com";
 
     private final ObjectMapper objectMapper;
 
-    @Value("${deepseek.api-key:}")
+    @Value("${gemini.api-key:}")
     private String configuredApiKey;
 
-    @Value("${deepseek.model:" + DEFAULT_MODEL + "}")
+    @Value("${gemini.model:" + DEFAULT_MODEL + "}")
     private String configuredModel;
 
-    @Value("${deepseek.endpoint:" + DEFAULT_ENDPOINT + "}")
-    private String configuredEndpoint;
+    @Value("${gemini.base-url:" + DEFAULT_BASE_URL + "}")
+    private String configuredBaseUrl;
 
-    public ChatbotDeepSeekClient(ObjectMapper objectMapper) {
+    public ChatbotGeminiClient(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
     /**
-     * Goi DeepSeek REST API (chuan OpenAI format) de tao cau tra loi tu nhien cho khach dua tren danh sach CSLT tim thay.
-     * Tra ve null neu khong the ket noi hoac khong co API key de fallback noi bo an toan.
+     * Goi Gemini REST API de tao cau tra loi tu nhien cho khach dua tren danh sach CSLT tim thay.
+     * Tra ve null neu khong the ket noi hoac khong co API key de fallback an toan.
      */
     public String generateReply(String userMessage, List<ChatbotDtos.SuggestedListing> listings) {
         String apiKey = resolveApiKey();
         if (apiKey == null || apiKey.isBlank()) {
-            log.info("Chua cau hinh DEEPSEEK_API_KEY, su dung bo tao phan hoi noi bo.");
+            log.info("Chua cau hinh GEMINI_API_KEY, su dung bo tao phan hoi noi bo.");
             return null;
         }
 
         String model = (configuredModel != null && !configuredModel.isBlank()) ? configuredModel.trim() : DEFAULT_MODEL;
-        String endpoint = (configuredEndpoint != null && !configuredEndpoint.isBlank()) ? configuredEndpoint.trim() : DEFAULT_ENDPOINT;
+        String baseUrl = (configuredBaseUrl != null && !configuredBaseUrl.isBlank()) ? configuredBaseUrl.trim() : DEFAULT_BASE_URL;
+        if (baseUrl.endsWith("/")) {
+            baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+        }
+
+        String endpoint = baseUrl + "/v1beta/models/" + model + ":generateContent?key=" + apiKey;
 
         try {
             String prompt = buildPrompt(userMessage, listings);
 
             Map<String, Object> payload = Map.of(
-                    "model", model,
-                    "messages", List.of(
-                            Map.of("role", "user", "content", prompt)
-                    ),
-                    "stream", false
-            );
+                    "contents", List.of(
+                            Map.of("parts", List.of(Map.of("text", prompt)))));
             byte[] bodyBytes = objectMapper.writeValueAsBytes(payload);
 
             URL url = new URL(endpoint);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
-            conn.setRequestProperty("Authorization", "Bearer " + apiKey);
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(10000);
             conn.setDoOutput(true);
@@ -82,12 +82,12 @@ public class ChatbotDeepSeekClient {
             if (status == 200) {
                 try (InputStream is = conn.getInputStream()) {
                     JsonNode root = objectMapper.readTree(is);
-                    JsonNode choice = root.path("choices").path(0);
-                    JsonNode contentNode = choice.path("message").path("content");
-                    if (!contentNode.isMissingNode()) {
-                        String text = contentNode.asText().trim();
+                    JsonNode candidate = root.path("candidates").path(0);
+                    JsonNode textNode = candidate.path("content").path("parts").path(0).path("text");
+                    if (!textNode.isMissingNode()) {
+                        String text = textNode.asText().trim();
                         if (!text.isBlank()) {
-                            log.info("DeepSeek tra loi thanh cong voi model {}", model);
+                            log.info("Gemini tra loi thanh cong voi model {}", model);
                             return text;
                         }
                     }
@@ -100,10 +100,10 @@ public class ChatbotDeepSeekClient {
                         errorBody = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                     }
                 }
-                log.warn("DeepSeek API tra ve ma loi {} voi model {}: {}", status, model, errorBody);
+                log.warn("Gemini API tra ve ma loi {} voi model {}: {}", status, model, errorBody);
             }
         } catch (Exception e) {
-            log.warn("Loi khi goi DeepSeek AI: {}", e.getMessage());
+            log.warn("Loi khi goi Gemini AI: {}", e.getMessage());
         }
 
         return null;
@@ -150,7 +150,7 @@ public class ChatbotDeepSeekClient {
         if (configuredApiKey != null && !configuredApiKey.isBlank()) {
             return configuredApiKey.trim();
         }
-        String env = System.getenv("DEEPSEEK_API_KEY");
+        String env = System.getenv("GEMINI_API_KEY");
         if (env != null && !env.isBlank()) {
             return env.trim();
         }
@@ -159,8 +159,8 @@ public class ChatbotDeepSeekClient {
             if (Files.exists(envPath)) {
                 for (String line : Files.readAllLines(envPath, StandardCharsets.UTF_8)) {
                     line = line.trim();
-                    if (line.startsWith("DEEPSEEK_API_KEY=")) {
-                        return line.substring("DEEPSEEK_API_KEY=".length()).trim();
+                    if (line.startsWith("GEMINI_API_KEY=")) {
+                        return line.substring("GEMINI_API_KEY=".length()).trim();
                     }
                 }
             }

@@ -10,19 +10,19 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class ChatbotDeepSeekClientTest {
+class ChatbotGeminiClientTest {
 
-    private ChatbotDeepSeekClient client;
+    private ChatbotGeminiClient client;
     private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
         objectMapper = new ObjectMapper();
-        client = new ChatbotDeepSeekClient(objectMapper);
+        client = new ChatbotGeminiClient(objectMapper);
     }
 
     @Test
-    @DisplayName("generateReply trả về null an toàn khi chưa cấu hình DEEPSEEK_API_KEY")
+    @DisplayName("generateReply trả về null an toàn khi chưa cấu hình GEMINI_API_KEY")
     void generateReply_withoutApiKey_returnsNullSafely() {
         ReflectionTestUtils.setField(client, "configuredApiKey", "");
         String reply = client.generateReply("Tìm khách sạn giá rẻ", List.of());

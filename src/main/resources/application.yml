@@ -44,10 +44,10 @@ spring:
     resources:
       add-mappings: false
 
-deepseek:
-  api-key: ${DEEPSEEK_API_KEY:}
-  model: ${DEEPSEEK_MODEL:deepseek-chat}
-  endpoint: ${DEEPSEEK_ENDPOINT:https://api.deepseek.com/chat/completions}
+gemini:
+  api-key: ${GEMINI_API_KEY:}
+  model: ${GEMINI_MODEL:gemini-2.5-flash}
+  base-url: ${GEMINI_BASE_URL:https://generativelanguage.googleapis.com}
 
 app:
   cors-origins: ${CORS_ORIGINS:*}

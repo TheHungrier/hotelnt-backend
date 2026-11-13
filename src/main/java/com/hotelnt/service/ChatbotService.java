@@ -21,14 +21,14 @@ public class ChatbotService {
     private static final Logger log = LoggerFactory.getLogger(ChatbotService.class);
 
     private final CoSoLuuTruRepository listingRepo;
-    private final ChatbotDeepSeekClient deepSeekClient;
+    private final ChatbotGeminiClient geminiClient;
 
     @Value("${app.public-base-url:}")
     private String publicBaseUrl;
 
-    public ChatbotService(CoSoLuuTruRepository listingRepo, ChatbotDeepSeekClient deepSeekClient) {
+    public ChatbotService(CoSoLuuTruRepository listingRepo, ChatbotGeminiClient geminiClient) {
         this.listingRepo = listingRepo;
-        this.deepSeekClient = deepSeekClient;
+        this.geminiClient = geminiClient;
     }
 
     public ChatMessageResponse handleMessage(ChatMessageRequest request) {
@@ -54,8 +54,8 @@ public class ChatbotService {
         // 3. Cham diem va xep hang CSLT phu hop
         List<SuggestedListing> suggested = rankAndMapListings(visibleListings, intent);
 
-        // 4. Goi DeepSeek AI tao cau tra loi tu nhien (kem fallback tu dong)
-        String aiReply = deepSeekClient.generateReply(message, suggested);
+        // 4. Goi Gemini AI tao cau tra loi tu nhien (kem fallback tu dong)
+        String aiReply = geminiClient.generateReply(message, suggested);
         String finalReplyText = (aiReply != null && !aiReply.isBlank()) ? aiReply : createFallbackReply(suggested);
 
         return new ChatMessageResponse(finalReplyText, sessionId, suggested);
