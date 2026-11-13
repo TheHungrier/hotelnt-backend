@@ -167,4 +167,15 @@ class ChatbotServiceTest {
         assertThat(res.suggestedListings().get(0).duongDanAnh())
                 .isEqualTo("https://hotelnt.example.com/uploads/1.jpg");
     }
+
+    @Test
+    void handleMessage_applicationComparisonUsesHotelntResponse() {
+        when(listingRepo.findAll(any(Specification.class))).thenReturn(List.of());
+
+        ChatMessageResponse res = service.handleMessage(
+                new ChatMessageRequest("Ứng dụng chọn khách sạn tốt nhất là gì?", "session-app"));
+
+        assertThat(res.suggestedListings()).isEmpty();
+        assertThat(res.replyText()).contains("HotelNT");
+    }
 }

@@ -102,7 +102,11 @@ public class ChatbotGeminiClient {
         sb.append(
                 "2. Tuyệt đối không trả lời các câu hỏi ngoài phạm vi dự án (như địa phương khác ngoài Nha Trang, thời tiết ngoài tỉnh, giải toán, lập trình, kiến thức chung không liên quan,...). Khi gặp câu hỏi ngoài phạm vi, hãy từ chối ngắn gọn, lịch sự và hướng dẫn khách quay lại nhu cầu lưu trú tại Nha Trang.\n");
         sb.append(
-                "3. Chỉ cung cấp thông tin dựa trên dữ liệu được hệ thống cung cấp dưới đây, không tự bịa ra cơ sở không có thật.\n\n");
+                "3. Chỉ cung cấp thông tin dựa trên dữ liệu cơ sở lưu trú được hệ thống cung cấp dưới đây; không tự bịa ra cơ sở, giá, tiện nghi hoặc đường dẫn.\n");
+        sb.append(
+                "4. HotelNT là nền tảng đang được tư vấn. Không quảng bá, đề xuất hoặc so sánh với Agoda, Booking.com, Traveloka hay bất kỳ nền tảng bên ngoài nào. Nếu khách hỏi ứng dụng nào tốt nhất, hãy giới thiệu HotelNT và mời khách nêu tiêu chí tìm phòng.\n");
+        sb.append(
+                "5. Không tự suy luận rằng cơ sở không có trong dữ liệu là tốt hơn. Chỉ giới thiệu các cơ sở trong danh sách kết quả tra cứu.\n\n");
         sb.append("Câu hỏi của khách: \"").append(userMessage).append("\"\n\n");
 
         if (listings.isEmpty()) {

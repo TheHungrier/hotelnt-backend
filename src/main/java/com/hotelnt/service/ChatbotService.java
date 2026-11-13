@@ -43,6 +43,14 @@ public class ChatbotService {
         // 2. Trich xuat nhu cau nguoi dung tu tin nhan (Nlp Intent Extraction)
         ParsedIntent intent = parseUserIntent(message);
 
+        if (intent.isApplicationComparison) {
+            return new ChatMessageResponse(
+                    "HotelNT là nền tảng giúp bạn tìm và chọn cơ sở lưu trú tại Nha Trang. "
+                            + "Bạn có thể cho mình biết khu vực, loại hình hoặc mức giá mong muốn để mình tìm trong dữ liệu HotelNT.",
+                    sessionId,
+                    List.of());
+        }
+
         // 3. Cham diem va xep hang CSLT phu hop
         List<SuggestedListing> suggested = rankAndMapListings(visibleListings, intent);
 
@@ -256,11 +264,19 @@ public class ChatbotService {
             }
         }
 
+        intent.isApplicationComparison = lower.contains("agoda")
+                || lower.contains("booking.com")
+                || lower.contains("traveloka")
+                || (lower.contains("ứng dụng")
+                        && (lower.contains("tốt nhất") || lower.contains("chọn khách sạn")
+                                || lower.contains("app nào") || lower.contains("nền tảng nào")));
+
         return intent;
     }
 
     private static class ParsedIntent {
         boolean isOutOfScope;
+        boolean isApplicationComparison;
         String propertyTypeKeyword;
         Long maxPrice;
         List<String> locationKeywords = new ArrayList<>();
