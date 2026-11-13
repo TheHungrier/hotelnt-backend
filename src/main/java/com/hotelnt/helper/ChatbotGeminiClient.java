@@ -80,12 +80,20 @@ public class ChatbotGeminiClient {
                     if (!textNode.isMissingNode()) {
                         String text = textNode.asText().trim();
                         if (!text.isBlank()) {
+                            log.info("Gemini tra loi thanh cong voi model {}", model);
                             return text;
                         }
                     }
                 }
             } else {
-                log.warn("Gemini API tra ve ma loi: {}", status);
+                String errorBody = "";
+                InputStream errorStream = conn.getErrorStream();
+                if (errorStream != null) {
+                    try (InputStream is = errorStream) {
+                        errorBody = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+                    }
+                }
+                log.warn("Gemini API tra ve ma loi {} voi model {}: {}", status, model, errorBody);
             }
         } catch (Exception e) {
             log.warn("Loi khi goi Gemini AI: {}", e.getMessage());
