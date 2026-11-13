@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 public class ChatbotGeminiClient {
 
     private static final Logger log = LoggerFactory.getLogger(ChatbotGeminiClient.class);
-    private static final String DEFAULT_MODEL = "gemini-2.5-flash";
+    private static final String DEFAULT_MODEL = "gemini-3.8-flash";
     private static final String DEFAULT_BASE_URL = "https://generativelanguage.googleapis.com";
 
     private final ObjectMapper objectMapper;
