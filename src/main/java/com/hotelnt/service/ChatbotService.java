@@ -10,6 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +22,9 @@ public class ChatbotService {
 
     private final CoSoLuuTruRepository listingRepo;
     private final ChatbotGeminiClient geminiClient;
+
+    @Value("${app.public-base-url:}")
+    private String publicBaseUrl;
 
     public ChatbotService(CoSoLuuTruRepository listingRepo, ChatbotGeminiClient geminiClient) {
         this.listingRepo = listingRepo;
@@ -50,7 +54,7 @@ public class ChatbotService {
     }
 
     private List<SuggestedListing> rankAndMapListings(List<CoSoLuuTru> listings, ParsedIntent intent) {
-        if (listings.isEmpty() || intent.isOutOfScope) {
+        if (listings.isEmpty() || intent.isOutOfScope || !intent.hasSearchCriteria()) {
             return List.of();
         }
 
@@ -80,7 +84,7 @@ public class ChatbotService {
     }
 
     private int calculateScore(CoSoLuuTru c, ParsedIntent intent) {
-        int score = 1; // Diem goc de phuc vu cac cau hoi chung chung
+        int score = 1;
         String name = c.getTenCSLT() != null ? c.getTenCSLT().toLowerCase() : "";
         String desc = c.getMoTa() != null ? c.getMoTa().toLowerCase() : "";
         String address = c.getDiaChiChiTiet() != null ? c.getDiaChiChiTiet().toLowerCase() : "";
@@ -96,18 +100,16 @@ public class ChatbotService {
             if (typeName.contains(intent.propertyTypeKeyword) || name.contains(intent.propertyTypeKeyword)) {
                 score += 10;
             } else {
-                score -= 6; // Tru diem neu khach chi dinh ro loai phong khac
+                return 0; // Loai co so la dieu kien bat buoc khi khach da chi dinh
             }
         }
 
         // Kiem tra khoang gia
-        if (c.getGia() != null && intent.maxPrice != null) {
-            long price = c.getGia().longValue();
-            if (price <= intent.maxPrice) {
-                score += 8;
-            } else {
-                score -= 10; // Vuot qua ngan sach yeu cau
+        if (intent.maxPrice != null) {
+            if (c.getGia() == null || c.getGia().compareTo(BigDecimal.valueOf(intent.maxPrice)) > 0) {
+                return 0; // Khong gioi thieu co so vuot ngan sach
             }
+            score += 8;
         }
 
         // Kiem tra vi tri / phuong
@@ -158,8 +160,18 @@ public class ChatbotService {
                 c.getLoai() != null ? c.getLoai().getTenLoai() : null,
                 c.getGia() != null ? c.getGia().longValue() : null,
                 Times.toInstant(c.getNgayCapNhatGia() != null ? c.getNgayCapNhatGia() : c.getNgayTao()),
-                mainPhoto,
+                toPublicImageUrl(mainPhoto),
                 new ChatContactInfo(phone, zalo, fb));
+    }
+
+    private String toPublicImageUrl(String path) {
+        if (path == null || path.isBlank() || path.matches("^[a-zA-Z][a-zA-Z0-9+.-]*://.*$")) {
+            return path;
+        }
+        if (publicBaseUrl == null || publicBaseUrl.isBlank()) {
+            return path;
+        }
+        return publicBaseUrl.replaceAll("/+$", "") + "/" + path.replaceFirst("^/+", "");
     }
 
     private String createFallbackReply(List<SuggestedListing> suggested) {
@@ -204,6 +216,15 @@ public class ChatbotService {
                     intent.maxPrice = val * 1_000;
                 } catch (Exception ignored) {
                 }
+            } else {
+                Pattern pDong = Pattern.compile("(?:dưới|<)?\\s*(\\d{1,3}(?:[.,]\\d{3})+)\\s*(?:đ|đồng|vnd)");
+                Matcher mDong = pDong.matcher(lower);
+                if (mDong.find()) {
+                    try {
+                        intent.maxPrice = Long.parseLong(mDong.group(1).replace(".", "").replace(",", ""));
+                    } catch (Exception ignored) {
+                    }
+                }
             }
         }
 
@@ -244,6 +265,11 @@ public class ChatbotService {
         Long maxPrice;
         List<String> locationKeywords = new ArrayList<>();
         List<String> amenityKeywords = new ArrayList<>();
+
+        boolean hasSearchCriteria() {
+            return propertyTypeKeyword != null || maxPrice != null
+                    || !locationKeywords.isEmpty() || !amenityKeywords.isEmpty();
+        }
     }
 
     private record ScoredListing(CoSoLuuTru listing, int score) {

@@ -19,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class ChatbotServiceTest {
@@ -122,5 +123,48 @@ class ChatbotServiceTest {
         ChatMessageResponse res = service.handleMessage(req);
 
         assertThat(res.sessionId()).isNotNull().isNotBlank();
+    }
+
+    @Test
+    void handleMessage_priceAndTypeAreHardFilters() {
+        CoSoLuuTru hotelOverBudget = createMockListing(1, "Khách sạn Sao Biển", "Khách sạn",
+                BigDecimal.valueOf(800000), "Lộc Thọ");
+        CoSoLuuTru homestayInBudget = createMockListing(2, "Homestay Nắng Mai", "Homestay",
+                BigDecimal.valueOf(450000), "Lộc Thọ");
+        when(listingRepo.findAll(any(Specification.class))).thenReturn(List.of(hotelOverBudget, homestayInBudget));
+        when(geminiClient.generateReply(anyString(), anyList())).thenReturn(null);
+
+        ChatMessageResponse res = service.handleMessage(
+                new ChatMessageRequest("Khách sạn giá dưới 500k", "session-price"));
+
+        assertThat(res.suggestedListings()).isEmpty();
+        assertThat(res.replyText()).contains("chưa tìm thấy");
+    }
+
+    @Test
+    void handleMessage_withoutSearchCriteria_doesNotReturnDefaultTopFive() {
+        CoSoLuuTru listing = createMockListing(1, "Villa Nha Trang", "Villa",
+                BigDecimal.valueOf(1500000), "Phước Hải");
+        when(listingRepo.findAll(any(Specification.class))).thenReturn(List.of(listing));
+        when(geminiClient.generateReply(anyString(), anyList())).thenReturn(null);
+
+        ChatMessageResponse res = service.handleMessage(new ChatMessageRequest("Bạn khỏe không?", "session-general"));
+
+        assertThat(res.suggestedListings()).isEmpty();
+        assertThat(res.replyText()).contains("chưa tìm thấy");
+    }
+
+    @Test
+    void handleMessage_prefixesRelativeImageWithConfiguredPublicOrigin() {
+        CoSoLuuTru listing = createMockListing(1, "Villa Nha Trang", "Villa",
+                BigDecimal.valueOf(1500000), "Phước Hải");
+        when(listingRepo.findAll(any(Specification.class))).thenReturn(List.of(listing));
+        when(geminiClient.generateReply(anyString(), anyList())).thenReturn(null);
+        ReflectionTestUtils.setField(service, "publicBaseUrl", "https://hotelnt.example.com/");
+
+        ChatMessageResponse res = service.handleMessage(new ChatMessageRequest("Tìm villa", "session-image"));
+
+        assertThat(res.suggestedListings().get(0).duongDanAnh())
+                .isEqualTo("https://hotelnt.example.com/uploads/1.jpg");
     }
 }

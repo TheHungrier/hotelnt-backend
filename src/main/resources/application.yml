@@ -44,8 +44,13 @@ spring:
     resources:
       add-mappings: false
 
+gemini:
+  api-key: ${GEMINI_API_KEY:}
+  model: ${GEMINI_MODEL:gemini-2.5-flash}
+
 app:
   cors-origins: ${CORS_ORIGINS:*}
+  public-base-url: ${APP_PUBLIC_BASE_URL:}
   auth:
     mail-from: ${MAIL_FROM:${MAIL_USERNAME:}}
   google:
