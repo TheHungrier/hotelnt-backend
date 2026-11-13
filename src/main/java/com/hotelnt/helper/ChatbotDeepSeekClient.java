@@ -18,36 +18,35 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ChatbotAiClient {
+public class ChatbotDeepSeekClient {
 
-    private static final Logger log = LoggerFactory.getLogger(ChatbotAiClient.class);
-    private static final String DEFAULT_MODEL = "google/gemini-2.0-flash-exp:free";
-    private static final String DEFAULT_ENDPOINT = "https://openrouter.ai/api/v1/chat/completions";
+    private static final Logger log = LoggerFactory.getLogger(ChatbotDeepSeekClient.class);
+    private static final String DEFAULT_MODEL = "deepseek-chat";
+    private static final String DEFAULT_ENDPOINT = "https://api.deepseek.com/chat/completions";
 
     private final ObjectMapper objectMapper;
 
-    @Value("${openrouter.api-key:${gemini.api-key:}}")
+    @Value("${deepseek.api-key:}")
     private String configuredApiKey;
 
-    @Value("${openrouter.model:${gemini.model:}}")
+    @Value("${deepseek.model:" + DEFAULT_MODEL + "}")
     private String configuredModel;
 
-    @Value("${openrouter.endpoint:" + DEFAULT_ENDPOINT + "}")
+    @Value("${deepseek.endpoint:" + DEFAULT_ENDPOINT + "}")
     private String configuredEndpoint;
 
-    public ChatbotAiClient(ObjectMapper objectMapper) {
+    public ChatbotDeepSeekClient(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
     /**
-     * Goi OpenRouter REST API (chuan OpenAI format) de tao cau tra loi tu nhien cho khach dua tren danh sach CSLT tim thay.
-     * Ho tro moi model tren OpenRouter (Gemini, DeepSeek, Claude,...).
+     * Goi DeepSeek REST API (chuan OpenAI format) de tao cau tra loi tu nhien cho khach dua tren danh sach CSLT tim thay.
      * Tra ve null neu khong the ket noi hoac khong co API key de fallback noi bo an toan.
      */
     public String generateReply(String userMessage, List<ChatbotDtos.SuggestedListing> listings) {
         String apiKey = resolveApiKey();
         if (apiKey == null || apiKey.isBlank()) {
-            log.info("Chua cau hinh OPENROUTER_API_KEY (hoac GEMINI_API_KEY), su dung bo tao phan hoi noi bo.");
+            log.info("Chua cau hinh DEEPSEEK_API_KEY, su dung bo tao phan hoi noi bo.");
             return null;
         }
 
@@ -61,7 +60,8 @@ public class ChatbotAiClient {
                     "model", model,
                     "messages", List.of(
                             Map.of("role", "user", "content", prompt)
-                    )
+                    ),
+                    "stream", false
             );
             byte[] bodyBytes = objectMapper.writeValueAsBytes(payload);
 
@@ -70,8 +70,6 @@ public class ChatbotAiClient {
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
             conn.setRequestProperty("Authorization", "Bearer " + apiKey);
-            conn.setRequestProperty("HTTP-Referer", "https://hotelnt.vn");
-            conn.setRequestProperty("X-Title", "HotelNT");
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(10000);
             conn.setDoOutput(true);
@@ -89,7 +87,7 @@ public class ChatbotAiClient {
                     if (!contentNode.isMissingNode()) {
                         String text = contentNode.asText().trim();
                         if (!text.isBlank()) {
-                            log.info("OpenRouter tra loi thanh cong voi model {}", model);
+                            log.info("DeepSeek tra loi thanh cong voi model {}", model);
                             return text;
                         }
                     }
@@ -102,10 +100,10 @@ public class ChatbotAiClient {
                         errorBody = new String(is.readAllBytes(), StandardCharsets.UTF_8);
                     }
                 }
-                log.warn("OpenRouter API tra ve ma loi {} voi model {}: {}", status, model, errorBody);
+                log.warn("DeepSeek API tra ve ma loi {} voi model {}: {}", status, model, errorBody);
             }
         } catch (Exception e) {
-            log.warn("Loi khi goi OpenRouter AI: {}", e.getMessage());
+            log.warn("Loi khi goi DeepSeek AI: {}", e.getMessage());
         }
 
         return null;
@@ -152,11 +150,7 @@ public class ChatbotAiClient {
         if (configuredApiKey != null && !configuredApiKey.isBlank()) {
             return configuredApiKey.trim();
         }
-        String env = System.getenv("OPENROUTER_API_KEY");
-        if (env != null && !env.isBlank()) {
-            return env.trim();
-        }
-        env = System.getenv("GEMINI_API_KEY");
+        String env = System.getenv("DEEPSEEK_API_KEY");
         if (env != null && !env.isBlank()) {
             return env.trim();
         }
@@ -165,14 +159,8 @@ public class ChatbotAiClient {
             if (Files.exists(envPath)) {
                 for (String line : Files.readAllLines(envPath, StandardCharsets.UTF_8)) {
                     line = line.trim();
-                    if (line.startsWith("OPENROUTER_API_KEY=")) {
-                        return line.substring("OPENROUTER_API_KEY=".length()).trim();
-                    }
-                }
-                for (String line : Files.readAllLines(envPath, StandardCharsets.UTF_8)) {
-                    line = line.trim();
-                    if (line.startsWith("GEMINI_API_KEY=")) {
-                        return line.substring("GEMINI_API_KEY=".length()).trim();
+                    if (line.startsWith("DEEPSEEK_API_KEY=")) {
+                        return line.substring("DEEPSEEK_API_KEY=".length()).trim();
                     }
                 }
             }

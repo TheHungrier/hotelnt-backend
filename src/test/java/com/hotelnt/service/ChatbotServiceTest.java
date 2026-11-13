@@ -28,13 +28,13 @@ class ChatbotServiceTest {
     private CoSoLuuTruRepository listingRepo;
 
     @Mock
-    private ChatbotAiClient aiClient;
+    private ChatbotDeepSeekClient deepSeekClient;
 
     private ChatbotService service;
 
     @BeforeEach
     void setUp() {
-        service = new ChatbotService(listingRepo, aiClient);
+        service = new ChatbotService(listingRepo, deepSeekClient);
     }
 
     private CoSoLuuTru createMockListing(int id, String name, String typeName, BigDecimal price, String wardName) {
@@ -80,13 +80,13 @@ class ChatbotServiceTest {
     }
 
     @Test
-    void handleMessage_matchingQuery_returnsSuggestionsWithAiReply() {
+    void handleMessage_matchingQuery_returnsSuggestionsWithDeepSeekReply() {
         CoSoLuuTru l1 = createMockListing(1, "Villa View Biển Nha Trang", "Villa", BigDecimal.valueOf(1500000),
                 "Phước Hải");
         CoSoLuuTru l2 = createMockListing(2, "Khách sạn Sao Biển", "Khách sạn", BigDecimal.valueOf(800000), "Lộc Thọ");
 
         when(listingRepo.findAll(any(Specification.class))).thenReturn(List.of(l1, l2));
-        when(aiClient.generateReply(anyString(), anyList()))
+        when(deepSeekClient.generateReply(anyString(), anyList()))
                 .thenReturn("Dạ, HotelNT gợi ý cho bạn Villa View Biển Nha Trang rất thích hợp cho kỳ nghỉ!");
 
         ChatMessageRequest req = new ChatMessageRequest("Tìm cho tôi villa view biển giá dưới 2 triệu", "session-01");
@@ -104,7 +104,7 @@ class ChatbotServiceTest {
         CoSoLuuTru l1 = createMockListing(1, "Villa Cao Cấp", "Villa", BigDecimal.valueOf(10000000), "Phước Hải");
 
         when(listingRepo.findAll(any(Specification.class))).thenReturn(List.of(l1));
-        when(aiClient.generateReply(anyString(), anyList())).thenReturn(null); // AI fallback
+        when(deepSeekClient.generateReply(anyString(), anyList())).thenReturn(null); // DeepSeek fallback
 
         ChatMessageRequest req = new ChatMessageRequest("Tìm phòng giá dưới 100k", "session-02");
         ChatMessageResponse res = service.handleMessage(req);
@@ -117,7 +117,7 @@ class ChatbotServiceTest {
     @Test
     void handleMessage_noSessionId_generatesNewSessionId() {
         when(listingRepo.findAll(any(Specification.class))).thenReturn(List.of());
-        when(aiClient.generateReply(anyString(), anyList())).thenReturn(null);
+        when(deepSeekClient.generateReply(anyString(), anyList())).thenReturn(null);
 
         ChatMessageRequest req = new ChatMessageRequest("Chào bạn", null);
         ChatMessageResponse res = service.handleMessage(req);
@@ -132,7 +132,7 @@ class ChatbotServiceTest {
         CoSoLuuTru homestayInBudget = createMockListing(2, "Homestay Nắng Mai", "Homestay",
                 BigDecimal.valueOf(450000), "Lộc Thọ");
         when(listingRepo.findAll(any(Specification.class))).thenReturn(List.of(hotelOverBudget, homestayInBudget));
-        when(aiClient.generateReply(anyString(), anyList())).thenReturn(null);
+        when(deepSeekClient.generateReply(anyString(), anyList())).thenReturn(null);
 
         ChatMessageResponse res = service.handleMessage(
                 new ChatMessageRequest("Khách sạn giá dưới 500k", "session-price"));
@@ -146,7 +146,7 @@ class ChatbotServiceTest {
         CoSoLuuTru listing = createMockListing(1, "Villa Nha Trang", "Villa",
                 BigDecimal.valueOf(1500000), "Phước Hải");
         when(listingRepo.findAll(any(Specification.class))).thenReturn(List.of(listing));
-        when(aiClient.generateReply(anyString(), anyList())).thenReturn(null);
+        when(deepSeekClient.generateReply(anyString(), anyList())).thenReturn(null);
 
         ChatMessageResponse res = service.handleMessage(new ChatMessageRequest("Bạn khỏe không?", "session-general"));
 
@@ -159,7 +159,7 @@ class ChatbotServiceTest {
         CoSoLuuTru listing = createMockListing(1, "Villa Nha Trang", "Villa",
                 BigDecimal.valueOf(1500000), "Phước Hải");
         when(listingRepo.findAll(any(Specification.class))).thenReturn(List.of(listing));
-        when(aiClient.generateReply(anyString(), anyList())).thenReturn(null);
+        when(deepSeekClient.generateReply(anyString(), anyList())).thenReturn(null);
         ReflectionTestUtils.setField(service, "publicBaseUrl", "https://hotelnt.example.com/");
 
         ChatMessageResponse res = service.handleMessage(new ChatMessageRequest("Tìm villa", "session-image"));
