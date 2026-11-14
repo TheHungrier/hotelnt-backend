@@ -5,11 +5,10 @@ import com.hotelnt.dto.ChatbotDtos.*;
 import com.hotelnt.helper.*;
 import com.hotelnt.repository.*;
 import java.math.BigDecimal;
+import java.text.Normalizer;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class ChatbotService {
 
-    private static final Logger log = LoggerFactory.getLogger(ChatbotService.class);
     private static final Pattern KS_PATTERN = Pattern.compile("\\bks\\b", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE);
 
     private final CoSoLuuTruRepository listingRepo;
@@ -36,6 +34,16 @@ public class ChatbotService {
 
     public ChatbotService(CoSoLuuTruRepository listingRepo, ChatbotGeminiClient geminiClient) {
         this(listingRepo, (AiClient) geminiClient);
+    }
+
+    public static String normalize(String input) {
+        if (input == null) {
+            return "";
+        }
+        String s = input.toLowerCase().replace("đ", "d").replace("Đ", "d");
+        s = Normalizer.normalize(s, Normalizer.Form.NFD);
+        s = Pattern.compile("\\p{InCombiningDiacriticalMarks}+").matcher(s).replaceAll("");
+        return s.trim();
     }
 
     public ChatMessageResponse handleMessage(ChatMessageRequest request) {
@@ -158,7 +166,7 @@ public class ChatbotService {
             }
         }
 
-        // Kiem tra loai hinh
+        // Kiem tra loai hinh: chi so khop voi loai.tenLoai (khong so voi ten co so)
         if (intent.propertyTypeKeyword != null) {
             if (!matchesPropertyType(c, intent.propertyTypeKeyword)) {
                 return false;
@@ -183,96 +191,116 @@ public class ChatbotService {
     }
 
     /**
-     * Cham diem: Bo base score. Chi tinh diem cac tieu chi thuc su khop.
+     * Cham diem: Bo base score.
+     * Moi nhom tieu chi (loai, gia, vi tri, tien ich) chi cong diem mot lan cho moi co so;
+     * khong cong don cac tu khoa trung nghia.
      */
     private int calculateScore(CoSoLuuTru c, ParsedIntent intent) {
         int score = 0;
 
-        // 1. Loai hinh
+        // 1. Nhom Loai hinh (+10, toi da 1 lan)
         if (intent.propertyTypeKeyword != null && matchesPropertyType(c, intent.propertyTypeKeyword)) {
             score += 10;
         }
 
-        // 2. Gia
+        // 2. Nhom Gia (+8, toi da 1 lan)
         if (intent.maxPrice != null || intent.minPrice != null) {
             score += 8;
         }
 
-        // 3. Vi tri
-        String wardName = (c.getPhuong() != null && c.getPhuong().getTenPhuong() != null)
-                ? c.getPhuong().getTenPhuong().toLowerCase() : "";
-        String address = (c.getDiaChiChiTiet() != null) ? c.getDiaChiChiTiet().toLowerCase() : "";
-        String name = (c.getTenCSLT() != null) ? c.getTenCSLT().toLowerCase() : "";
-        String desc = (c.getMoTa() != null) ? c.getMoTa().toLowerCase() : "";
-
-        for (String loc : intent.locationKeywords) {
-            if (wardName.contains(loc) || address.contains(loc) || name.contains(loc) || desc.contains(loc)) {
-                score += 6;
-            }
+        // 3. Nhom Vi tri (+6, toi da 1 lan bat ke bao nhieu tu khoa vi tri khop)
+        if (!intent.locationKeywords.isEmpty() && matchesAnyLocation(c, intent.locationKeywords)) {
+            score += 6;
         }
 
-        // 4. Tien ich
-        for (String am : intent.amenityKeywords) {
-            boolean matched = name.contains(am) || desc.contains(am);
-            if (!matched && c.getTienIch() != null) {
-                matched = c.getTienIch().stream()
-                        .filter(t -> t.getTenTienIch() != null)
-                        .anyMatch(t -> t.getTenTienIch().toLowerCase().contains(am));
-            }
-            if (matched) {
-                score += 4;
-            }
+        // 4. Nhom Tien ich (+4, toi da 1 lan bat ke bao nhieu tien ich khop)
+        if (!intent.amenityKeywords.isEmpty() && matchesAnyAmenity(c, intent.amenityKeywords)) {
+            score += 4;
         }
 
         return score;
     }
 
+    /**
+     * Chi so khop voi loai.tenLoai (giu ngoai le "khach san" khop loai co "hotel").
+     * Khong so voi ten co so.
+     */
     private boolean matchesPropertyType(CoSoLuuTru c, String keyword) {
         if (keyword == null) return true;
-        String typeName = (c.getLoai() != null && c.getLoai().getTenLoai() != null)
-                ? c.getLoai().getTenLoai().toLowerCase()
-                : "";
-        String name = (c.getTenCSLT() != null) ? c.getTenCSLT().toLowerCase() : "";
+        if (c.getLoai() == null || c.getLoai().getTenLoai() == null) {
+            return false;
+        }
+        String normTypeName = normalize(c.getLoai().getTenLoai());
+        String normKeyword = normalize(keyword);
 
-        if (typeName.contains(keyword) || name.contains(keyword)) {
+        if (normTypeName.contains(normKeyword)) {
             return true;
         }
-        if ("khách sạn".equals(keyword)) {
-            return KS_PATTERN.matcher(name).find() || name.contains("hotel") || typeName.contains("hotel");
+        if ("khach san".equals(normKeyword)) {
+            return normTypeName.contains("hotel");
         }
         return false;
     }
 
-    private boolean matchesAnyLocation(CoSoLuuTru c, List<String> locationKeywords) {
-        String wardName = (c.getPhuong() != null && c.getPhuong().getTenPhuong() != null)
-                ? c.getPhuong().getTenPhuong().toLowerCase() : "";
-        String address = (c.getDiaChiChiTiet() != null) ? c.getDiaChiChiTiet().toLowerCase() : "";
-        String name = (c.getTenCSLT() != null) ? c.getTenCSLT().toLowerCase() : "";
-        String desc = (c.getMoTa() != null) ? c.getMoTa().toLowerCase() : "";
+    private boolean isSeaKeyword(String normLoc) {
+        return "bien".equals(normLoc) || "view bien".equals(normLoc)
+                || "sat bien".equals(normLoc) || "gan bien".equals(normLoc);
+    }
 
-        for (String loc : locationKeywords) {
-            if (wardName.contains(loc) || address.contains(loc) || name.contains(loc) || desc.contains(loc)) {
+    /**
+     * Chi so khop phuong va dia chi chi tiet.
+     * Voi "bien", "view bien", "sat bien", "gan bien" thi so voi mo ta va tien ich, khong so voi ten co so.
+     */
+    private boolean matchesLocation(CoSoLuuTru c, String normLoc) {
+        if (isSeaKeyword(normLoc)) {
+            String normDesc = (c.getMoTa() != null) ? normalize(c.getMoTa()) : "";
+            if (normDesc.contains(normLoc)) {
                 return true;
+            }
+            if (c.getTienIch() != null) {
+                for (TienIch t : c.getTienIch()) {
+                    if (t.getTenTienIch() != null && normalize(t.getTenTienIch()).contains(normLoc)) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        } else {
+            String normWard = (c.getPhuong() != null && c.getPhuong().getTenPhuong() != null)
+                    ? normalize(c.getPhuong().getTenPhuong()) : "";
+            String normAddress = (c.getDiaChiChiTiet() != null) ? normalize(c.getDiaChiChiTiet()) : "";
+            return normWard.contains(normLoc) || normAddress.contains(normLoc);
+        }
+    }
+
+    private boolean matchesAnyLocation(CoSoLuuTru c, List<String> locationKeywords) {
+        for (String loc : locationKeywords) {
+            if (matchesLocation(c, loc)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean matchesAmenity(CoSoLuuTru c, String normAm) {
+        String normDesc = (c.getMoTa() != null) ? normalize(c.getMoTa()) : "";
+        if (normDesc.contains(normAm)) {
+            return true;
+        }
+        if (c.getTienIch() != null) {
+            for (TienIch t : c.getTienIch()) {
+                if (t.getTenTienIch() != null && normalize(t.getTenTienIch()).contains(normAm)) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
     private boolean matchesAnyAmenity(CoSoLuuTru c, List<String> amenityKeywords) {
-        String name = (c.getTenCSLT() != null) ? c.getTenCSLT().toLowerCase() : "";
-        String desc = (c.getMoTa() != null) ? c.getMoTa().toLowerCase() : "";
-
         for (String am : amenityKeywords) {
-            if (name.contains(am) || desc.contains(am)) {
+            if (matchesAmenity(c, am)) {
                 return true;
-            }
-            if (c.getTienIch() != null) {
-                boolean inAmenities = c.getTienIch().stream()
-                        .filter(t -> t.getTenTienIch() != null)
-                        .anyMatch(t -> t.getTenTienIch().toLowerCase().contains(am));
-                if (inAmenities) {
-                    return true;
-                }
             }
         }
         return false;
@@ -321,159 +349,180 @@ public class ChatbotService {
     }
 
     private ParsedIntent parseUserIntent(String message) {
-        String lower = message.toLowerCase();
+        String norm = normalize(message);
         ParsedIntent intent = new ParsedIntent();
 
         // 1. Nhan dien loai co so (dung regex \\bks\\b de tranh khop nham "ks")
-        if (lower.contains("villa") || lower.contains("biệt thự")) {
+        if (norm.contains("villa") || norm.contains("biet thu")) {
             intent.propertyTypeKeyword = "villa";
-        } else if (lower.contains("resort") || lower.contains("nghỉ dưỡng")) {
+        } else if (norm.contains("resort") || norm.contains("nghi duong")) {
             intent.propertyTypeKeyword = "resort";
-        } else if (lower.contains("homestay")) {
+        } else if (norm.contains("homestay")) {
             intent.propertyTypeKeyword = "homestay";
-        } else if (lower.contains("khách sạn") || lower.contains("hotel") || KS_PATTERN.matcher(lower).find()) {
-            intent.propertyTypeKeyword = "khách sạn";
-        } else if (lower.contains("căn hộ") || lower.contains("apartment")) {
-            intent.propertyTypeKeyword = "căn hộ";
+        } else if (norm.contains("khach san") || norm.contains("hotel") || KS_PATTERN.matcher(norm).find()) {
+            intent.propertyTypeKeyword = "khach san";
+        } else if (norm.contains("can ho") || norm.contains("apartment")) {
+            intent.propertyTypeKeyword = "can ho";
         }
 
-        // 2. Nhan dien muc gia (khoang gia, gia tran maxPrice, gia san minPrice)
-        parsePrices(lower, intent);
+        // 2. Nhan dien muc gia
+        parsePrices(norm, intent);
 
-        // 3. Nhan dien dia diem / view
+        // 3. Nhan dien dia diem / view (danh sach tu khoa da chuan hoa)
         List<String> locTerms = List.of(
-                "view biển", "sát biển", "gần biển", "biển", "trần phú",
-                "lộc thọ", "phước hải", "vĩnh phước", "trung tâm", "chợ đêm",
-                "bãi dài", "vĩnh nguyên", "vĩnh trường", "vĩnh hải", "vĩnh hòa",
-                "vạn thạnh", "phương sài", "hòn chồng"
+                "view bien", "sat bien", "gan bien", "bien", "tran phu",
+                "loc tho", "phuoc hai", "vinh phuoc", "trung tam", "cho dem",
+                "bai dai", "vinh nguyen", "vinh truong", "vinh hai", "vinh hoa",
+                "van thanh", "phuong sai", "hon chong"
         );
         for (String term : locTerms) {
-            if (lower.contains(term)) {
+            if (norm.contains(term)) {
                 intent.locationKeywords.add(term);
             }
         }
 
-        // 4. Nhan dien tien ich
-        List<String> amTerms = List.of("hồ bơi", "bể bơi", "wifi", "bếp", "bãi đỗ xe", "đậu xe", "điều hòa", "máy lạnh", "ăn sáng", "buffet");
+        // 4. Nhan dien tien ich (danh sach tu khoa da chuan hoa)
+        List<String> amTerms = List.of(
+                "ho boi", "be boi", "wifi", "bep", "bai do xe", "dau xe", "dieu hoa", "may lanh", "an sang", "buffet"
+        );
         for (String term : amTerms) {
-            if (lower.contains(term)) {
+            if (norm.contains(term)) {
                 intent.amenityKeywords.add(term);
             }
         }
 
-        // 5. Nhan dien yeu cau ngoai pham vi Nha Trang
+        // 5. Nhan dien yeu cau ngoai pham vi Nha Trang (khop theo ranh gioi tu \\b)
         List<String> outOfScopeKeywords = List.of(
-                "đà lạt", "da lat", "hà nội", "ha noi", "sài gòn", "sai gon",
-                "hồ chí minh", "ho chi minh", "đà nẵng", "da nang", "vũng tàu", "vung tau", "phú quốc", "phu quoc",
-                "sa pa", "sapa"
+                "da lat", "ha noi", "sai gon", "ho chi minh", "da nang",
+                "vung tau", "phu quoc", "sa pa", "sapa"
         );
         for (String kw : outOfScopeKeywords) {
-            if (lower.contains(kw)) {
+            Pattern p = Pattern.compile("\\b" + Pattern.quote(kw) + "\\b", Pattern.CASE_INSENSITIVE);
+            if (p.matcher(norm).find()) {
                 intent.isOutOfScope = true;
                 break;
             }
         }
 
-        intent.isApplicationComparison = lower.contains("agoda")
-                || lower.contains("booking.com")
-                || lower.contains("traveloka")
-                || (lower.contains("ứng dụng")
-                        && (lower.contains("tốt nhất") || lower.contains("chọn khách sạn")
-                                || lower.contains("app nào") || lower.contains("nền tảng nào")));
+        intent.isApplicationComparison = norm.contains("agoda")
+                || norm.contains("booking.com")
+                || norm.contains("traveloka")
+                || (norm.contains("ung dung")
+                        && (norm.contains("tot nhat") || norm.contains("chon khach san")
+                                || norm.contains("app nao") || norm.contains("nen tang nao")));
 
         return intent;
     }
 
-    private void parsePrices(String lower, ParsedIntent intent) {
+    private void parsePrices(String norm, ParsedIntent intent) {
         // Range: tu X den Y / X - Y
-        Pattern pRange = Pattern.compile("(?:từ\\s*)?(\\d+(?:[.,]\\d+)?)\\s*(k|nghìn|ngàn|triệu|tr|trieu)?\\s*(?:-|đến|tới)\\s*(\\d+(?:[.,]\\d+)?)\\s*(k|nghìn|ngàn|triệu|tr|trieu|đ|đồng|vnd)?");
-        Matcher mRange = pRange.matcher(lower);
+        Pattern pRange = Pattern.compile("(?:tu\\s*)?(\\d+(?:[.,]\\d+)?)\\s*(trieu|tr|k|nghin|ngan)?\\s*(?:-|den|toi)\\s*(\\d+(?:[.,]\\d+)?)\\s*(trieu|tr|k|nghin|ngan|d|dong|vnd)?\\b");
+        Matcher mRange = pRange.matcher(norm);
         if (mRange.find()) {
             String u2 = mRange.group(4);
             String u1 = mRange.group(2) != null ? mRange.group(2) : u2;
             Long min = parsePriceAmount(mRange.group(1), u1);
             Long max = parsePriceAmount(mRange.group(3), u2);
-            if (min != null) intent.minPrice = min;
-            if (max != null) intent.maxPrice = max;
-            return;
-        }
-
-        // Min: tren / > / toi thieu
-        Pattern pMin = Pattern.compile("(?:trên|>|tối thiểu|từ)\\s*(\\d+(?:[.,]\\d+)?)\\s*(k|nghìn|ngàn|triệu|tr|trieu|đ|đồng|vnd)?");
-        Matcher mMin = pMin.matcher(lower);
-        if (mMin.find()) {
-            Long min = parsePriceAmount(mMin.group(1), mMin.group(2));
-            if (min != null) {
-                intent.minPrice = min;
+            if (min != null || max != null) {
+                if (min != null) intent.minPrice = min;
+                if (max != null) intent.maxPrice = max;
                 return;
             }
         }
 
-        // Max: duoi / < / toi da / den / tam / khoang / gia
-        Pattern pTrieu = Pattern.compile("(?:dưới|<|tối đa|đến|tầm|khoảng|giá)?\\s*(\\d+(?:[.,]\\d+)?)\\s*(?:triệu|tr|trieu)");
-        Matcher mTrieu = pTrieu.matcher(lower);
+        // Trieu / Tr: (tren | > | toi thieu | tu | duoi | < | toi da | den | tam | khoang | gia)? X trieu
+        Pattern pTrieu = Pattern.compile("(tren|>|toi thieu|tu|duoi|<|toi da|den|tam|khoang|gia)?\\s*(\\d+(?:[.,]\\d+)?)\\s*(?:trieu|tr)\\b");
+        Matcher mTrieu = pTrieu.matcher(norm);
         if (mTrieu.find()) {
-            try {
-                double val = Double.parseDouble(mTrieu.group(1).replace(",", "."));
-                intent.maxPrice = (long) (val * 1_000_000);
+            String prefix = mTrieu.group(1);
+            Long val = parsePriceAmount(mTrieu.group(2), "trieu");
+            if (val != null) {
+                if (prefix != null && isMinPrefix(prefix)) {
+                    intent.minPrice = val;
+                } else {
+                    intent.maxPrice = val;
+                }
                 return;
-            } catch (Exception ignored) {
             }
         }
 
-        Pattern pK = Pattern.compile("(?:dưới|<|tối đa|đến|tầm|khoảng|giá)?\\s*(\\d+)\\s*(?:k|nghìn|ngàn)");
-        Matcher mK = pK.matcher(lower);
+        // K / Nghin / Ngan: (prefix)? X k
+        Pattern pK = Pattern.compile("(tren|>|toi thieu|tu|duoi|<|toi da|den|tam|khoang|gia)?\\s*(\\d+)\\s*(?:k|nghin|ngan)\\b");
+        Matcher mK = pK.matcher(norm);
         if (mK.find()) {
-            try {
-                long val = Long.parseLong(mK.group(1));
-                intent.maxPrice = val * 1_000;
+            String prefix = mK.group(1);
+            Long val = parsePriceAmount(mK.group(2), "k");
+            if (val != null) {
+                if (prefix != null && isMinPrefix(prefix)) {
+                    intent.minPrice = val;
+                } else {
+                    intent.maxPrice = val;
+                }
                 return;
-            } catch (Exception ignored) {
             }
         }
 
-        Pattern pDong = Pattern.compile("(?:dưới|<|tối đa|đến|tầm|khoảng|giá)?\\s*(\\d{1,3}(?:[.,]\\d{3})+)\\s*(?:đ|đồng|vnd)?");
-        Matcher mDong = pDong.matcher(lower);
+        // Dong / VND hoac so khong don vi: chi nhan so co it nhat 5 chu so (>= 10000) hoac co dinh dang cham/phay
+        Pattern pDong = Pattern.compile("(tren|>|toi thieu|tu|duoi|<|toi da|den|tam|khoang|gia)?\\s*(\\d{1,3}(?:[.,]\\d{3})+|\\d{5,})\\s*(?:d|dong|vnd)?\\b");
+        Matcher mDong = pDong.matcher(norm);
         if (mDong.find()) {
-            try {
-                intent.maxPrice = Long.parseLong(mDong.group(1).replace(".", "").replace(",", ""));
-            } catch (Exception ignored) {
+            String prefix = mDong.group(1);
+            String rawNum = mDong.group(2).replace(".", "").replace(",", "");
+            Long val = parsePriceAmount(rawNum, null);
+            if (val != null) {
+                if (prefix != null && isMinPrefix(prefix)) {
+                    intent.minPrice = val;
+                } else {
+                    intent.maxPrice = val;
+                }
             }
         }
     }
 
-    private Long parsePriceAmount(String numStr, String unitStr) {
+    private boolean isMinPrefix(String prefix) {
+        String p = prefix.trim();
+        return p.equals("tren") || p.equals(">") || p.equals("toi thieu") || p.equals("tu");
+    }
+
+    public static Long parsePriceAmount(String numStr, String unitStr) {
         if (numStr == null || numStr.isBlank()) return null;
         try {
             double val = Double.parseDouble(numStr.replace(",", "."));
-            if (unitStr != null) {
-                String u = unitStr.toLowerCase();
-                if (u.contains("tr") || u.contains("triệu") || u.contains("trieu")) {
+            if (unitStr != null && !unitStr.isBlank()) {
+                String u = normalize(unitStr);
+                if (u.contains("tr") || u.contains("trieu")) {
                     return (long) (val * 1_000_000);
                 }
-                if (u.contains("k") || u.contains("nghìn") || u.contains("ngàn")) {
+                if (u.contains("k") || u.contains("nghin") || u.contains("ngan")) {
                     return (long) (val * 1_000);
                 }
+                if (u.contains("d") || u.contains("dong") || u.contains("vnd")) {
+                    if (val >= 10_000) {
+                        return (long) val;
+                    }
+                    return null;
+                }
             }
+            // So khong co don vi chi duoc nhan la gia khi >= 10000
             if (val >= 10_000) {
                 return (long) val;
             }
-            return (long) val;
+            return null;
         } catch (Exception e) {
             return null;
         }
     }
 
-    private static class ParsedIntent {
-        boolean isOutOfScope;
-        boolean isApplicationComparison;
-        String propertyTypeKeyword;
-        Long maxPrice;
-        Long minPrice;
-        List<String> locationKeywords = new ArrayList<>();
-        List<String> amenityKeywords = new ArrayList<>();
+    public static class ParsedIntent {
+        public boolean isOutOfScope;
+        public boolean isApplicationComparison;
+        public String propertyTypeKeyword;
+        public Long maxPrice;
+        public Long minPrice;
+        public List<String> locationKeywords = new ArrayList<>();
+        public List<String> amenityKeywords = new ArrayList<>();
 
-        boolean hasSearchCriteria() {
+        public boolean hasSearchCriteria() {
             return propertyTypeKeyword != null || maxPrice != null || minPrice != null
                     || !locationKeywords.isEmpty() || !amenityKeywords.isEmpty();
         }

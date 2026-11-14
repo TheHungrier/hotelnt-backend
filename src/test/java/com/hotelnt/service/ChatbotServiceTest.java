@@ -208,4 +208,96 @@ class ChatbotServiceTest {
         verify(listingRepo).findAll(specCaptor.capture());
         assertThat(specCaptor.getValue()).isNotNull();
     }
+
+    @Test
+    @DisplayName("matchesPropertyType: tên Khách sạn Sao Biển thuộc loại khác (Homestay) không xuất hiện khi hỏi khách sạn")
+    void handleMessage_nameHasHotelKeywordButTypeIsDifferent_doesNotMatch() {
+        CoSoLuuTru homestayNamedHotel = createMockListing(1, "Khách sạn Sao Biển", "Homestay",
+                BigDecimal.valueOf(400000), "Lộc Thọ");
+        CoSoLuuTru realHotel = createMockListing(2, "Bình Minh Hotel", "Khách sạn",
+                BigDecimal.valueOf(450000), "Lộc Thọ");
+
+        when(listingRepo.findAll(any(Specification.class))).thenReturn(List.of(homestayNamedHotel, realHotel));
+        when(aiClient.generateReply(anyString(), anyList())).thenReturn(Optional.empty());
+
+        ChatMessageResponse res = service.handleMessage(
+                new ChatMessageRequest("Tìm khách sạn giá dưới 500k", "session-type-strict"));
+
+        assertThat(res.suggestedListings()).hasSize(1);
+        assertThat(res.suggestedListings().get(0).maCSLT()).isEqualTo(2);
+        assertThat(res.suggestedListings().get(0).tenCSLT()).isEqualTo("Bình Minh Hotel");
+    }
+
+    @Test
+    @DisplayName("Chuẩn hóa không dấu: 'khach san duoi 500k' cho cùng kết quả như 'Khách sạn giá dưới 500k'")
+    void handleMessage_unaccentedQuery_returnsSameResultsAsAccented() {
+        CoSoLuuTru hotelInBudget = createMockListing(1, "Khách sạn Ánh Dương", "Khách sạn",
+                BigDecimal.valueOf(400000), "Lộc Thọ");
+        CoSoLuuTru hotelOverBudget = createMockListing(2, "Khách sạn 5 Sao", "Khách sạn",
+                BigDecimal.valueOf(900000), "Lộc Thọ");
+
+        when(listingRepo.findAll(any(Specification.class))).thenReturn(List.of(hotelInBudget, hotelOverBudget));
+        when(aiClient.generateReply(anyString(), anyList())).thenReturn(Optional.empty());
+
+        ChatMessageResponse accentedRes = service.handleMessage(
+                new ChatMessageRequest("Khách sạn giá dưới 500k", "session-accented"));
+        ChatMessageResponse unaccentedRes = service.handleMessage(
+                new ChatMessageRequest("khach san duoi 500k", "session-unaccented"));
+
+        assertThat(accentedRes.suggestedListings()).hasSize(1);
+        assertThat(unaccentedRes.suggestedListings()).hasSize(1);
+        assertThat(unaccentedRes.suggestedListings().get(0).maCSLT())
+                .isEqualTo(accentedRes.suggestedListings().get(0).maCSLT())
+                .isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("parsePriceAmount: câu như 'phòng cho 2 người' hoặc 'trên 3 sao' không tạo tiêu chí giá")
+    void handleMessage_roomForTwoPeople_doesNotCreatePriceCriteria() {
+        // "phòng cho 2 người" không chứa loại hình, vị trí, tiện ích, và số 2 không có đơn vị giá (< 10000)
+        ChatMessageResponse res = service.handleMessage(
+                new ChatMessageRequest("phòng cho 2 người", "session-people"));
+
+        assertThat(res.suggestedListings()).isEmpty();
+        assertThat(res.replyText()).containsAnyOf("loại hình", "ngân sách", "khu vực");
+
+        // Kiểm tra trực tiếp parsePriceAmount
+        assertThat(ChatbotService.parsePriceAmount("2", null)).isNull();
+        assertThat(ChatbotService.parsePriceAmount("3", null)).isNull();
+        assertThat(ChatbotService.parsePriceAmount("500000", null)).isEqualTo(500000L);
+    }
+
+    @Test
+    @DisplayName("Chấm điểm vị trí: 'biển' chỉ so với mô tả và tiện ích, không khớp tên cơ sở")
+    void handleMessage_seaLocationMatchesDescriptionNotName() {
+        CoSoLuuTru listingWithSeaInNameOnly = createMockListing(1, "Villa Biển Xanh", "Villa",
+                BigDecimal.valueOf(1000000), "Phước Hải");
+        listingWithSeaInNameOnly.setMoTa("Biệt thự đồi núi yên tĩnh");
+
+        CoSoLuuTru listingWithSeaInDesc = createMockListing(2, "Sunrise Villa", "Villa",
+                BigDecimal.valueOf(1200000), "Phước Hải");
+        listingWithSeaInDesc.setMoTa("Villa sát biển, view biển tuyệt đẹp");
+
+        when(listingRepo.findAll(any(Specification.class))).thenReturn(List.of(listingWithSeaInNameOnly, listingWithSeaInDesc));
+        when(aiClient.generateReply(anyString(), anyList())).thenReturn(Optional.empty());
+
+        ChatMessageResponse res = service.handleMessage(
+                new ChatMessageRequest("Tìm villa view biển", "session-sea"));
+
+        assertThat(res.suggestedListings()).hasSize(1);
+        assertThat(res.suggestedListings().get(0).maCSLT()).isEqualTo(2);
+        assertThat(res.suggestedListings().get(0).tenCSLT()).isEqualTo("Sunrise Villa");
+    }
+
+    @Test
+    @DisplayName("Từ khóa ngoài phạm vi: sa pa, sapa khớp theo ranh giới từ \\b")
+    void handleMessage_outOfScopeMatchesWordBoundary() {
+        ChatMessageResponse res1 = service.handleMessage(new ChatMessageRequest("Khách sạn ở Sa Pa", "session-sapa-1"));
+        assertThat(res1.suggestedListings()).isEmpty();
+        assertThat(res1.replyText()).contains("HotelNT hiện tại chỉ hỗ trợ tư vấn và tìm kiếm cơ sở lưu trú tại thành phố Nha Trang");
+
+        ChatMessageResponse res2 = service.handleMessage(new ChatMessageRequest("Khách sạn ở sapa", "session-sapa-2"));
+        assertThat(res2.suggestedListings()).isEmpty();
+        assertThat(res2.replyText()).contains("HotelNT hiện tại chỉ hỗ trợ tư vấn và tìm kiếm cơ sở lưu trú tại thành phố Nha Trang");
+    }
 }
