@@ -3,6 +3,7 @@ package com.hotelnt.helper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hotelnt.dto.ChatbotDtos;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,11 +23,11 @@ class ChatbotGeminiClientTest {
     }
 
     @Test
-    @DisplayName("generateReply trả về null an toàn khi chưa cấu hình GEMINI_API_KEY")
+    @DisplayName("generateReply trả về Optional.empty() an toàn khi chưa cấu hình GEMINI_API_KEY")
     void generateReply_withoutApiKey_returnsNullSafely() {
         ReflectionTestUtils.setField(client, "configuredApiKey", "");
-        String reply = client.generateReply("Tìm khách sạn giá rẻ", List.of());
-        assertThat(reply).isNull();
+        Optional<String> reply = client.generateReply("Tìm khách sạn giá rẻ", List.of());
+        assertThat(reply).isEmpty();
     }
 
     @Test

@@ -15,6 +15,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -33,6 +34,9 @@ public class ListingService {
 
     private final CoSoLuuTruRepository repo;
     private final GoogleDistanceService distanceService;
+
+    @Value("${app.public-base-url:}")
+    private String publicBaseUrl;
 
     @Autowired
     public ListingService(CoSoLuuTruRepository repo, GoogleDistanceService distanceService) {
@@ -144,8 +148,8 @@ public class ListingService {
                 distanceOrNull(c, lat, lng),
                 new Owner(c.getHost().getHoTen()), // khong tra email, CCCD, id cua Host
                 new Contact(sdt, zalo, facebook),
-                images.stream().map(m -> new ListingDtos.Media(m.getMediaId(), m.getDuongDan(), m.getThuTu())).toList(),
-                videos.stream().map(m -> new ListingDtos.Media(m.getMediaId(), m.getDuongDan(), m.getThuTu())).toList(),
+                images.stream().map(m -> new ListingDtos.Media(m.getMediaId(), UrlHelper.toPublicUrl(publicBaseUrl, m.getDuongDan()), m.getThuTu())).toList(),
+                videos.stream().map(m -> new ListingDtos.Media(m.getMediaId(), UrlHelper.toPublicUrl(publicBaseUrl, m.getDuongDan()), m.getThuTu())).toList(),
                 amenities);
     }
 
@@ -184,9 +188,10 @@ public class ListingService {
         return d == null ? Double.MAX_VALUE : d;
     }
 
-    private static String firstImage(CoSoLuuTru c) {
-        return c.getMedia().stream().filter(m -> IMAGE.equals(m.getLoai()))
+    private String firstImage(CoSoLuuTru c) {
+        String path = c.getMedia().stream().filter(m -> IMAGE.equals(m.getLoai()))
                 .map(com.hotelnt.domain.Media::getDuongDan).findFirst().orElse(null);
+        return UrlHelper.toPublicUrl(publicBaseUrl, path);
     }
 
     private static Long toLong(BigDecimal v) {

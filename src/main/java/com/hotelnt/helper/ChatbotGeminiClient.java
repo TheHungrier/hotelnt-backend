@@ -12,13 +12,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ChatbotGeminiClient {
+@ConditionalOnProperty(name = "ai.provider", havingValue = "gemini")
+public class ChatbotGeminiClient implements AiClient {
 
     private static final Logger log = LoggerFactory.getLogger(ChatbotGeminiClient.class);
     private static final String DEFAULT_MODEL = "gemini-3.8-flash";
@@ -35,19 +39,28 @@ public class ChatbotGeminiClient {
     @Value("${gemini.base-url:" + DEFAULT_BASE_URL + "}")
     private String configuredBaseUrl;
 
+    @Autowired
     public ChatbotGeminiClient(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
+    public ChatbotGeminiClient(ObjectMapper objectMapper, String configuredApiKey, String configuredModel, String configuredBaseUrl) {
+        this.objectMapper = objectMapper;
+        this.configuredApiKey = configuredApiKey;
+        this.configuredModel = configuredModel;
+        this.configuredBaseUrl = configuredBaseUrl;
+    }
+
     /**
      * Goi Gemini REST API de tao cau tra loi tu nhien cho khach dua tren danh sach CSLT tim thay.
-     * Tra ve null neu khong the ket noi hoac khong co API key de fallback an toan.
+     * Tra ve Optional.empty() neu khong the ket noi hoac khong co API key de fallback an toan.
      */
-    public String generateReply(String userMessage, List<ChatbotDtos.SuggestedListing> listings) {
+    @Override
+    public Optional<String> generateReply(String userMessage, List<ChatbotDtos.SuggestedListing> listings) {
         String apiKey = resolveApiKey();
         if (apiKey == null || apiKey.isBlank()) {
             log.info("Chua cau hinh GEMINI_API_KEY, su dung bo tao phan hoi noi bo.");
-            return null;
+            return Optional.empty();
         }
 
         String model = (configuredModel != null && !configuredModel.isBlank()) ? configuredModel.trim() : DEFAULT_MODEL;
@@ -70,8 +83,8 @@ public class ChatbotGeminiClient {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
-            conn.setConnectTimeout(5000);
-            conn.setReadTimeout(10000);
+            conn.setConnectTimeout(8000);
+            conn.setReadTimeout(8000);
             conn.setDoOutput(true);
 
             try (OutputStream os = conn.getOutputStream()) {
@@ -88,7 +101,7 @@ public class ChatbotGeminiClient {
                         String text = textNode.asText().trim();
                         if (!text.isBlank()) {
                             log.info("Gemini tra loi thanh cong voi model {}", model);
-                            return text;
+                            return Optional.of(text);
                         }
                     }
                 }
@@ -106,7 +119,7 @@ public class ChatbotGeminiClient {
             log.warn("Loi khi goi Gemini AI: {}", e.getMessage());
         }
 
-        return null;
+        return Optional.empty();
     }
 
     public String buildPrompt(String userMessage, List<ChatbotDtos.SuggestedListing> listings) {
