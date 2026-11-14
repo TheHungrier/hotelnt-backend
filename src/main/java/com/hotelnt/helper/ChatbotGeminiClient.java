@@ -139,9 +139,9 @@ public class ChatbotGeminiClient implements AiClient {
 
         if (listings == null || listings.isEmpty()) {
             sb.append(
-                    "Kết quả tra cứu: Hệ thống không tìm thấy cơ sở lưu trú nào phù hợp (hoặc yêu cầu nằm ngoài phạm vi hỗ trợ của HotelNT tại Nha Trang).\n");
+                    "Kết quả tra cứu: Hệ thống hiện không tìm thấy cơ sở lưu trú nào phù hợp (hoặc khách đang chào hỏi, trò chuyện thường ngày).\n");
             sb.append(
-                    "Hãy phản hồi lịch sự, từ chối các nội dung ngoài lề và nhắc nhở khách về phạm vi hỗ trợ lưu trú tại Nha Trang của HotelNT.");
+                    "Hãy trò chuyện tự nhiên, thân thiện và lịch sự bằng tiếng Việt (khoảng 1-3 câu), đối đáp vui vẻ với câu nói của khách và khéo léo gợi mở hỏi xem khách có cần hỗ trợ tìm khách sạn, homestay hay villa tại Nha Trang không.");
         } else {
             sb.append("Kết quả tra cứu từ hệ thống tìm thấy ").append(listings.size())
                     .append(" cơ sở lưu trú phù hợp:\n");

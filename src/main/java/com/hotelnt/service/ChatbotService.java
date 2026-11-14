@@ -65,33 +65,33 @@ public class ChatbotService {
                     List.of());
         }
 
-        // 1.3. Khong co tieu chi tim kiem (chao hoi, hoi chung chung):
-        // suggestedListings rong, replyText hoi lai loai hinh / ngan sach / khu vuc
+        // 1.3. Xu ly danh sach goi y va phan hoi fallback
+        List<SuggestedListing> suggested;
+        String fallbackReply;
+
         if (!intent.hasSearchCriteria()) {
-            return new ChatMessageResponse(
-                    "Chào bạn! Bạn vui lòng cho mình biết thêm thông tin về loại hình lưu trú (khách sạn, homestay, villa...), "
-                            + "mức ngân sách hoặc khu vực mong muốn tại Nha Trang để mình hỗ trợ tìm kiếm tốt nhất nhé!",
-                    sessionId,
-                    List.of());
+            // Khong co tieu chi tim kiem (chao hoi, hoi chung chung):
+            // suggestedListings rong de khong tra bua bai, de AI tu do tro chuyen tu nhien
+            suggested = List.of();
+            fallbackReply = "Chào bạn! Bạn vui lòng cho mình biết thêm thông tin về loại hình lưu trú (khách sạn, homestay, villa...), "
+                    + "mức ngân sách hoặc khu vực mong muốn tại Nha Trang để mình hỗ trợ tìm kiếm tốt nhất nhé!";
+        } else {
+            // 2. Lay toan bo CSLT da duyet (APPROVED) va chu co so hoat dong (ACTIVE)
+            List<CoSoLuuTru> visibleListings = listingRepo.findAll(ChatbotSpecs.visibleApproved());
+
+            // 3. Loc cung va cham diem CSLT phu hop
+            suggested = rankAndMapListings(visibleListings, intent);
+
+            if (suggested.isEmpty()) {
+                fallbackReply = "Hiện tại chưa có cơ sở phù hợp với yêu cầu của bạn. Bạn vui lòng thử điều chỉnh lại mức giá hoặc khu vực nhé!";
+            } else {
+                fallbackReply = createFallbackReply(suggested);
+            }
         }
 
-        // 2. Lay toan bo CSLT da duyet (APPROVED) va chu co so hoat dong (ACTIVE)
-        List<CoSoLuuTru> visibleListings = listingRepo.findAll(ChatbotSpecs.visibleApproved());
-
-        // 3. Loc cung va cham diem CSLT phu hop
-        List<SuggestedListing> suggested = rankAndMapListings(visibleListings, intent);
-
-        // 4. Khong co listing khop sau khi loc cung
-        if (suggested.isEmpty()) {
-            return new ChatMessageResponse(
-                    "Hiện tại chưa có cơ sở phù hợp với yêu cầu của bạn. Bạn vui lòng thử điều chỉnh lại mức giá hoặc khu vực nhé!",
-                    sessionId,
-                    List.of());
-        }
-
-        // 5. Goi AI Client tao cau tra loi tu nhien (kem fallback tu dong)
+        // 4. Goi AI Client tao cau tra loi tu nhien (cho moi cau hoi thuong ngay), kem fallback tu dong
         Optional<String> aiReply = aiClient.generateReply(message, suggested);
-        String finalReplyText = aiReply.filter(s -> !s.isBlank()).orElseGet(() -> createFallbackReply(suggested));
+        String finalReplyText = aiReply.filter(s -> !s.isBlank()).orElse(fallbackReply);
 
         return new ChatMessageResponse(finalReplyText, sessionId, suggested);
     }
