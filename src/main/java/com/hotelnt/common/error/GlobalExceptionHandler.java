@@ -1,8 +1,11 @@
 package com.hotelnt.common.error;
 
 import jakarta.validation.ConstraintViolationException;
+import jakarta.persistence.LockTimeoutException;
+import jakarta.persistence.PessimisticLockException;
 import java.util.List;
 import java.util.Map;
+import org.springframework.dao.CannotAcquireLockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import org.springframework.web.servlet.NoHandlerFoundException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
@@ -51,7 +55,7 @@ public class GlobalExceptionHandler {
         return validation(List.of(Map.of("field", e.getName(), "message", "Sai định dạng")));
     }
 
-    /** Thieu tham so bat buoc, vi du map-markers thieu boundsNorthEast */
+    /** Thieu tham so bat buoc cua cac endpoint khac */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     public ResponseEntity<ApiErrorResponse> handleMissingParam(MissingServletRequestParameterException e) {
         return validation(List.of(Map.of("field", e.getParameterName(), "message", "Thiếu tham số bắt buộc")));
@@ -63,15 +67,29 @@ public class GlobalExceptionHandler {
                 .body(ApiErrorResponse.of("METHOD_NOT_ALLOWED", "Phương thức không được hỗ trợ.", null));
     }
 
-    @ExceptionHandler({NoResourceFoundException.class, NoHandlerFoundException.class})
+    @ExceptionHandler({ NoResourceFoundException.class, NoHandlerFoundException.class })
     public ResponseEntity<ApiErrorResponse> handleNotFound(Exception e) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiErrorResponse.of("NOT_FOUND", "Đường dẫn không tồn tại.", null));
     }
 
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<ApiErrorResponse> handleMaxUploadSize(MaxUploadSizeExceededException e) {
+        ErrorCode c = ErrorCode.FILE_TOO_LARGE;
+        return ResponseEntity.status(c.getStatus())
+                .body(ApiErrorResponse.of(c.name(), c.getMessage(), null));
+    }
+
+    @ExceptionHandler({CannotAcquireLockException.class, PessimisticLockException.class, LockTimeoutException.class})
+    public ResponseEntity<ApiErrorResponse> handleLockConflict(Exception e) {
+        ErrorCode c = ErrorCode.LOCK_CONFLICT;
+        log.warn("Không thể lấy khóa giao dịch", e);
+        return ResponseEntity.status(c.getStatus()).body(ApiErrorResponse.of(c.name(), c.getMessage(), null));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiErrorResponse> handleOther(Exception e) {
-        log.error("Unhandled error", e);
+        log.error("Lỗi chưa được xử lý", e);
         ErrorCode c = ErrorCode.INTERNAL_ERROR;
         return ResponseEntity.status(c.getStatus()).body(ApiErrorResponse.of(c.name(), c.getMessage(), null));
     }

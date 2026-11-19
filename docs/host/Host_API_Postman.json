@@ -1,0 +1,2528 @@
+{
+  "info": {
+    "_postman_id": "ebb4e7f5-ff9c-42c1-b6ae-48d1e99c1ed8",
+    "name": "HotelNT - Host (Dung Dat)",
+    "description": "Bộ API phục vụ hệ thống quản lý và tìm kiếm cơ sở lưu trú tại Nha Trang",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Host (Auth required)",
+      "item": [
+        {
+          "name": "Lấy thông tin tài khoản Host",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/host/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "host",
+                "profile"
+              ]
+            },
+            "description": "Email và CCCD chỉ đọc; CCCD che một phần.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 Thành công",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "profile"
+                  ]
+                },
+                "description": "Email và CCCD chỉ đọc; CCCD che một phần."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 3,\n  \"vaiTro\": \"HOST\",\n  \"trangThai\": \"ACTIVE\",\n  \"hoTen\": \"Nguyễn Văn A\",\n  \"soDienThoai\": \"0905123456\",\n  \"email\": \"host01@example.com\",\n  \"cccd\": \"079******234\",\n  \"ngayTao\": \"2026-10-01T02:00:00Z\"\n}"
+            },
+            {
+              "name": "401 Token không hợp lệ / hết hạn",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "profile"
+                  ]
+                },
+                "description": "Email và CCCD chỉ đọc; CCCD che một phần."
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"TOKEN_INVALID\",\n    \"message\": \"Phiên đăng nhập không hợp lệ hoặc đã hết hạn.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "403 Tài khoản bị khóa",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "profile"
+                  ]
+                },
+                "description": "Email và CCCD chỉ đọc; CCCD che một phần."
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"ACCOUNT_LOCKED\",\n    \"message\": \"Tài khoản của bạn đã bị khóa.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json ? (()=>{try{return pm.response.json()}catch(e){return null}})() : null;",
+                  "pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cập nhật thông tin Host",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/host/profile",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "host",
+                "profile"
+              ]
+            },
+            "description": "Chỉ cho phép sửa hoTen và soDienThoai. Nếu gửi email hoặc cccd, trả lỗi 400 FIELD_NOT_EDITABLE.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"hoTen\": \"Nguyễn Văn A\",\n  \"soDienThoai\": \"0905123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 Thành công",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "profile"
+                  ]
+                },
+                "description": "Chỉ cho phép sửa hoTen và soDienThoai. Nếu gửi email hoặc cccd, trả lỗi 400 FIELD_NOT_EDITABLE.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"hoTen\": \"Nguyễn Văn A\",\n  \"soDienThoai\": \"0905123456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"id\": 3,\n  \"hoTen\": \"Nguyễn Văn A\",\n  \"soDienThoai\": \"0905123456\",\n  \"email\": \"host01@example.com\",\n  \"ngayCapNhat\": \"2026-10-11T07:30:00Z\"\n}"
+            },
+            {
+              "name": "400 Trường không được sửa",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "profile"
+                  ]
+                },
+                "description": "Chỉ cho phép sửa hoTen và soDienThoai. Nếu gửi email hoặc cccd, trả lỗi 400 FIELD_NOT_EDITABLE.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"hoTen\": \"Nguyễn Văn A\",\n  \"soDienThoai\": \"0905123456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"FIELD_NOT_EDITABLE\",\n    \"message\": \"Email và CCCD không thể tự chỉnh sửa. Vui lòng liên hệ Admin.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "409 SĐT trùng",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "profile"
+                  ]
+                },
+                "description": "Chỉ cho phép sửa hoTen và soDienThoai. Nếu gửi email hoặc cccd, trả lỗi 400 FIELD_NOT_EDITABLE.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"hoTen\": \"Nguyễn Văn A\",\n  \"soDienThoai\": \"0905123456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"ACCOUNT_DUPLICATED\",\n    \"message\": \"Số điện thoại đã được sử dụng.\",\n    \"details\": [\n      {\n        \"field\": \"soDienThoai\",\n        \"message\": \"Đã tồn tại\"\n      }\n    ]\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "400 Dữ liệu không hợp lệ",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "profile"
+                  ]
+                },
+                "description": "Chỉ cho phép sửa hoTen và soDienThoai. Nếu gửi email hoặc cccd, trả lỗi 400 FIELD_NOT_EDITABLE.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"hoTen\": \"Nguyễn Văn A\",\n  \"soDienThoai\": \"0905123456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Dữ liệu không hợp lệ.\",\n    \"details\": [\n      {\n        \"field\": \"truong\",\n        \"message\": \"Mô tả lỗi\"\n      }\n    ]\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "401 Token không hợp lệ / hết hạn",
+              "originalRequest": {
+                "method": "PATCH",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/profile",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "profile"
+                  ]
+                },
+                "description": "Chỉ cho phép sửa hoTen và soDienThoai. Nếu gửi email hoặc cccd, trả lỗi 400 FIELD_NOT_EDITABLE.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"hoTen\": \"Nguyễn Văn A\",\n  \"soDienThoai\": \"0905123456\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"TOKEN_INVALID\",\n    \"message\": \"Phiên đăng nhập không hợp lệ hoặc đã hết hạn.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json ? (()=>{try{return pm.response.json()}catch(e){return null}})() : null;",
+                  "pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Đổi mật khẩu tài khoản",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/host/profile/change-password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "host",
+                "profile",
+                "change-password"
+              ]
+            },
+            "description": "Thu hồi các phiên khác sau khi đổi.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"OldPass123!\",\n  \"newPassword\": \"NewPass123!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 Thành công",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/profile/change-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "profile",
+                    "change-password"
+                  ]
+                },
+                "description": "Thu hồi các phiên khác sau khi đổi.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"oldPassword\": \"OldPass123!\",\n  \"newPassword\": \"NewPass123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Đổi mật khẩu thành công\"\n}"
+            },
+            {
+              "name": "400 Mật khẩu cũ sai",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/profile/change-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "profile",
+                    "change-password"
+                  ]
+                },
+                "description": "Thu hồi các phiên khác sau khi đổi.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"oldPassword\": \"OldPass123!\",\n  \"newPassword\": \"NewPass123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"OLD_PASSWORD_INCORRECT\",\n    \"message\": \"Mật khẩu cũ không chính xác.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "400 Dữ liệu không hợp lệ",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/profile/change-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "profile",
+                    "change-password"
+                  ]
+                },
+                "description": "Thu hồi các phiên khác sau khi đổi.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"oldPassword\": \"OldPass123!\",\n  \"newPassword\": \"NewPass123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Dữ liệu không hợp lệ.\",\n    \"details\": [\n      {\n        \"field\": \"newPassword\",\n        \"message\": \"Mật khẩu mới không đạt chuẩn\"\n      }\n    ]\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "401 Token không hợp lệ / hết hạn",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/profile/change-password",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "profile",
+                    "change-password"
+                  ]
+                },
+                "description": "Thu hồi các phiên khác sau khi đổi.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"oldPassword\": \"OldPass123!\",\n  \"newPassword\": \"NewPass123!\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"TOKEN_INVALID\",\n    \"message\": \"Phiên đăng nhập không hợp lệ hoặc đã hết hạn.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json ? (()=>{try{return pm.response.json()}catch(e){return null}})() : null;",
+                  "pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Danh sách CSLT của Host",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/host/listings?trangThai=PENDING&page=1&limit=10",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "host",
+                "listings"
+              ],
+              "query": [
+                {
+                  "key": "trangThai",
+                  "value": "PENDING",
+                  "description": "DRAFT | PENDING | APPROVED | REJECTED | HIDDEN",
+                  "disabled": false
+                },
+                {
+                  "key": "keyword",
+                  "value": "villa",
+                  "description": "Tên CSLT",
+                  "disabled": true
+                },
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "",
+                  "disabled": false
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Tối đa 50",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "trangThai: DRAFT | PENDING | APPROVED | REJECTED | HIDDEN (lặp key để chọn nhiều). Không trả REMOVED.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 Thành công",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings?trangThai=PENDING&page=1&limit=10",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings"
+                  ],
+                  "query": [
+                    {
+                      "key": "trangThai",
+                      "value": "PENDING",
+                      "description": "DRAFT | PENDING | APPROVED | REJECTED | HIDDEN",
+                      "disabled": false
+                    },
+                    {
+                      "key": "keyword",
+                      "value": "villa",
+                      "description": "Tên CSLT",
+                      "disabled": true
+                    },
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "description": "",
+                      "disabled": false
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10",
+                      "description": "Tối đa 50",
+                      "disabled": false
+                    }
+                  ]
+                },
+                "description": "trangThai: DRAFT | PENDING | APPROVED | REJECTED | HIDDEN (lặp key để chọn nhiều). Không trả REMOVED."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"items\": [\n    {\n      \"maCSLT\": 15,\n      \"tenCSLT\": \"Villa Biển Xanh Nha Trang\",\n      \"tenLoai\": \"Villa\",\n      \"gia\": 1500000,\n      \"duongDanAnh\": \"https://cdn.example.com/listings/1.jpg\",\n      \"trangThai\": \"REJECTED\",\n      \"lyDoTuChoi\": \"Ảnh mờ, không rõ nội dung cơ sở lưu trú\",\n      \"lyDoViPham\": null,\n      \"ngayTao\": \"2026-10-09T03:00:00Z\",\n      \"ngayCapNhat\": \"2026-10-10T08:15:00Z\",\n      \"allowedActions\": [\n        \"EDIT\",\n        \"SUBMIT\",\n        \"DELETE\"\n      ]\n    }\n  ],\n  \"pagination\": {\n    \"totalItems\": 1,\n    \"totalPages\": 1,\n    \"currentPage\": 1,\n    \"limit\": 10\n  }\n}"
+            },
+            {
+              "name": "400 Dữ liệu không hợp lệ",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings?trangThai=PENDING&page=1&limit=10",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings"
+                  ],
+                  "query": [
+                    {
+                      "key": "trangThai",
+                      "value": "PENDING",
+                      "description": "DRAFT | PENDING | APPROVED | REJECTED | HIDDEN",
+                      "disabled": false
+                    },
+                    {
+                      "key": "keyword",
+                      "value": "villa",
+                      "description": "Tên CSLT",
+                      "disabled": true
+                    },
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "description": "",
+                      "disabled": false
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10",
+                      "description": "Tối đa 50",
+                      "disabled": false
+                    }
+                  ]
+                },
+                "description": "trangThai: DRAFT | PENDING | APPROVED | REJECTED | HIDDEN (lặp key để chọn nhiều). Không trả REMOVED."
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Dữ liệu không hợp lệ.\",\n    \"details\": [\n      {\n        \"field\": \"trangThai\",\n        \"message\": \"Giá trị không hợp lệ\"\n      }\n    ]\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "401 Token không hợp lệ / hết hạn",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings?trangThai=PENDING&page=1&limit=10",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings"
+                  ],
+                  "query": [
+                    {
+                      "key": "trangThai",
+                      "value": "PENDING",
+                      "description": "DRAFT | PENDING | APPROVED | REJECTED | HIDDEN",
+                      "disabled": false
+                    },
+                    {
+                      "key": "keyword",
+                      "value": "villa",
+                      "description": "Tên CSLT",
+                      "disabled": true
+                    },
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "description": "",
+                      "disabled": false
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10",
+                      "description": "Tối đa 50",
+                      "disabled": false
+                    }
+                  ]
+                },
+                "description": "trangThai: DRAFT | PENDING | APPROVED | REJECTED | HIDDEN (lặp key để chọn nhiều). Không trả REMOVED."
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"TOKEN_INVALID\",\n    \"message\": \"Phiên đăng nhập không hợp lệ hoặc đã hết hạn.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "403 Tài khoản bị khóa",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings?trangThai=PENDING&page=1&limit=10",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings"
+                  ],
+                  "query": [
+                    {
+                      "key": "trangThai",
+                      "value": "PENDING",
+                      "description": "DRAFT | PENDING | APPROVED | REJECTED | HIDDEN",
+                      "disabled": false
+                    },
+                    {
+                      "key": "keyword",
+                      "value": "villa",
+                      "description": "Tên CSLT",
+                      "disabled": true
+                    },
+                    {
+                      "key": "page",
+                      "value": "1",
+                      "description": "",
+                      "disabled": false
+                    },
+                    {
+                      "key": "limit",
+                      "value": "10",
+                      "description": "Tối đa 50",
+                      "disabled": false
+                    }
+                  ]
+                },
+                "description": "trangThai: DRAFT | PENDING | APPROVED | REJECTED | HIDDEN (lặp key để chọn nhiều). Không trả REMOVED."
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"ACCOUNT_LOCKED\",\n    \"message\": \"Tài khoản của bạn đã bị khóa.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json ? (()=>{try{return pm.response.json()}catch(e){return null}})() : null;",
+                  "pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Lấy chi tiết CSLT để sửa / xem trước",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/host/listings/:maCSLT",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "host",
+                "listings",
+                ":maCSLT"
+              ],
+              "variable": [
+                {
+                  "key": "maCSLT",
+                  "value": "{{maCSLT}}",
+                  "description": "ID CSLT (số nguyên)"
+                }
+              ]
+            },
+            "description": "Dùng đổ form Sửa, xem lý do từ chối, checklist gửi duyệt.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 Thành công",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Dùng đổ form Sửa, xem lý do từ chối, checklist gửi duyệt."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"maCSLT\": 15,\n  \"tenCSLT\": \"Villa Biển Xanh Nha Trang\",\n  \"maLoai\": 2,\n  \"tenLoai\": \"Villa\",\n  \"maPhuong\": 1,\n  \"tenPhuong\": \"Vĩnh Nguyên\",\n  \"diaChiChiTiet\": \"12 Trần Phú, Vĩnh Nguyên, Nha Trang\",\n  \"moTa\": \"Villa 3 phòng ngủ, view biển.\",\n  \"latitude\": 12.2451,\n  \"longitude\": 109.1943,\n  \"gia\": 1500000,\n  \"ngayCapNhatGia\": \"2026-10-10T08:15:00Z\",\n  \"lienHe\": {\n    \"soDienThoai\": \"0905123456\",\n    \"zalo\": null,\n    \"facebook\": null\n  },\n  \"maTienIch\": [\n    1,\n    2\n  ],\n  \"media\": [\n    {\n      \"mediaId\": 101,\n      \"url\": \"https://cdn.example.com/listings/1.jpg\",\n      \"type\": \"IMAGE\",\n      \"kichThuoc\": 2048123,\n      \"thuTu\": 0\n    }\n  ],\n  \"soAnh\": 1,\n  \"soVideo\": 0,\n  \"trangThai\": \"REJECTED\",\n  \"lyDoTuChoi\": \"Ảnh mờ, không rõ nội dung cơ sở lưu trú\",\n  \"lyDoViPham\": null,\n  \"ngayTao\": \"2026-10-09T03:00:00Z\",\n  \"ngayCapNhat\": \"2026-10-10T08:15:00Z\",\n  \"checklistGuiDuyet\": {\n    \"ten\": true,\n    \"diaChi\": true,\n    \"phuong\": true,\n    \"toaDo\": true,\n    \"gia\": true,\n    \"anhToiThieu3\": false,\n    \"tienIchToiThieu1\": true\n  },\n  \"allowedActions\": [\n    \"EDIT\",\n    \"SUBMIT\",\n    \"DELETE\"\n  ]\n}"
+            },
+            {
+              "name": "401 Token không hợp lệ / hết hạn",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Dùng đổ form Sửa, xem lý do từ chối, checklist gửi duyệt."
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"TOKEN_INVALID\",\n    \"message\": \"Phiên đăng nhập không hợp lệ hoặc đã hết hạn.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "403 Không phải chủ CSLT",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Dùng đổ form Sửa, xem lý do từ chối, checklist gửi duyệt."
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"NOT_OWNER\",\n    \"message\": \"Bạn không có quyền chỉnh sửa cơ sở lưu trú này.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "404 Không tìm thấy CSLT",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Dùng đổ form Sửa, xem lý do từ chối, checklist gửi duyệt."
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"LISTING_NOT_FOUND\",\n    \"message\": \"Không tìm thấy cơ sở lưu trú.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json ? (()=>{try{return pm.response.json()}catch(e){return null}})() : null;",
+                  "pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Tạo CSLT mới (Bản nháp)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/host/listings",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "host",
+                "listings"
+              ]
+            },
+            "description": "Luôn tạo ở DRAFT, maHost lấy từ token. Chỉ bắt buộc: tenCSLT, maLoai, maPhuong, diaChiChiTiet; phần còn lại kiểm ở submit-review. Giá 500.000–100.000.000; latitude 12.1–12.45; longitude 109.1–109.3.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenCSLT\": \"Villa Biển Xanh Nha Trang\",\n  \"maLoai\": 2,\n  \"maPhuong\": 1,\n  \"diaChiChiTiet\": \"12 Trần Phú, Vĩnh Nguyên, Nha Trang\",\n  \"moTa\": \"Villa 3 phòng ngủ, view biển, gần chợ Đầm.\",\n  \"lienHe\": {\n    \"soDienThoai\": \"0905123456\",\n    \"zalo\": \"https://zalo.me/0905123456\",\n    \"facebook\": \"https://facebook.com/villabienxanh\"\n  },\n  \"gia\": 1500000,\n  \"maTienIch\": [\n    1,\n    2\n  ],\n  \"latitude\": 12.2451,\n  \"longitude\": 109.1943\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "201 Tạo thành công",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings"
+                  ]
+                },
+                "description": "Luôn tạo ở DRAFT, maHost lấy từ token. Chỉ bắt buộc: tenCSLT, maLoai, maPhuong, diaChiChiTiet; phần còn lại kiểm ở submit-review. Giá 500.000–100.000.000; latitude 12.1–12.45; longitude 109.1–109.3.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tenCSLT\": \"Villa Biển Xanh Nha Trang\",\n  \"maLoai\": 2,\n  \"maPhuong\": 1,\n  \"diaChiChiTiet\": \"12 Trần Phú, Vĩnh Nguyên, Nha Trang\",\n  \"moTa\": \"Villa 3 phòng ngủ, view biển, gần chợ Đầm.\",\n  \"lienHe\": {\n    \"soDienThoai\": \"0905123456\",\n    \"zalo\": \"https://zalo.me/0905123456\",\n    \"facebook\": \"https://facebook.com/villabienxanh\"\n  },\n  \"gia\": 1500000,\n  \"maTienIch\": [\n    1,\n    2\n  ],\n  \"latitude\": 12.2451,\n  \"longitude\": 109.1943\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"maCSLT\": 15,\n  \"trangThai\": \"DRAFT\",\n  \"ngayTao\": \"2026-10-11T07:30:00Z\"\n}"
+            },
+            {
+              "name": "400 Dữ liệu không hợp lệ",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings"
+                  ]
+                },
+                "description": "Luôn tạo ở DRAFT, maHost lấy từ token. Chỉ bắt buộc: tenCSLT, maLoai, maPhuong, diaChiChiTiet; phần còn lại kiểm ở submit-review. Giá 500.000–100.000.000; latitude 12.1–12.45; longitude 109.1–109.3.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tenCSLT\": \"Villa Biển Xanh Nha Trang\",\n  \"maLoai\": 2,\n  \"maPhuong\": 1,\n  \"diaChiChiTiet\": \"12 Trần Phú, Vĩnh Nguyên, Nha Trang\",\n  \"moTa\": \"Villa 3 phòng ngủ, view biển, gần chợ Đầm.\",\n  \"lienHe\": {\n    \"soDienThoai\": \"0905123456\",\n    \"zalo\": \"https://zalo.me/0905123456\",\n    \"facebook\": \"https://facebook.com/villabienxanh\"\n  },\n  \"gia\": 1500000,\n  \"maTienIch\": [\n    1,\n    2\n  ],\n  \"latitude\": 12.2451,\n  \"longitude\": 109.1943\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Dữ liệu không hợp lệ.\",\n    \"details\": [\n      {\n        \"field\": \"tenCSLT\",\n        \"message\": \"Tối đa 150 ký tự\"\n      }\n    ]\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "400 Tọa độ ngoài Nha Trang",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings"
+                  ]
+                },
+                "description": "Luôn tạo ở DRAFT, maHost lấy từ token. Chỉ bắt buộc: tenCSLT, maLoai, maPhuong, diaChiChiTiet; phần còn lại kiểm ở submit-review. Giá 500.000–100.000.000; latitude 12.1–12.45; longitude 109.1–109.3.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tenCSLT\": \"Villa Biển Xanh Nha Trang\",\n  \"maLoai\": 2,\n  \"maPhuong\": 1,\n  \"diaChiChiTiet\": \"12 Trần Phú, Vĩnh Nguyên, Nha Trang\",\n  \"moTa\": \"Villa 3 phòng ngủ, view biển, gần chợ Đầm.\",\n  \"lienHe\": {\n    \"soDienThoai\": \"0905123456\",\n    \"zalo\": \"https://zalo.me/0905123456\",\n    \"facebook\": \"https://facebook.com/villabienxanh\"\n  },\n  \"gia\": 1500000,\n  \"maTienIch\": [\n    1,\n    2\n  ],\n  \"latitude\": 12.2451,\n  \"longitude\": 109.1943\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"LOCATION_OUT_OF_RANGE\",\n    \"message\": \"Vị trí chọn nằm ngoài khu vực hỗ trợ Nha Trang.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "401 Token không hợp lệ / hết hạn",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings"
+                  ]
+                },
+                "description": "Luôn tạo ở DRAFT, maHost lấy từ token. Chỉ bắt buộc: tenCSLT, maLoai, maPhuong, diaChiChiTiet; phần còn lại kiểm ở submit-review. Giá 500.000–100.000.000; latitude 12.1–12.45; longitude 109.1–109.3.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tenCSLT\": \"Villa Biển Xanh Nha Trang\",\n  \"maLoai\": 2,\n  \"maPhuong\": 1,\n  \"diaChiChiTiet\": \"12 Trần Phú, Vĩnh Nguyên, Nha Trang\",\n  \"moTa\": \"Villa 3 phòng ngủ, view biển, gần chợ Đầm.\",\n  \"lienHe\": {\n    \"soDienThoai\": \"0905123456\",\n    \"zalo\": \"https://zalo.me/0905123456\",\n    \"facebook\": \"https://facebook.com/villabienxanh\"\n  },\n  \"gia\": 1500000,\n  \"maTienIch\": [\n    1,\n    2\n  ],\n  \"latitude\": 12.2451,\n  \"longitude\": 109.1943\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"TOKEN_INVALID\",\n    \"message\": \"Phiên đăng nhập không hợp lệ hoặc đã hết hạn.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "403 Tài khoản bị khóa",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings"
+                  ]
+                },
+                "description": "Luôn tạo ở DRAFT, maHost lấy từ token. Chỉ bắt buộc: tenCSLT, maLoai, maPhuong, diaChiChiTiet; phần còn lại kiểm ở submit-review. Giá 500.000–100.000.000; latitude 12.1–12.45; longitude 109.1–109.3.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tenCSLT\": \"Villa Biển Xanh Nha Trang\",\n  \"maLoai\": 2,\n  \"maPhuong\": 1,\n  \"diaChiChiTiet\": \"12 Trần Phú, Vĩnh Nguyên, Nha Trang\",\n  \"moTa\": \"Villa 3 phòng ngủ, view biển, gần chợ Đầm.\",\n  \"lienHe\": {\n    \"soDienThoai\": \"0905123456\",\n    \"zalo\": \"https://zalo.me/0905123456\",\n    \"facebook\": \"https://facebook.com/villabienxanh\"\n  },\n  \"gia\": 1500000,\n  \"maTienIch\": [\n    1,\n    2\n  ],\n  \"latitude\": 12.2451,\n  \"longitude\": 109.1943\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"ACCOUNT_LOCKED\",\n    \"message\": \"Tài khoản của bạn đã bị khóa.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json ? (()=>{try{return pm.response.json()}catch(e){return null}})() : null;",
+                  "pm.test('Status 201', function(){ pm.response.to.have.status(201); });",
+                  "if (json && json.maCSLT !== undefined) pm.collectionVariables.set('maCSLT', json.maCSLT);"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Cập nhật CSLT",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/host/listings/:maCSLT",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "host",
+                "listings",
+                ":maCSLT"
+              ],
+              "variable": [
+                {
+                  "key": "maCSLT",
+                  "value": "{{maCSLT}}",
+                  "description": "ID CSLT (số nguyên)"
+                }
+              ]
+            },
+            "description": "DRAFT/REJECTED/HIDDEN: giữ nguyên trạng thái; APPROVED có thay đổi: chuyển sang PENDING, ẩn khỏi Tourist; PENDING: trả lỗi 409, không cho chỉnh sửa.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tenCSLT\": \"Villa Biển Xanh Nha Trang\",\n  \"maLoai\": 2,\n  \"maPhuong\": 1,\n  \"diaChiChiTiet\": \"12 Trần Phú, Vĩnh Nguyên, Nha Trang\",\n  \"moTa\": \"Villa 3 phòng ngủ, view biển, gần chợ Đầm.\",\n  \"lienHe\": {\n    \"soDienThoai\": \"0905123456\",\n    \"zalo\": \"https://zalo.me/0905123456\",\n    \"facebook\": \"https://facebook.com/villabienxanh\"\n  },\n  \"gia\": 1500000,\n  \"maTienIch\": [\n    1,\n    2\n  ],\n  \"latitude\": 12.2451,\n  \"longitude\": 109.1943\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "Sửa CSLT đã duyệt thành công, chuyển trạng thái sang PENDING.",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "DRAFT/REJECTED/HIDDEN: giữ nguyên trạng thái; APPROVED có thay đổi: chuyển sang PENDING, ẩn khỏi Tourist; PENDING: trả lỗi 409, không cho chỉnh sửa.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tenCSLT\": \"Villa Biển Xanh Nha Trang\",\n  \"maLoai\": 2,\n  \"maPhuong\": 1,\n  \"diaChiChiTiet\": \"12 Trần Phú, Vĩnh Nguyên, Nha Trang\",\n  \"moTa\": \"Villa 3 phòng ngủ, view biển, gần chợ Đầm.\",\n  \"lienHe\": {\n    \"soDienThoai\": \"0905123456\",\n    \"zalo\": \"https://zalo.me/0905123456\",\n    \"facebook\": \"https://facebook.com/villabienxanh\"\n  },\n  \"gia\": 1500000,\n  \"maTienIch\": [\n    1,\n    2\n  ],\n  \"latitude\": 12.2451,\n  \"longitude\": 109.1943\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"maCSLT\": 15,\n  \"trangThai\": \"PENDING\",\n  \"trangThaiTruoc\": \"APPROVED\",\n  \"ngayCapNhat\": \"2026-10-11T07:40:00Z\",\n  \"ngayCapNhatGia\": \"2026-10-11T07:40:00Z\",\n  \"thayDoiTrangThai\": true,\n  \"message\": \"Đã lưu. Cơ sở được chuyển về Chờ duyệt.\"\n}"
+            },
+            {
+              "name": "400 Dữ liệu không hợp lệ",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "DRAFT/REJECTED/HIDDEN: giữ nguyên trạng thái; APPROVED có thay đổi: chuyển sang PENDING, ẩn khỏi Tourist; PENDING: trả lỗi 409, không cho chỉnh sửa.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tenCSLT\": \"Villa Biển Xanh Nha Trang\",\n  \"maLoai\": 2,\n  \"maPhuong\": 1,\n  \"diaChiChiTiet\": \"12 Trần Phú, Vĩnh Nguyên, Nha Trang\",\n  \"moTa\": \"Villa 3 phòng ngủ, view biển, gần chợ Đầm.\",\n  \"lienHe\": {\n    \"soDienThoai\": \"0905123456\",\n    \"zalo\": \"https://zalo.me/0905123456\",\n    \"facebook\": \"https://facebook.com/villabienxanh\"\n  },\n  \"gia\": 1500000,\n  \"maTienIch\": [\n    1,\n    2\n  ],\n  \"latitude\": 12.2451,\n  \"longitude\": 109.1943\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"VALIDATION_ERROR\",\n    \"message\": \"Dữ liệu không hợp lệ.\",\n    \"details\": [\n      {\n        \"field\": \"truong\",\n        \"message\": \"Mô tả lỗi\"\n      }\n    ]\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "403 Không phải chủ CSLT",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "DRAFT/REJECTED/HIDDEN: giữ nguyên trạng thái; APPROVED có thay đổi: chuyển sang PENDING, ẩn khỏi Tourist; PENDING: trả lỗi 409, không cho chỉnh sửa.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tenCSLT\": \"Villa Biển Xanh Nha Trang\",\n  \"maLoai\": 2,\n  \"maPhuong\": 1,\n  \"diaChiChiTiet\": \"12 Trần Phú, Vĩnh Nguyên, Nha Trang\",\n  \"moTa\": \"Villa 3 phòng ngủ, view biển, gần chợ Đầm.\",\n  \"lienHe\": {\n    \"soDienThoai\": \"0905123456\",\n    \"zalo\": \"https://zalo.me/0905123456\",\n    \"facebook\": \"https://facebook.com/villabienxanh\"\n  },\n  \"gia\": 1500000,\n  \"maTienIch\": [\n    1,\n    2\n  ],\n  \"latitude\": 12.2451,\n  \"longitude\": 109.1943\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"NOT_OWNER\",\n    \"message\": \"Bạn không có quyền chỉnh sửa cơ sở lưu trú này.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "404 Không tìm thấy CSLT",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "DRAFT/REJECTED/HIDDEN: giữ nguyên trạng thái; APPROVED có thay đổi: chuyển sang PENDING, ẩn khỏi Tourist; PENDING: trả lỗi 409, không cho chỉnh sửa.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tenCSLT\": \"Villa Biển Xanh Nha Trang\",\n  \"maLoai\": 2,\n  \"maPhuong\": 1,\n  \"diaChiChiTiet\": \"12 Trần Phú, Vĩnh Nguyên, Nha Trang\",\n  \"moTa\": \"Villa 3 phòng ngủ, view biển, gần chợ Đầm.\",\n  \"lienHe\": {\n    \"soDienThoai\": \"0905123456\",\n    \"zalo\": \"https://zalo.me/0905123456\",\n    \"facebook\": \"https://facebook.com/villabienxanh\"\n  },\n  \"gia\": 1500000,\n  \"maTienIch\": [\n    1,\n    2\n  ],\n  \"latitude\": 12.2451,\n  \"longitude\": 109.1943\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"LISTING_NOT_FOUND\",\n    \"message\": \"Không tìm thấy cơ sở lưu trú.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "409 Đang chờ duyệt, bị khóa sửa",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "DRAFT/REJECTED/HIDDEN: giữ nguyên trạng thái; APPROVED có thay đổi: chuyển sang PENDING, ẩn khỏi Tourist; PENDING: trả lỗi 409, không cho chỉnh sửa.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tenCSLT\": \"Villa Biển Xanh Nha Trang\",\n  \"maLoai\": 2,\n  \"maPhuong\": 1,\n  \"diaChiChiTiet\": \"12 Trần Phú, Vĩnh Nguyên, Nha Trang\",\n  \"moTa\": \"Villa 3 phòng ngủ, view biển, gần chợ Đầm.\",\n  \"lienHe\": {\n    \"soDienThoai\": \"0905123456\",\n    \"zalo\": \"https://zalo.me/0905123456\",\n    \"facebook\": \"https://facebook.com/villabienxanh\"\n  },\n  \"gia\": 1500000,\n  \"maTienIch\": [\n    1,\n    2\n  ],\n  \"latitude\": 12.2451,\n  \"longitude\": 109.1943\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"LISTING_LOCKED_PENDING\",\n    \"message\": \"Cơ sở đang chờ duyệt, không thể chỉnh sửa. Hãy rút lại yêu cầu duyệt trước.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "401 Token không hợp lệ / hết hạn",
+              "originalRequest": {
+                "method": "PUT",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "DRAFT/REJECTED/HIDDEN: giữ nguyên trạng thái; APPROVED có thay đổi: chuyển sang PENDING, ẩn khỏi Tourist; PENDING: trả lỗi 409, không cho chỉnh sửa.",
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"tenCSLT\": \"Villa Biển Xanh Nha Trang\",\n  \"maLoai\": 2,\n  \"maPhuong\": 1,\n  \"diaChiChiTiet\": \"12 Trần Phú, Vĩnh Nguyên, Nha Trang\",\n  \"moTa\": \"Villa 3 phòng ngủ, view biển, gần chợ Đầm.\",\n  \"lienHe\": {\n    \"soDienThoai\": \"0905123456\",\n    \"zalo\": \"https://zalo.me/0905123456\",\n    \"facebook\": \"https://facebook.com/villabienxanh\"\n  },\n  \"gia\": 1500000,\n  \"maTienIch\": [\n    1,\n    2\n  ],\n  \"latitude\": 12.2451,\n  \"longitude\": 109.1943\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                }
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"TOKEN_INVALID\",\n    \"message\": \"Phiên đăng nhập không hợp lệ hoặc đã hết hạn.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json ? (()=>{try{return pm.response.json()}catch(e){return null}})() : null;",
+                  "pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Gửi duyệt CSLT",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/host/listings/:maCSLT/submit-review",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "host",
+                "listings",
+                ":maCSLT",
+                "submit-review"
+              ],
+              "variable": [
+                {
+                  "key": "maCSLT",
+                  "value": "{{maCSLT}}",
+                  "description": "ID CSLT (số nguyên)"
+                }
+              ]
+            },
+            "description": "Cho phép từ DRAFT, REJECTED, HIDDEN sang PENDING. Checklist: tên, địa chỉ, phường, tọa độ trong Nha Trang, ≥3 ảnh, ≥1 tiện ích, giá hợp lệ.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 Thành công",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT/submit-review",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT",
+                    "submit-review"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Cho phép từ DRAFT, REJECTED, HIDDEN sang PENDING. Checklist: tên, địa chỉ, phường, tọa độ trong Nha Trang, ≥3 ảnh, ≥1 tiện ích, giá hợp lệ."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"maCSLT\": 15,\n  \"trangThai\": \"PENDING\",\n  \"ngayGuiDuyet\": \"2026-10-11T07:45:00Z\"\n}"
+            },
+            {
+              "name": "422 Thiếu dữ liệu",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT/submit-review",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT",
+                    "submit-review"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Cho phép từ DRAFT, REJECTED, HIDDEN sang PENDING. Checklist: tên, địa chỉ, phường, tọa độ trong Nha Trang, ≥3 ảnh, ≥1 tiện ích, giá hợp lệ."
+              },
+              "status": "Unprocessable Entity",
+              "code": 422,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"CHECKLIST_INCOMPLETE\",\n    \"message\": \"Vui lòng hoàn thiện các trường bắt buộc trước khi gửi.\",\n    \"details\": [\n      {\n        \"field\": \"hinhAnh\",\n        \"message\": \"Cần tối thiểu 3 ảnh\"\n      },\n      {\n        \"field\": \"tienIch\",\n        \"message\": \"Cần chọn tối thiểu 1 tiện ích\"\n      }\n    ]\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "409 Sai trạng thái",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT/submit-review",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT",
+                    "submit-review"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Cho phép từ DRAFT, REJECTED, HIDDEN sang PENDING. Checklist: tên, địa chỉ, phường, tọa độ trong Nha Trang, ≥3 ảnh, ≥1 tiện ích, giá hợp lệ."
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"INVALID_STATE_TRANSITION\",\n    \"message\": \"Trạng thái hiện tại không cho phép thao tác này.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "403 Không phải chủ CSLT",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT/submit-review",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT",
+                    "submit-review"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Cho phép từ DRAFT, REJECTED, HIDDEN sang PENDING. Checklist: tên, địa chỉ, phường, tọa độ trong Nha Trang, ≥3 ảnh, ≥1 tiện ích, giá hợp lệ."
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"NOT_OWNER\",\n    \"message\": \"Bạn không có quyền chỉnh sửa cơ sở lưu trú này.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "404 Không tìm thấy CSLT",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT/submit-review",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT",
+                    "submit-review"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Cho phép từ DRAFT, REJECTED, HIDDEN sang PENDING. Checklist: tên, địa chỉ, phường, tọa độ trong Nha Trang, ≥3 ảnh, ≥1 tiện ích, giá hợp lệ."
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"LISTING_NOT_FOUND\",\n    \"message\": \"Không tìm thấy cơ sở lưu trú.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "401 Token không hợp lệ / hết hạn",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT/submit-review",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT",
+                    "submit-review"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Cho phép từ DRAFT, REJECTED, HIDDEN sang PENDING. Checklist: tên, địa chỉ, phường, tọa độ trong Nha Trang, ≥3 ảnh, ≥1 tiện ích, giá hợp lệ."
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"TOKEN_INVALID\",\n    \"message\": \"Phiên đăng nhập không hợp lệ hoặc đã hết hạn.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json ? (()=>{try{return pm.response.json()}catch(e){return null}})() : null;",
+                  "pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Rút lại yêu cầu duyệt (chuyển trạng thái PENDING về DRAFT)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/host/listings/:maCSLT/withdraw",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "host",
+                "listings",
+                ":maCSLT",
+                "withdraw"
+              ],
+              "variable": [
+                {
+                  "key": "maCSLT",
+                  "value": "{{maCSLT}}",
+                  "description": "ID CSLT (số nguyên)"
+                }
+              ]
+            },
+            "description": "Chờ BA xác nhận (FE có nút withdraw).",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 Thành công",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT/withdraw",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT",
+                    "withdraw"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Chờ BA xác nhận (FE có nút withdraw)."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"maCSLT\": 15,\n  \"trangThai\": \"DRAFT\"\n}"
+            },
+            {
+              "name": "409 Sai trạng thái",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT/withdraw",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT",
+                    "withdraw"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Chờ BA xác nhận (FE có nút withdraw)."
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"INVALID_STATE_TRANSITION\",\n    \"message\": \"Trạng thái hiện tại không cho phép thao tác này.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "403 Không phải chủ CSLT",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT/withdraw",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT",
+                    "withdraw"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Chờ BA xác nhận (FE có nút withdraw)."
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"NOT_OWNER\",\n    \"message\": \"Bạn không có quyền chỉnh sửa cơ sở lưu trú này.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "404 Không tìm thấy CSLT",
+              "originalRequest": {
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT/withdraw",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT",
+                    "withdraw"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Chờ BA xác nhận (FE có nút withdraw)."
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"LISTING_NOT_FOUND\",\n    \"message\": \"Không tìm thấy cơ sở lưu trú.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json ? (()=>{try{return pm.response.json()}catch(e){return null}})() : null;",
+                  "pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Xóa CSLT",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/host/listings/:maCSLT",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "host",
+                "listings",
+                ":maCSLT"
+              ],
+              "variable": [
+                {
+                  "key": "maCSLT",
+                  "value": "{{maCSLT}}",
+                  "description": "ID CSLT (số nguyên)"
+                }
+              ]
+            },
+            "description": "Cho phép DRAFT (+ REJECTED, chờ BA chốt). Xóa mềm + xóa file media.",
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{accessToken}}",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "name": "200 Thành công",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Cho phép DRAFT (+ REJECTED, chờ BA chốt). Xóa mềm + xóa file media."
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"message\": \"Xóa cơ sở thành công\"\n}"
+            },
+            {
+              "name": "409 Không được xóa",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Cho phép DRAFT (+ REJECTED, chờ BA chốt). Xóa mềm + xóa file media."
+              },
+              "status": "Conflict",
+              "code": 409,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"LISTING_NOT_DELETABLE\",\n    \"message\": \"Không thể xóa cơ sở ở trạng thái hiện tại.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "403 Không phải chủ CSLT",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Cho phép DRAFT (+ REJECTED, chờ BA chốt). Xóa mềm + xóa file media."
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"NOT_OWNER\",\n    \"message\": \"Bạn không có quyền chỉnh sửa cơ sở lưu trú này.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "404 Không tìm thấy CSLT",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Cho phép DRAFT (+ REJECTED, chờ BA chốt). Xóa mềm + xóa file media."
+              },
+              "status": "Not Found",
+              "code": 404,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"LISTING_NOT_FOUND\",\n    \"message\": \"Không tìm thấy cơ sở lưu trú.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            },
+            {
+              "name": "401 Token không hợp lệ / hết hạn",
+              "originalRequest": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/host/listings/:maCSLT",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "host",
+                    "listings",
+                    ":maCSLT"
+                  ],
+                  "variable": [
+                    {
+                      "key": "maCSLT",
+                      "value": "{{maCSLT}}",
+                      "description": "ID CSLT (số nguyên)"
+                    }
+                  ]
+                },
+                "description": "Cho phép DRAFT (+ REJECTED, chờ BA chốt). Xóa mềm + xóa file media."
+              },
+              "status": "Unauthorized",
+              "code": 401,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json; charset=utf-8"
+                }
+              ],
+              "cookie": [],
+              "body": "{\n  \"success\": false,\n  \"error\": {\n    \"code\": \"TOKEN_INVALID\",\n    \"message\": \"Phiên đăng nhập không hợp lệ hoặc đã hết hạn.\"\n  },\n  \"traceId\": \"9f1c2a7e-0b3d-4c55-8a10-6d2e7b9c1f44\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const json = pm.response.json ? (()=>{try{return pm.response.json()}catch(e){return null}})() : null;",
+                  "pm.test('Status 200', function(){ pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        }
+      ],
+      "description": "Bearer {{accessToken}}",
+      "auth": {
+        "type": "bearer",
+        "bearer": [
+          {
+            "key": "token",
+            "value": "{{accessToken}}",
+            "type": "string"
+          }
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "maCSLT",
+      "value": "1"
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{accessToken}}",
+        "type": "string"
+      }
+    ]
+  }
+}
